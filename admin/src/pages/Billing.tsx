@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { CreditCard } from 'lucide-react';
+import { CheckCircle, CreditCard } from 'lucide-react';
 import { useAdminData } from '../context/AdminDataContext';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
 import { formatAdminLongDate } from '../utils/dateDisplay';
+import { isClientPaymentOverdue } from '../utils/clientBilling';
 
 function formatInr(n: number): string {
   return new Intl.NumberFormat('en-IN', {
@@ -14,14 +15,8 @@ function formatInr(n: number): string {
   }).format(n);
 }
 
-function isOverdue(nextDue: string): boolean {
-  const end = new Date(nextDue);
-  end.setHours(23, 59, 59, 999);
-  return end < new Date();
-}
-
 export function Billing(): JSX.Element {
-  const { clients } = useAdminData();
+  const { clients, markPaymentReceived } = useAdminData();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -72,18 +67,30 @@ export function Billing(): JSX.Element {
               </thead>
               <tbody>
                 {rows.map((c) => {
-                  const overdue = c.status !== 'suspended' && isOverdue(c.billing.nextDue);
+                  const overdue = isClientPaymentOverdue(c);
                   return (
                     <tr key={c.id} className="admin-tr">
                       <td className="px-4 py-3">
                         <p className="break-words font-medium text-white">{c.storeName}</p>
                         <p className="text-xs text-gray-400 break-words">{c.id}</p>
-                        <Link
-                          to={`/clients/${c.id}`}
-                          className="mt-1 inline-flex min-h-[44px] items-center text-xs font-semibold text-brand-saffron hover:underline md:hidden"
-                        >
-                          Client detail
-                        </Link>
+                        <div className="mt-2 flex flex-col gap-2 md:hidden">
+                          {overdue ? (
+                            <button
+                              type="button"
+                              onClick={() => markPaymentReceived(c.id)}
+                              className="btn-admin-secondary inline-flex w-full items-center justify-center gap-1 !text-xs"
+                            >
+                              <CheckCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                              Mark Paid
+                            </button>
+                          ) : null}
+                          <Link
+                            to={`/clients/${c.id}`}
+                            className="inline-flex min-h-[44px] items-center text-xs font-semibold text-brand-saffron hover:underline"
+                          >
+                            Client detail
+                          </Link>
+                        </div>
                       </td>
                       <td className="px-4 py-3 text-gray-200">
                         {formatInr(c.billing.planMonthlyInr)}
@@ -104,12 +111,24 @@ export function Billing(): JSX.Element {
                         </span>
                       </td>
                       <td className="hidden px-4 py-3 text-right md:table-cell">
-                        <Link
-                          to={`/clients/${c.id}`}
-                          className="inline-flex min-h-[44px] items-center justify-end text-xs font-semibold text-brand-saffron hover:underline"
-                        >
-                          Client detail
-                        </Link>
+                        <div className="flex flex-col items-end gap-2 sm:flex-row sm:justify-end sm:gap-2">
+                          {overdue ? (
+                            <button
+                              type="button"
+                              onClick={() => markPaymentReceived(c.id)}
+                              className="btn-admin-secondary inline-flex items-center gap-1 !text-xs"
+                            >
+                              <CheckCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                              Mark Paid
+                            </button>
+                          ) : null}
+                          <Link
+                            to={`/clients/${c.id}`}
+                            className="inline-flex min-h-[44px] items-center justify-end text-xs font-semibold text-brand-saffron hover:underline"
+                          >
+                            Client detail
+                          </Link>
+                        </div>
                       </td>
                     </tr>
                   );

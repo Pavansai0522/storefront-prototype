@@ -1,5 +1,11 @@
 export type ClientStatus = 'active' | 'suspended' | 'trial';
 
+export type ClientNote = {
+  id: string;
+  text: string;
+  createdAt: string;
+};
+
 export type PaymentRecord = {
   date: string;
   amount: number;
@@ -39,6 +45,7 @@ export type Client = {
   instagram: string;
   facebook: string;
   timings: string;
+  notes: ClientNote[];
 };
 
 const historyPaid = (
@@ -85,6 +92,7 @@ export const MOCK_CLIENTS: Client[] = [
     instagram: '@novamobiles',
     facebook: 'facebook.com/novamobiles',
     timings: 'Mon–Sat 10:00–20:00',
+    notes: [],
   },
   {
     id: 'client-2',
@@ -116,6 +124,7 @@ export const MOCK_CLIENTS: Client[] = [
     instagram: '@pixelgadgethub',
     facebook: 'facebook.com/pixelgadgethub',
     timings: 'Daily 11:00–21:00',
+    notes: [],
   },
   {
     id: 'client-3',
@@ -148,5 +157,6 @@ export const MOCK_CLIENTS: Client[] = [
     instagram: '@urbantech',
     facebook: 'facebook.com/urbantech',
     timings: 'Tue–Sun 10:30–19:30',
+    notes: [],
   },
 ];

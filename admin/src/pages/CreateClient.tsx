@@ -103,6 +103,7 @@ export function CreateClient(): JSX.Element {
         instagram: '',
         facebook: '',
         timings: 'Mon–Sat 10:00–20:00',
+        notes: [],
       };
       setClients((prev) => [...prev, next]);
       showToast('Client created successfully', 'success');

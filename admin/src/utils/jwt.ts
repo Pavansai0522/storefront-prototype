@@ -7,9 +7,13 @@ export type JwtPayload = {
   iat?: number;
   /** When true, store admin must change password before using the panel. */
   firstLogin?: boolean;
+  isImpersonating?: boolean;
+  storeName?: string;
 };
 
 const STORAGE_KEY = 'admin_jwt';
+
+export const ORIGINAL_ADMIN_JWT_KEY = 'original_admin_jwt';
 
 export function getStoredToken(): string | null {
   return localStorage.getItem(STORAGE_KEY);
@@ -52,4 +56,35 @@ export function getJwtPayloadFromStorage(): JwtPayload | null {
     return null;
   }
   return decodeJwtPayload(token);
+}
+
+export function startImpersonation(clientId: string, storeName: string): void {
+  const original = getStoredToken();
+  if (original == null) {
+    return;
+  }
+  localStorage.setItem(ORIGINAL_ADMIN_JWT_KEY, original);
+  const slug = storeName.toLowerCase().replace(/\s+/g, '');
+  const fakeToken = createMockJwt({
+    role: 'admin',
+    clientId,
+    email: `owner@${slug}.com`,
+    isImpersonating: true,
+    storeName,
+    iat: Date.now(),
+  });
+  setStoredToken(fakeToken);
+}
+
+export function stopImpersonation(): void {
+  const original = localStorage.getItem(ORIGINAL_ADMIN_JWT_KEY);
+  if (original != null) {
+    setStoredToken(original);
+  }
+  localStorage.removeItem(ORIGINAL_ADMIN_JWT_KEY);
+}
+
+export function isImpersonating(): boolean {
+  const payload = getJwtPayloadFromStorage();
+  return payload?.isImpersonating === true;
 }
