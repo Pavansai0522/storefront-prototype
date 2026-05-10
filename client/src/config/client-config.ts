@@ -29,8 +29,16 @@ export const clientConfig = {
       'MG Road, Near Metro Pillar 104,',
       'New Delhi, 110001'
     ],
+    /** Single line for compact mobile footer (no pincode) */
+    footerCompactAddress: 'Shop No. 42, Tech Market, MG Road',
     mapCardTitle: 'Arudra Mobiles',
-    mapCardSubtitle: 'Tech Market, MG Road'
+    mapCardSubtitle: 'Tech Market, MG Road',
+    /** Store photo carousel (replace with real storefront images when available) */
+    storeCarouselImages: [
+      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
+      'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800',
+      'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=800'
+    ]
   },
   theme: {
     colors: {
