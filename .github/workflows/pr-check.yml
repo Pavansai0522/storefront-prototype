@@ -1,0 +1,44 @@
+name: PR Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  check:
+    name: PR Quality Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check client builds
+        run: npm run build -w client
+
+      - name: Check admin builds
+        run: npm run build -w admin
+
+      - name: Check server builds
+        run: npm run build -w server
+
+      - name: Check for console.logs in client
+        run: |
+          if grep -r "console.log" client/src; then
+            echo "⚠️ console.log found in client/src"
+          fi
+
+      - name: Check for console.logs in admin
+        run: |
+          if grep -r "console.log" admin/src; then
+            echo "⚠️ console.log found in admin/src"
+          fi

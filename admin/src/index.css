@@ -1,0 +1,72 @@
+/* @import url() FONT IMPORTS MUST ALWAYS BE AT THE VERY TOP — match client/src/index.css */
+/* Must match client src/config/client-config.ts → theme.googleFontsImportUrl */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap');
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply m-0 min-h-screen bg-brand-bg font-sans text-brand-text antialiased;
+  }
+}
+
+@layer components {
+  .admin-card {
+    @apply rounded-xl border border-white/5 bg-brand-card transition-all duration-300;
+    @apply hover:border-brand-saffron/40 hover:shadow-[0_0_35px_rgba(255,107,0,0.12)];
+  }
+
+  .admin-card-static {
+    @apply rounded-xl border border-white/5 bg-brand-card;
+  }
+
+  .admin-page-heading {
+    @apply font-display text-2xl uppercase tracking-wide text-white md:text-3xl lg:text-4xl;
+  }
+
+  .admin-page-subtitle {
+    @apply text-sm text-gray-400;
+  }
+
+  .admin-input {
+    @apply mt-1 min-h-[44px] w-full rounded-xl border border-white/10 bg-brand-bg px-3 py-2 text-white outline-none transition;
+    @apply placeholder:text-gray-500 focus:border-brand-saffron focus:ring-1 focus:ring-brand-saffron/40;
+  }
+
+  .admin-label {
+    @apply text-sm text-gray-400;
+  }
+
+  .btn-admin-primary {
+    @apply inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl bg-brand-saffron px-4 py-2.5 text-sm font-bold text-white shadow-[0_0_18px_rgba(255,107,0,0.25)] transition;
+    @apply hover:bg-brand-saffronHover disabled:cursor-not-allowed disabled:opacity-60;
+  }
+
+  .btn-admin-secondary {
+    @apply inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl border border-white/10 bg-transparent px-4 py-2.5 text-sm font-medium text-white transition;
+    @apply hover:border-brand-saffron/50 hover:text-brand-saffron;
+  }
+
+  .admin-table-shell {
+    @apply overflow-hidden rounded-xl border border-white/5 bg-brand-card transition-all duration-300;
+    @apply hover:border-brand-saffron/40 hover:shadow-[0_0_35px_rgba(255,107,0,0.12)];
+  }
+
+  .admin-thead {
+    @apply border-b-2 border-brand-saffron bg-black/40;
+  }
+
+  .admin-th {
+    @apply px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-brand-saffron;
+  }
+
+  .admin-tr {
+    @apply border-b border-white/5 transition-colors even:bg-surface-rowAlt hover:bg-white/[0.04];
+  }
+}

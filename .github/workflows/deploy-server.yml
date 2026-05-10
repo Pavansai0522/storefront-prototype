@@ -1,0 +1,27 @@
+name: Deploy Server
+
+# Manual only while you set up. To deploy on every merge to main when server/ changes, add:
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'server/**'
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-server:
+    name: Deploy API to Railway
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Railway CLI
+        run: npm install -g @railway/cli
+
+      - name: Deploy to Railway
+        run: railway up --service server
+        working-directory: ./server
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}

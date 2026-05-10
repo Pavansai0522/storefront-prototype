@@ -1,0 +1,326 @@
+import React from 'react';
+
+import { NavLink } from 'react-router-dom';
+
+import {
+
+  Building2,
+
+  CreditCard,
+
+  ExternalLink,
+
+  LayoutDashboard,
+
+  Lock,
+
+  Package,
+
+  Puzzle,
+
+  Store,
+
+  UserCog,
+
+  Users,
+
+  X,
+
+} from 'lucide-react';
+
+import type { JwtRole } from '../utils/jwt';
+
+
+
+const linkBase =
+
+  'flex min-h-[44px] items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-300';
+
+const linkIdle = 'text-gray-400 hover:bg-white/5 hover:text-white';
+
+const linkActive =
+
+  'bg-brand-saffron text-white shadow-[0_0_15px_rgba(255,107,0,0.35)]';
+
+
+
+type SidebarProps = {
+
+  role: JwtRole;
+
+  isOpen: boolean;
+
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+
+  liveUrl: string | null;
+
+};
+
+
+
+export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX.Element {
+
+  const closeMobile = (): void => {
+
+    setIsOpen(false);
+
+  };
+
+
+
+  return (
+
+    <aside
+
+      className={[
+
+        'flex w-56 flex-col border-r border-white/5 bg-surface-sidebar',
+
+        'fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 md:static md:z-auto',
+
+        isOpen ? 'translate-x-0' : '-translate-x-full',
+
+        'md:translate-x-0',
+
+      ].join(' ')}
+
+    >
+
+      <div className="border-b border-white/5 px-4 py-5">
+
+        <div className="flex items-center justify-between gap-2">
+
+          <div className="flex min-w-0 items-center gap-2 text-white">
+
+            <UserCog className="h-6 w-6 shrink-0 text-brand-saffron" aria-hidden />
+
+            <div className="min-w-0">
+
+              <p className="font-display text-lg uppercase tracking-wide leading-tight">my-agency</p>
+
+              <p className="text-xs text-gray-400">Admin</p>
+
+            </div>
+
+          </div>
+
+          <button
+
+            type="button"
+
+            className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-lg border border-white/10 p-2 text-gray-400 transition hover:border-white/20 hover:bg-white/5 hover:text-white md:hidden"
+
+            aria-label="Close menu"
+
+            onClick={closeMobile}
+
+          >
+
+            <X className="h-5 w-5" aria-hidden />
+
+          </button>
+
+        </div>
+
+      </div>
+
+      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Main">
+
+        <NavLink
+
+          to="/dashboard"
+
+          className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+          onClick={closeMobile}
+
+        >
+
+          <LayoutDashboard className="h-4 w-4 shrink-0" aria-hidden />
+
+          Dashboard
+
+        </NavLink>
+
+
+
+        {role === 'superadmin' ? (
+
+          <>
+
+            <NavLink
+
+              to="/clients"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Users className="h-4 w-4 shrink-0" aria-hidden />
+
+              All clients
+
+            </NavLink>
+
+            <NavLink
+
+              to="/create-client"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Building2 className="h-4 w-4 shrink-0" aria-hidden />
+
+              Create client
+
+            </NavLink>
+
+            <NavLink
+
+              to="/billing"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <CreditCard className="h-4 w-4 shrink-0" aria-hidden />
+
+              Billing
+
+            </NavLink>
+
+          </>
+
+        ) : (
+
+          <>
+
+            <NavLink
+
+              to="/products"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Package className="h-4 w-4 shrink-0" aria-hidden />
+
+              Products
+
+            </NavLink>
+
+            <NavLink
+
+              to="/accessories"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Puzzle className="h-4 w-4 shrink-0" aria-hidden />
+
+              Accessories
+
+            </NavLink>
+
+            <NavLink
+
+              to="/store-info"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Store className="h-4 w-4 shrink-0" aria-hidden />
+
+              Store Info
+
+            </NavLink>
+
+          </>
+
+        )}
+
+      </nav>
+
+
+
+      {role === 'admin' ? (
+
+        <div className="mt-auto border-t border-white/5 p-3 space-y-3">
+
+          <button
+
+            type="button"
+
+            disabled={!liveUrl}
+
+            onClick={() => {
+
+              if (liveUrl) {
+
+                window.open(liveUrl, '_blank', 'noopener,noreferrer');
+
+              }
+
+            }}
+
+            className="flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 px-3 py-2 text-sm text-white/60 transition-colors duration-200 hover:border-brand-saffron hover:text-brand-saffron disabled:pointer-events-none disabled:opacity-40"
+
+          >
+
+            <ExternalLink className="h-4 w-4 shrink-0" aria-hidden />
+
+            Preview Store
+
+          </button>
+
+          <div>
+
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">
+
+              Settings
+
+            </p>
+
+            <NavLink
+
+              to="/change-password"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Lock className="h-4 w-4 shrink-0" aria-hidden />
+
+              Change Password
+
+            </NavLink>
+
+          </div>
+
+        </div>
+
+      ) : null}
+
+    </aside>
+
+  );
+
+}
+

@@ -1,0 +1,58 @@
+/**
+ * Single place to white-label the site for a new client.
+ * Swap this file (or branch values) + replace catalog data in src/data/*.
+ *
+ * Keep `theme.googleFontsImportUrl` in sync with the @import at the top of src/index.css.
+ */
+export const clientConfig = {
+  brand: {
+    /** Used in sentences: "Hi {chatName}!" and headings */
+    chatName: 'Arudra Mobiles',
+    /** Short legal / footer entity name */
+    legalName: 'Arudra Mobiles',
+    /** Split logo wordmark: [before accent][accent in brand color] */
+    wordmark: {
+      beforeAccent: 'ARUDRA ',
+      accent: 'MOBILES'
+    }
+  },
+  contact: {
+    /** WhatsApp number only, country code without + (e.g. 919876543210) */
+    whatsappE164: '919876543210',
+    phoneDisplay: '+91 98765 43210',
+    email: 'hello@arudramobiles.in'
+  },
+  location: {
+    /** Rendered with line breaks between entries */
+    addressLines: [
+      'Shop No. 42, Tech Market Building,',
+      'MG Road, Near Metro Pillar 104,',
+      'New Delhi, 110001'
+    ],
+    mapCardTitle: 'Arudra Mobiles',
+    mapCardSubtitle: 'Tech Market, MG Road'
+  },
+  theme: {
+    colors: {
+      bg: '#0A0A0A',
+      card: '#1A1A2E',
+      accent: '#FF6B00',
+      text: '#FFFFFF',
+      accentHover: '#ff8533'
+    },
+    fonts: {
+      display: ['"Bebas Neue"', 'sans-serif'],
+      sans: ['Inter', 'sans-serif']
+    },
+    googleFontsImportUrl:
+      'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap'
+  }
+} as const;
+
+export function whatsappHref(message?: string): string {
+  const base = `https://wa.me/${clientConfig.contact.whatsappE164}`;
+  if (message === undefined || message === '') {
+    return base;
+  }
+  return `${base}?text=${encodeURIComponent(message)}`;
+}
