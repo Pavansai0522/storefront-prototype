@@ -1,21 +1,12 @@
-export type JwtRole = 'superadmin' | 'admin';
+import type { ID, JwtPayload, Nullable, UserRole } from '../types';
 
-export type JwtPayload = {
-  role: JwtRole;
-  email?: string;
-  clientId?: string;
-  iat?: number;
-  /** When true, store admin must change password before using the panel. */
-  firstLogin?: boolean;
-  isImpersonating?: boolean;
-  storeName?: string;
-};
+export type JwtRole = UserRole;
 
 const STORAGE_KEY = 'admin_jwt';
 
 export const ORIGINAL_ADMIN_JWT_KEY = 'original_admin_jwt';
 
-export function getStoredToken(): string | null {
+export function getStoredToken(): Nullable<string> {
   return localStorage.getItem(STORAGE_KEY);
 }
 
@@ -33,7 +24,7 @@ export function createMockJwt(payload: JwtPayload): string {
   return `${header}.${body}.mock-signature`;
 }
 
-export function decodeJwtPayload(token: string): JwtPayload | null {
+export function decodeJwtPayload(token: string): Nullable<JwtPayload> {
   try {
     const parts = token.split('.');
     if (parts.length < 2) {
@@ -50,7 +41,7 @@ export function decodeJwtPayload(token: string): JwtPayload | null {
   }
 }
 
-export function getJwtPayloadFromStorage(): JwtPayload | null {
+export function getJwtPayloadFromStorage(): Nullable<JwtPayload> {
   const token = getStoredToken();
   if (!token) {
     return null;
@@ -58,7 +49,7 @@ export function getJwtPayloadFromStorage(): JwtPayload | null {
   return decodeJwtPayload(token);
 }
 
-export function startImpersonation(clientId: string, storeName: string): void {
+export function startImpersonation(clientId: ID, storeName: string): void {
   const original = getStoredToken();
   if (original == null) {
     return;

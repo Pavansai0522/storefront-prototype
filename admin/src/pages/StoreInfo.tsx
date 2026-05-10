@@ -36,7 +36,7 @@ export function StoreInfo(): JSX.Element {
       return;
     }
     reset({
-      whatsapp: client.whatsapp,
+      whatsapp: client.whatsappNumber,
       address: client.address,
       timings: client.timings,
       instagram: client.instagram,
@@ -61,7 +61,7 @@ export function StoreInfo(): JSX.Element {
         c.id === client.id
           ? {
               ...c,
-              whatsapp: data.whatsapp.trim(),
+              whatsappNumber: data.whatsapp.trim(),
               address: data.address.trim(),
               timings: data.timings.trim(),
               instagram: data.instagram.trim(),

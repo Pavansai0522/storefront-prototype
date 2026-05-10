@@ -8,13 +8,9 @@ import { Sidebar } from './Sidebar';
 
 import { useAdminData } from '../context/AdminDataContext';
 
-import {
-  clearStoredToken,
-  getJwtPayloadFromStorage,
-  isImpersonating,
-  ORIGINAL_ADMIN_JWT_KEY,
-  stopImpersonation,
-} from '../utils/jwt';
+import type { JwtPayload, Nullable } from '../types';
+import { getJwtPayloadFromStorage, stopImpersonation } from '../utils/jwt';
+import { useAuth } from '../hooks/useAuth';
 
 function RequirePasswordChange(): JSX.Element {
   const location = useLocation();
@@ -32,17 +28,17 @@ function RequirePasswordChange(): JSX.Element {
 export function Layout(): JSX.Element {
   const navigate = useNavigate();
 
-  const payload = getJwtPayloadFromStorage();
+  const { payload, logout } = useAuth();
 
   const role = payload?.role ?? 'admin';
 
-  const viewingAs = isImpersonating() ? payload : null;
+  const viewingAs: Nullable<JwtPayload> = payload?.isImpersonating === true ? payload : null;
 
   const [isOpen, setIsOpen] = useState(false);
 
   const { clients } = useAdminData();
 
-  const liveUrl = useMemo((): string | null => {
+  const liveUrl = useMemo((): Nullable<string> => {
     if (role !== 'admin' || !payload?.clientId) {
       return null;
     }
@@ -51,9 +47,7 @@ export function Layout(): JSX.Element {
   }, [clients, role, payload?.clientId]);
 
   const handleLogout = (): void => {
-    localStorage.removeItem(ORIGINAL_ADMIN_JWT_KEY);
-    clearStoredToken();
-    navigate('/', { replace: true });
+    logout();
   };
 
   const handleExitImpersonation = (): void => {

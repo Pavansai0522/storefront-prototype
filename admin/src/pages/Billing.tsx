@@ -1,26 +1,20 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { CheckCircle, CreditCard } from 'lucide-react';
+import { SKELETON_DELAY_MS } from '../constants';
 import { useAdminData } from '../context/AdminDataContext';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
 import { formatAdminLongDate } from '../utils/dateDisplay';
 import { isClientPaymentOverdue } from '../utils/clientBilling';
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
+import { formatINR } from '../utils/formatCurrency';
 
 export function Billing(): JSX.Element {
   const { clients, markPaymentReceived } = useAdminData();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -93,7 +87,7 @@ export function Billing(): JSX.Element {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-200">
-                        {formatInr(c.billing.planMonthlyInr)}
+                        {formatINR(c.billing.planMonthlyInr)}
                       </td>
                       <td className="hidden px-4 py-3 text-gray-200 md:table-cell">
                         {formatAdminLongDate(c.billing.paidUntil)}

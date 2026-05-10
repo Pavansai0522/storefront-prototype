@@ -23,6 +23,7 @@ import {
   type AccessoryCategoryId
 } from '../data/accessories';
 import { clientSelectStyles } from '../config/clientSelectStyles';
+import type { Nullable } from '../types';
 
 type SortOption = { value: string; label: string };
 
@@ -46,9 +47,7 @@ function AccessoriesCategoryInner({
   const categoryTags = useMemo(() => getTagsForCategory(categoryId), [categoryId]);
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedPriceIndex, setSelectedPriceIndex] = useState<number | null>(
-    null
-  );
+  const [selectedPriceIndex, setSelectedPriceIndex] = useState<Nullable<number>>(null);
   const [sortBy, setSortBy] = useState<string>('featured');
   const [page, setPage] = useState(1);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);

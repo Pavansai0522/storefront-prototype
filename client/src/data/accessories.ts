@@ -1,16 +1,9 @@
-export type AccessoryCategoryId = 'audio' | 'cables' | 'wearables' | 'power';
+import type { Accessory, AccessoryCategoryId } from '../types';
 
-export interface AccessoryProduct {
-  id: number;
-  itemCode: string;
-  categoryId: AccessoryCategoryId;
-  name: string;
-  detail: string;
-  priceDisplay: string;
-  priceValue: number;
-  tags: string[];
-  img: string;
-}
+export type { Accessory, AccessoryCategoryId };
+
+/** @deprecated Use `Accessory` from `../types` */
+export type AccessoryProduct = Accessory;
 
 export interface AccessoryCategoryMeta {
   id: AccessoryCategoryId;
@@ -59,8 +52,8 @@ const IMG_POOL: string[] = [
   'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?auto=format&fit=crop&w=600&q=80'
 ];
 
-function buildCatalog(): AccessoryProduct[] {
-  const rows: Omit<AccessoryProduct, 'id'>[] = [];
+function buildCatalog(): Accessory[] {
+  const rows: Omit<Accessory, 'id'>[] = [];
 
   const audioNames = [
     ['MW-AUD-101', 'AuraBuds Lite TWS', 'Open-fit buds, great for calls on the go.', 899, ['TWS', 'Budget', 'Calls']],
@@ -182,7 +175,7 @@ function buildCatalog(): AccessoryProduct[] {
   return rows.map((row, idx) => ({ ...row, id: idx + 1 }));
 }
 
-export const ACCESSORY_ITEMS: AccessoryProduct[] = buildCatalog();
+export const ACCESSORY_ITEMS: Accessory[] = buildCatalog();
 
 export function isAccessoryCategoryId(value: string): value is AccessoryCategoryId {
   return (

@@ -3,10 +3,12 @@ import { Link } from 'react-router-dom';
 import { AlertTriangle, CheckCircle2, Circle, Package, PartyPopper, User } from 'lucide-react';
 import { useAdminData } from '../context/AdminDataContext';
 import { showToast } from '../utils/showToast';
-import type { Client } from '../mock/clients';
+import { SKELETON_DELAY_MS } from '../constants';
+import type { Client } from '../types';
 import { getJwtPayloadFromStorage } from '../utils/jwt';
 import { SkeletonCard } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
+import { formatINR } from '../utils/formatCurrency';
 
 const STORE_INFO_FIELDS = 5;
 
@@ -31,7 +33,7 @@ function buildStoreSetupRows(
     },
     {
       label: 'WhatsApp number set',
-      done: Boolean(client?.whatsapp?.trim()),
+      done: Boolean(client?.whatsappNumber?.trim()),
       fixTo: '/store-info',
     },
     {
@@ -74,7 +76,7 @@ function storeInfoCompleteness(client: Client | undefined): {
     return { filled: 0, total: STORE_INFO_FIELDS, percent: 0 };
   }
   const filled = [
-    client.whatsapp.trim(),
+    client.whatsappNumber.trim(),
     client.address.trim(),
     client.timings.trim(),
     client.instagram.trim(),
@@ -82,14 +84,6 @@ function storeInfoCompleteness(client: Client | undefined): {
   ].filter(Boolean).length;
   const total = STORE_INFO_FIELDS;
   return { filled, total, percent: Math.round((filled / total) * 100) };
-}
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
 }
 
 function formatActivityTime(iso: string): string {
@@ -436,7 +430,7 @@ function SuperadminDashboard(): JSX.Element {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -496,7 +490,7 @@ function SuperadminDashboard(): JSX.Element {
             </div>
             <div className="admin-card p-5">
               <p className="text-xs uppercase tracking-wide text-brand-saffron">MRR (INR)</p>
-              <p className="mt-2 font-display text-4xl text-white">{formatInr(mrr)}</p>
+              <p className="mt-2 font-display text-4xl text-white">{formatINR(mrr)}</p>
               <p className="mt-1 text-xs text-gray-400">Active + trial plans</p>
             </div>
             <div className="admin-card p-5">

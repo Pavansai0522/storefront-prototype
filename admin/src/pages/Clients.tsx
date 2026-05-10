@@ -1,47 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Download, ExternalLink, LogIn, Search, Store } from 'lucide-react';
 import Select from 'react-select';
 import { format } from 'date-fns';
+import { SKELETON_DELAY_MS } from '../constants';
+import { useClients, type SimpleSelectOption } from '../hooks';
 import { useAdminData } from '../context/AdminDataContext';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
-import { isClientPaymentOverdue } from '../utils/clientBilling';
 import { startImpersonation } from '../utils/jwt';
 import { showToast } from '../utils/showToast';
-import type { ClientStatus } from '../mock/clients';
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-type SimpleSelectOption = { value: string; label: string };
-
-const TEMPLATE_OPTIONS: SimpleSelectOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'mobile-store-v1', label: 'mobile-store-v1' },
-  { value: 'mobile-store-v2', label: 'mobile-store-v2' },
-  { value: 'salon-v1', label: 'salon-v1' },
-  { value: 'restaurant-v1', label: 'restaurant-v1' },
-];
-
-const STATUS_OPTIONS: SimpleSelectOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'active', label: 'Active' },
-  { value: 'trial', label: 'Trial' },
-  { value: 'suspended', label: 'Suspended' },
-];
-
-const PAYMENT_OPTIONS: SimpleSelectOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'paid', label: 'Paid' },
-  { value: 'overdue', label: 'Overdue' },
-];
+import { formatINR } from '../utils/formatCurrency';
 
 function escapeCsvCell(cell: string | number): string {
   const s = String(cell);
@@ -52,47 +22,26 @@ export function Clients(): JSX.Element {
   const navigate = useNavigate();
   const { clients, toggleSiteActive } = useAdminData();
   const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState('');
-  const [templateFilter, setTemplateFilter] = useState<SimpleSelectOption | null>(TEMPLATE_OPTIONS[0]);
-  const [statusFilter, setStatusFilter] = useState<SimpleSelectOption | null>(STATUS_OPTIONS[0]);
-  const [paymentFilter, setPaymentFilter] = useState<SimpleSelectOption | null>(PAYMENT_OPTIONS[0]);
+  const {
+    filtered: filteredClients,
+    search,
+    setSearch,
+    template: templateFilter,
+    setTemplate: setTemplateFilter,
+    status: statusFilter,
+    setStatus: setStatusFilter,
+    payment: paymentFilter,
+    setPayment: setPaymentFilter,
+    clearFilters,
+    templateOptions,
+    statusOptions,
+    paymentOptions,
+  } = useClients(clients);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
-
-  const filteredClients = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return clients.filter((c) => {
-      if (q && !c.storeName.toLowerCase().includes(q)) {
-        return false;
-      }
-      const tpl = templateFilter?.value ?? 'all';
-      if (tpl !== 'all' && c.template !== tpl) {
-        return false;
-      }
-      const st = statusFilter?.value ?? 'all';
-      if (st !== 'all' && c.status !== (st as ClientStatus)) {
-        return false;
-      }
-      const pay = paymentFilter?.value ?? 'all';
-      if (pay === 'overdue' && !isClientPaymentOverdue(c)) {
-        return false;
-      }
-      if (pay === 'paid' && isClientPaymentOverdue(c)) {
-        return false;
-      }
-      return true;
-    });
-  }, [clients, search, templateFilter, statusFilter, paymentFilter]);
-
-  const clearFilters = (): void => {
-    setSearch('');
-    setTemplateFilter(TEMPLATE_OPTIONS[0]);
-    setStatusFilter(STATUS_OPTIONS[0]);
-    setPaymentFilter(PAYMENT_OPTIONS[0]);
-  };
 
   const exportCSV = (): void => {
     const headers = [
@@ -195,9 +144,9 @@ export function Clients(): JSX.Element {
             <Select<SimpleSelectOption, false>
               instanceId="clients-template-filter"
               inputId="clients-template-filter"
-              options={TEMPLATE_OPTIONS}
+              options={templateOptions}
               value={templateFilter}
-              onChange={(opt) => setTemplateFilter(opt ?? TEMPLATE_OPTIONS[0])}
+              onChange={(opt) => setTemplateFilter(opt ?? templateOptions[0])}
               styles={adminSelectStyles}
               isSearchable={false}
             />
@@ -207,9 +156,9 @@ export function Clients(): JSX.Element {
             <Select<SimpleSelectOption, false>
               instanceId="clients-status-filter"
               inputId="clients-status-filter"
-              options={STATUS_OPTIONS}
+              options={statusOptions}
               value={statusFilter}
-              onChange={(opt) => setStatusFilter(opt ?? STATUS_OPTIONS[0])}
+              onChange={(opt) => setStatusFilter(opt ?? statusOptions[0])}
               styles={adminSelectStyles}
               isSearchable={false}
             />
@@ -219,9 +168,9 @@ export function Clients(): JSX.Element {
             <Select<SimpleSelectOption, false>
               instanceId="clients-payment-filter"
               inputId="clients-payment-filter"
-              options={PAYMENT_OPTIONS}
+              options={paymentOptions}
               value={paymentFilter}
-              onChange={(opt) => setPaymentFilter(opt ?? PAYMENT_OPTIONS[0])}
+              onChange={(opt) => setPaymentFilter(opt ?? paymentOptions[0])}
               styles={adminSelectStyles}
               isSearchable={false}
             />
@@ -312,7 +261,7 @@ export function Clients(): JSX.Element {
                           {c.billing.paidUntil}
                         </td>
                         <td className="hidden px-4 py-3 text-gray-200 md:table-cell">
-                          {formatInr(c.billing.planMonthlyInr)}
+                          {formatINR(c.billing.planMonthlyInr)}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex flex-col items-end gap-2 sm:flex-row sm:justify-end sm:gap-2">

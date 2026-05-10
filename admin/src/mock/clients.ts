@@ -1,58 +1,9 @@
-export type ClientStatus = 'active' | 'suspended' | 'trial';
+import type { Client, PaymentHistory } from '../types';
+import { slugFromStoreName } from '../utils/formatSlug';
 
-export type ClientNote = {
-  id: string;
-  text: string;
-  createdAt: string;
-};
+export type { ClientStatus } from '../types';
 
-export type PaymentRecord = {
-  date: string;
-  amount: number;
-  status: 'paid' | 'failed' | 'pending';
-  reference?: string;
-};
-
-export type ClientBilling = {
-  /** Standard plan amount shown in billing UI (INR / month). */
-  planMonthlyInr: number;
-  paidUntil: string;
-  nextDue: string;
-  amount: number;
-  lastPaid?: string;
-  paymentHistory: PaymentRecord[];
-};
-
-export type Client = {
-  id: string;
-  storeName: string;
-  status: ClientStatus;
-  /** Kept in sync with billing.planMonthlyInr for aggregates. */
-  monthlyFee: number;
-  template: string;
-  liveUrl: string;
-  whatsapp: string;
-  address: string;
-  primaryColor: string;
-  adminEmail: string;
-  adminTempPassword: string;
-  adminLastLoginAt: string | null;
-  productsCount: number;
-  productsLastUpdatedAt: string;
-  accessoriesLastUpdatedAt: string;
-  siteActive: boolean;
-  billing: ClientBilling;
-  instagram: string;
-  facebook: string;
-  timings: string;
-  notes: ClientNote[];
-};
-
-const historyPaid = (
-  date: string,
-  amount: number,
-  reference: string,
-): PaymentRecord => ({
+const historyPaid = (date: string, amount: number, reference: string): PaymentHistory => ({
   date,
   amount,
   status: 'paid',
@@ -63,13 +14,15 @@ export const MOCK_CLIENTS: Client[] = [
   {
     id: 'client-1',
     storeName: 'Nova Mobiles',
+    slug: slugFromStoreName('Nova Mobiles'),
     status: 'active',
     monthlyFee: 299,
     template: 'mobile-store-v1',
     liveUrl: 'https://nova-mobiles.example.com',
-    whatsapp: '+91 98765 43210',
+    whatsappNumber: '+91 98765 43210',
     address: '12 MG Road, Bengaluru',
     primaryColor: '#6366f1',
+    logo: '',
     adminEmail: 'owner@novamobiles.example',
     adminTempPassword: 'Temp#2024!',
     adminLastLoginAt: '2026-05-08T14:22:00',
@@ -97,13 +50,15 @@ export const MOCK_CLIENTS: Client[] = [
   {
     id: 'client-2',
     storeName: 'Pixel Gadget Hub',
+    slug: slugFromStoreName('Pixel Gadget Hub'),
     status: 'trial',
     monthlyFee: 299,
     template: 'mobile-store-v2',
     liveUrl: 'https://pixel-hub.example.com',
-    whatsapp: '+91 91234 56789',
+    whatsappNumber: '+91 91234 56789',
     address: '88 Park Street, Kolkata',
     primaryColor: '#f97316',
+    logo: '',
     adminEmail: 'manager@pixelhub.example',
     adminTempPassword: 'Welcome#1',
     adminLastLoginAt: null,
@@ -129,13 +84,15 @@ export const MOCK_CLIENTS: Client[] = [
   {
     id: 'client-3',
     storeName: 'Urban Tech',
+    slug: slugFromStoreName('Urban Tech'),
     status: 'suspended',
     monthlyFee: 299,
     template: 'salon-v1',
     liveUrl: 'https://urban-tech.example.com',
-    whatsapp: '+91 99887 76655',
+    whatsappNumber: '+91 99887 76655',
     address: '5 Connaught Place, New Delhi',
     primaryColor: '#10b981',
+    logo: '',
     adminEmail: 'ops@urbantech.example',
     adminTempPassword: 'ResetMe99',
     adminLastLoginAt: '2026-03-20T08:00:00',

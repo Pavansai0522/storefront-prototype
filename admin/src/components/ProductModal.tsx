@@ -3,7 +3,7 @@ import { Controller, useForm } from 'react-hook-form';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import Select from 'react-select';
 import { ImageOff, X } from 'lucide-react';
-import type { CatalogItem } from '../mock/products';
+import type { Nullable, Product } from '../types';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 
 export type ProductModalMode = 'create' | 'edit';
@@ -13,7 +13,7 @@ export type ProductModalValues = {
   brand: string;
   price: number;
   emiPrice: number;
-  imageUrl: string;
+  image: string;
   inStock: boolean;
   category: string;
 };
@@ -23,7 +23,7 @@ const defaultValues: ProductModalValues = {
   brand: '',
   price: 0,
   emiPrice: 0,
-  imageUrl: '',
+  image: '',
   inStock: true,
   category: '',
 };
@@ -33,7 +33,7 @@ type ProductModalProps = {
   title: string;
   categories: string[];
   mode: ProductModalMode;
-  initial?: CatalogItem | null;
+  initial?: Nullable<Product>;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void;
 };
@@ -60,12 +60,12 @@ export function ProductModal({
     mode: 'onSubmit',
   });
 
-  const imageUrl = watch('imageUrl');
+  const image = watch('image');
   const [imageBroken, setImageBroken] = React.useState(false);
 
   useEffect(() => {
     setImageBroken(false);
-  }, [imageUrl]);
+  }, [image]);
 
   const categoryOptions = useMemo((): CategoryOption[] => {
     return categories.map((c) => ({ value: c, label: c }));
@@ -81,7 +81,7 @@ export function ProductModal({
         brand: initial.brand,
         price: initial.price,
         emiPrice: initial.emiPrice,
-        imageUrl: initial.imageUrl,
+        image: initial.image ?? '',
         inStock: initial.inStock,
         category: initial.category,
       });
@@ -174,12 +174,12 @@ export function ProductModal({
               </div>
               <label className="block text-sm">
                 <span className="admin-label">Image URL</span>
-                <input required type="url" className="admin-input" {...register('imageUrl', { required: true })} />
-                {imageUrl ? (
+                <input required type="url" className="admin-input" {...register('image', { required: true })} />
+                {image ? (
                   <div className="mt-2 flex h-32 items-center justify-center overflow-hidden rounded-lg bg-white/5">
                     {!imageBroken ? (
                       <img
-                        src={imageUrl}
+                        src={image}
                         alt="Preview"
                         className="h-full object-contain"
                         onError={() => setImageBroken(true)}

@@ -28,6 +28,7 @@ import {
 
 } from 'lucide-react';
 
+import type { Nullable } from '../types';
 import type { JwtRole } from '../utils/jwt';
 
 
@@ -52,7 +53,7 @@ type SidebarProps = {
 
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  liveUrl: string | null;
+  liveUrl: Nullable<string>;
 
 };
 

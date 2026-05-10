@@ -8,8 +8,18 @@ import {
 } from '@tanstack/react-table';
 import Select from 'react-select';
 import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2 } from 'lucide-react';
+import { PRODUCT_CATEGORIES, SKELETON_DELAY_MS } from '../constants';
 import { useAdminData } from '../context/AdminDataContext';
-import type { CatalogItem } from '../mock/products';
+import {
+  SORT_KEY_OPTIONS,
+  STOCK_FILTER_OPTIONS,
+  useProducts,
+  type CategoryFilterOption,
+  type SortKeyOption,
+  type StockFilterOption,
+} from '../hooks';
+import type { Nullable, Product } from '../types';
+import { formatINR } from '../utils/formatCurrency';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ProductModal, type ProductModalMode } from '../components/ProductModal';
 import { SkeletonTable } from '../components/AdminSkeleton';
@@ -18,86 +28,8 @@ import { getJwtPayloadFromStorage } from '../utils/jwt';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { showToast } from '../utils/showToast';
 
-const CATEGORIES = ['Phone', 'Tablet', 'Laptop', 'Other'] as const;
-
-type StockFilter = 'all' | 'in' | 'out';
-type SortKey = 'default' | 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'stock-first';
-
-type CategoryFilterOption = { value: string; label: string };
-type StockFilterOption = { value: StockFilter; label: string };
-type SortKeyOption = { value: SortKey; label: string };
-
-const STOCK_FILTER_OPTIONS: StockFilterOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'in', label: 'In Stock' },
-  { value: 'out', label: 'Out of Stock' },
-];
-
-const SORT_KEY_OPTIONS: SortKeyOption[] = [
-  { value: 'default', label: 'Sort by: Default' },
-  { value: 'name-asc', label: 'Name A → Z' },
-  { value: 'name-desc', label: 'Name Z → A' },
-  { value: 'price-asc', label: 'Price Low → High' },
-  { value: 'price-desc', label: 'Price High → Low' },
-  { value: 'stock-first', label: 'In Stock First' },
-];
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function applyFilters(
-  list: CatalogItem[],
-  search: string,
-  category: string,
-  stock: StockFilter,
-): CatalogItem[] {
-  const q = search.trim().toLowerCase();
-  return list.filter((p) => {
-    if (q && !p.name.toLowerCase().includes(q)) {
-      return false;
-    }
-    if (category !== 'All' && p.category !== category) {
-      return false;
-    }
-    if (stock === 'in' && !p.inStock) {
-      return false;
-    }
-    if (stock === 'out' && p.inStock) {
-      return false;
-    }
-    return true;
-  });
-}
-
-function applySort(list: CatalogItem[], sortKey: SortKey): CatalogItem[] {
-  const next = [...list];
-  switch (sortKey) {
-    case 'name-asc':
-      return next.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    case 'name-desc':
-      return next.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: 'base' }));
-    case 'price-asc':
-      return next.sort((a, b) => a.price - b.price);
-    case 'price-desc':
-      return next.sort((a, b) => b.price - a.price);
-    case 'stock-first':
-      return next.sort((a, b) => {
-        if (a.inStock === b.inStock) {
-          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-        }
-        return a.inStock ? -1 : 1;
-      });
-    default:
-      return next;
-  }
-}
-
-const columnHelper = createColumnHelper<CatalogItem>();
+const columnHelper = createColumnHelper<Product>();
+const PRODUCT_CATEGORY_VALUES = PRODUCT_CATEGORIES.map((c) => c.value);
 
 export function Products(): JSX.Element {
   const payload = getJwtPayloadFromStorage();
@@ -109,23 +41,22 @@ export function Products(): JSX.Element {
     [products, clientId],
   );
 
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('default');
+  const {
+    filtered: displayRows,
+    search,
+    setSearch,
+    category: categoryFilter,
+    setCategory: setCategoryFilter,
+    stock: stockFilter,
+    setStock: setStockFilter,
+    sort: sortKey,
+    setSort: setSortKey,
+    clearFilters,
+    categoryFilterOptions,
+  } = useProducts(rows);
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-
-  const filtered = useMemo(
-    () => applyFilters(rows, search, categoryFilter, stockFilter),
-    [rows, search, categoryFilter, stockFilter],
-  );
-
-  const displayRows = useMemo(() => applySort(filtered, sortKey), [filtered, sortKey]);
-
-  const categoryFilterOptions = useMemo((): CategoryFilterOption[] => {
-    return [{ value: 'All', label: 'All' }, ...CATEGORIES.map((c) => ({ value: c, label: c }))];
-  }, []);
 
   useEffect(() => {
     setRowSelection({});
@@ -134,11 +65,11 @@ export function Products(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ProductModalMode>('create');
-  const [editing, setEditing] = useState<CatalogItem | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<CatalogItem | null>(null);
+  const [editing, setEditing] = useState<Nullable<Product>>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Nullable<Product>>(null);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -148,7 +79,7 @@ export function Products(): JSX.Element {
     setModalOpen(true);
   };
 
-  const openEdit = (item: CatalogItem): void => {
+  const openEdit = (item: Product): void => {
     setModalMode('edit');
     setEditing(item);
     setModalOpen(true);
@@ -201,7 +132,7 @@ export function Products(): JSX.Element {
           return (
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={p.imageUrl}
+                src={p.image ?? ''}
                 alt=""
                 className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
               />
@@ -219,11 +150,11 @@ export function Products(): JSX.Element {
       }),
       columnHelper.accessor('price', {
         header: 'Price',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
+        cell: (info) => <span className="text-gray-200">{formatINR(info.getValue())}</span>,
       }),
       columnHelper.accessor('emiPrice', {
         header: 'EMI / mo',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
+        cell: (info) => <span className="text-gray-200">{formatINR(info.getValue())}</span>,
       }),
       columnHelper.accessor('inStock', {
         header: 'Stock',
@@ -288,7 +219,7 @@ export function Products(): JSX.Element {
     brand: string;
     price: number;
     emiPrice: number;
-    imageUrl: string;
+    image: string;
     inStock: boolean;
     category: string;
   }): void => {
@@ -298,16 +229,17 @@ export function Products(): JSX.Element {
     }
     const ownerId = clientId ?? rows[0]?.clientId ?? 'client-1';
     if (modalMode === 'create') {
-      const next: CatalogItem = {
+      const next: Product = {
         id: `p-${Date.now()}`,
         clientId: ownerId,
         name: values.name,
         brand: values.brand,
         price: values.price,
         emiPrice: values.emiPrice,
-        imageUrl: values.imageUrl,
+        image: values.image,
         inStock: values.inStock,
-        category: values.category,
+        category: values.category as Product['category'],
+        isAccessory: false,
       };
       setProducts((prev) => [...prev, next]);
       showToast('Product added successfully', 'success');
@@ -326,9 +258,9 @@ export function Products(): JSX.Element {
               brand: values.brand,
               price: values.price,
               emiPrice: values.emiPrice,
-              imageUrl: values.imageUrl,
+              image: values.image,
               inStock: values.inStock,
-              category: values.category,
+              category: values.category as Product['category'],
             }
           : p,
       ),
@@ -345,13 +277,6 @@ export function Products(): JSX.Element {
   }, [rowSelection]);
 
   const selectedCount = selectedIds.size;
-
-  const clearFilters = (): void => {
-    setSearch('');
-    setCategoryFilter('All');
-    setStockFilter('all');
-    setSortKey('default');
-  };
 
   const markBulkStock = (inStock: boolean): void => {
     if (selectedCount === 0) {
@@ -562,7 +487,7 @@ export function Products(): JSX.Element {
         <ProductModal
           open={modalOpen}
           title={modalMode === 'create' ? 'Add product' : 'Edit product'}
-          categories={[...CATEGORIES]}
+          categories={[...PRODUCT_CATEGORY_VALUES]}
           mode={modalMode}
           initial={editing}
           onClose={() => setModalOpen(false)}

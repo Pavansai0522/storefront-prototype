@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import type { Client } from '../mock/clients';
+import { TEMPLATES } from '../constants';
+import type { Client } from '../types';
 import { useAdminData } from '../context/AdminDataContext';
 import { showToast } from '../utils/showToast';
 import { PageTransition } from '../components/PageTransition';
-
-const TEMPLATES = ['mobile-store-v1', 'mobile-store-v2', 'salon-v1', 'restaurant-v1'] as const;
+import { generateTempPassword } from '../utils/generatePassword';
+import { slugFromStoreName } from '../utils/formatSlug';
 
 type CreateClientForm = {
   storeName: string;
@@ -17,40 +18,6 @@ type CreateClientForm = {
   adminEmail: string;
 };
 
-function generateTempPassword(): string {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lower = 'abcdefghijkmnpqrstuvwxyz';
-  const num = '23456789';
-  const sym = '!#@$%';
-  const pick = (s: string): string => s[Math.floor(Math.random() * s.length)] ?? 'x';
-  const parts = [
-    pick(upper),
-    pick(upper),
-    pick(lower),
-    pick(lower),
-    pick(lower),
-    pick(num),
-    pick(num),
-    pick(sym),
-  ];
-  for (let i = parts.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [parts[i], parts[j]] = [parts[j], parts[i]];
-  }
-  return parts.join('');
-}
-
-function slugFromStoreName(name: string): string {
-  return (
-    name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 48) || 'store'
-  );
-}
-
 export function CreateClient(): JSX.Element {
   const navigate = useNavigate();
   const { setClients } = useAdminData();
@@ -59,7 +26,7 @@ export function CreateClient(): JSX.Element {
   const { register, handleSubmit, watch, setValue } = useForm<CreateClientForm>({
     defaultValues: {
       storeName: '',
-      template: TEMPLATES[0],
+      template: TEMPLATES[0].value,
       whatsapp: '',
       address: '',
       primaryColor: '#FF6B00',
@@ -79,11 +46,13 @@ export function CreateClient(): JSX.Element {
       const next: Client = {
         id,
         storeName: data.storeName.trim(),
+        slug,
         status: 'trial',
         monthlyFee: 299,
-        template: data.template,
+        template: data.template as Client['template'],
         liveUrl: `https://${slug}.example.com`,
-        whatsapp: data.whatsapp.trim(),
+        whatsappNumber: data.whatsapp.trim(),
+        logo: '',
         address: data.address.trim(),
         primaryColor: data.primaryColor,
         adminEmail: data.adminEmail.trim(),
@@ -135,8 +104,8 @@ export function CreateClient(): JSX.Element {
             <span className="admin-label">Template</span>
             <select className="admin-input" {...register('template', { required: true })}>
               {TEMPLATES.map((t) => (
-                <option key={t} value={t} className="bg-brand-bg text-white">
-                  {t}
+                <option key={t.value} value={t.value} className="bg-brand-bg text-white">
+                  {t.value}
                 </option>
               ))}
             </select>

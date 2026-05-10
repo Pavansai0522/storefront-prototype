@@ -1,3 +1,5 @@
+import { buildWhatsAppUrl } from '../utils/whatsapp';
+
 /**
  * Single place to white-label the site for a new client.
  * Swap this file (or branch values) + replace catalog data in src/data/*.
@@ -58,9 +60,5 @@ export const clientConfig = {
 } as const;
 
 export function whatsappHref(message?: string): string {
-  const base = `https://wa.me/${clientConfig.contact.whatsappE164}`;
-  if (message === undefined || message === '') {
-    return base;
-  }
-  return `${base}?text=${encodeURIComponent(message)}`;
+  return buildWhatsAppUrl(clientConfig.contact.whatsappE164, message);
 }

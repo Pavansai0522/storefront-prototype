@@ -22,25 +22,11 @@ import {
   formatAdminLongDate,
   formatRelativeFromNow,
 } from '../utils/dateDisplay';
+import type { Nullable } from '../types';
 import { isClientPaymentOverdue } from '../utils/clientBilling';
+import { generateTempPassword } from '../utils/generatePassword';
+import { formatINR } from '../utils/formatCurrency';
 import { startImpersonation } from '../utils/jwt';
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function generateTempPassword(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrst23456789!#';
-  let out = '';
-  for (let i = 0; i < 10; i += 1) {
-    out += chars[Math.floor(Math.random() * chars.length)] ?? 'x';
-  }
-  return out;
-}
 
 type StoreEditDraft = {
   storeName: string;
@@ -77,7 +63,7 @@ export function ClientDetail(): JSX.Element {
   const [noteDraft, setNoteDraft] = useState('');
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [passwordResetBanner, setPasswordResetBanner] = useState<string | null>(null);
+  const [passwordResetBanner, setPasswordResetBanner] = useState<Nullable<string>>(null);
 
   const client = useMemo(
     () => clients.find((c) => c.id === clientId),
@@ -100,7 +86,7 @@ export function ClientDetail(): JSX.Element {
     if (!client) return;
     setDraft({
       storeName: client.storeName,
-      whatsapp: client.whatsapp,
+      whatsapp: client.whatsappNumber,
       address: client.address,
       timings: client.timings,
       instagram: client.instagram,
@@ -116,7 +102,7 @@ export function ClientDetail(): JSX.Element {
     if (!client) return;
     updateClient(client.id, {
       storeName: draft.storeName.trim(),
-      whatsapp: draft.whatsapp.trim(),
+      whatsappNumber: draft.whatsapp.trim(),
       address: draft.address.trim(),
       timings: draft.timings.trim(),
       instagram: draft.instagram.trim(),
@@ -305,7 +291,7 @@ export function ClientDetail(): JSX.Element {
                       aria-label="WhatsApp"
                     />
                   ) : (
-                    <span className="break-words text-white">{client.whatsapp}</span>
+                    <span className="break-words text-white">{client.whatsappNumber}</span>
                   )}
                 </dd>
               </div>
@@ -460,7 +446,7 @@ export function ClientDetail(): JSX.Element {
               <div className="rounded-xl border border-white/10 bg-brand-bg/50 p-4">
                 <p className="text-xs uppercase tracking-wide text-gray-400">Plan</p>
                 <p className="mt-1 text-lg font-semibold text-white">
-                  {formatInr(client.billing.planMonthlyInr)} / month
+                  {formatINR(client.billing.planMonthlyInr)} / month
                 </p>
               </div>
               <div className="rounded-xl border border-white/10 bg-brand-bg/50 p-4">
@@ -501,7 +487,7 @@ export function ClientDetail(): JSX.Element {
                                 {formatRelativeFromNow(row.date)}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-gray-200">{formatInr(row.amount)}</td>
+                            <td className="px-4 py-2 text-gray-200">{formatINR(row.amount)}</td>
                             <td className="px-4 py-2 capitalize text-gray-200">{row.status}</td>
                             <td className="px-4 py-2 font-mono text-xs text-gray-400">
                               {row.reference ?? '—'}

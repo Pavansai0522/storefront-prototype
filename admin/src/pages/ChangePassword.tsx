@@ -1,13 +1,9 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import {
-  createMockJwt,
-  decodeJwtPayload,
-  getStoredToken,
-  setStoredToken,
-  type JwtPayload,
-} from '../utils/jwt';
+import { MIN_PASSWORD_LENGTH } from '../constants';
+import type { JwtPayload, Nullable } from '../types';
+import { createMockJwt, decodeJwtPayload, getStoredToken, setStoredToken } from '../utils/jwt';
 import { showToast } from '../utils/showToast';
 import { PageTransition } from '../components/PageTransition';
 
@@ -34,7 +30,7 @@ export function ChangePassword(): JSX.Element {
 
   const onSubmit = (_data: ChangePasswordForm): void => {
     const token = getStoredToken();
-    const prev = token ? decodeJwtPayload(token) : null;
+    const prev: Nullable<JwtPayload> = token ? decodeJwtPayload(token) : null;
     if (!prev || prev.role !== 'admin') {
       setError('root', { message: 'Unable to update password for this session.' });
       return;
@@ -84,7 +80,10 @@ export function ChangePassword(): JSX.Element {
                 className="admin-input mt-1"
                 {...register('newPassword', {
                   required: 'All fields are required.',
-                  minLength: { value: 8, message: 'New password must be at least 8 characters.' },
+                  minLength: {
+                    value: MIN_PASSWORD_LENGTH,
+                    message: `New password must be at least ${MIN_PASSWORD_LENGTH} characters.`,
+                  },
                   validate: (v) =>
                     v === getValues('currentPassword') ? 'New password must be different' : true,
                 })}

@@ -1,26 +1,25 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
 import { addMonths, format } from 'date-fns';
-import type { Client } from '../mock/clients';
 import { MOCK_CLIENTS } from '../mock/clients';
-import type { CatalogItem } from '../mock/products';
 import { MOCK_ACCESSORIES, MOCK_PRODUCTS } from '../mock/products';
+import type { Client, ID, Nullable, Product } from '../types';
 import { showToast } from '../utils/showToast';
 
 type AdminDataContextValue = {
   clients: Client[];
   setClients: React.Dispatch<React.SetStateAction<Client[]>>;
-  products: CatalogItem[];
-  setProducts: React.Dispatch<React.SetStateAction<CatalogItem[]>>;
-  accessories: CatalogItem[];
-  setAccessories: React.Dispatch<React.SetStateAction<CatalogItem[]>>;
-  updateClient: (clientId: string, fields: Partial<Client>) => void;
-  markPaymentReceived: (clientId: string) => void;
-  toggleSiteActive: (clientId: string) => void;
-  addClientNote: (clientId: string, text: string) => void;
-  deleteClientNote: (clientId: string, noteId: string) => void;
+  products: Product[];
+  setProducts: React.Dispatch<React.SetStateAction<Product[]>>;
+  accessories: Product[];
+  setAccessories: React.Dispatch<React.SetStateAction<Product[]>>;
+  updateClient: (clientId: ID, fields: Partial<Client>) => void;
+  markPaymentReceived: (clientId: ID) => void;
+  toggleSiteActive: (clientId: ID) => void;
+  addClientNote: (clientId: ID, text: string) => void;
+  deleteClientNote: (clientId: ID, noteId: ID) => void;
 };
 
-const AdminDataContext = createContext<AdminDataContextValue | null>(null);
+const AdminDataContext = createContext<Nullable<AdminDataContextValue>>(null);
 
 export function AdminDataProvider({
   children,
@@ -28,16 +27,16 @@ export function AdminDataProvider({
   children: React.ReactNode;
 }): JSX.Element {
   const [clients, setClients] = useState<Client[]>(() => [...MOCK_CLIENTS]);
-  const [products, setProducts] = useState<CatalogItem[]>(() => [...MOCK_PRODUCTS]);
-  const [accessories, setAccessories] = useState<CatalogItem[]>(() => [...MOCK_ACCESSORIES]);
+  const [products, setProducts] = useState<Product[]>(() => [...MOCK_PRODUCTS]);
+  const [accessories, setAccessories] = useState<Product[]>(() => [...MOCK_ACCESSORIES]);
 
-  const updateClient = useCallback((clientId: string, fields: Partial<Client>): void => {
+  const updateClient = useCallback((clientId: ID, fields: Partial<Client>): void => {
     setClients((prev) =>
       prev.map((c) => (c.id === clientId ? { ...c, ...fields } : c)),
     );
   }, []);
 
-  const markPaymentReceived = useCallback((clientId: string): void => {
+  const markPaymentReceived = useCallback((clientId: ID): void => {
     setClients((prev) =>
       prev.map((c) => {
         if (c.id !== clientId) return c;
@@ -66,7 +65,7 @@ export function AdminDataProvider({
     showToast('Payment marked as received', 'success');
   }, []);
 
-  const toggleSiteActive = useCallback((clientId: string): void => {
+  const toggleSiteActive = useCallback((clientId: ID): void => {
     setClients((prev) =>
       prev.map((c) => {
         if (c.id !== clientId) return c;
@@ -80,10 +79,10 @@ export function AdminDataProvider({
     );
   }, []);
 
-  const addClientNote = useCallback((clientId: string, text: string): void => {
+  const addClientNote = useCallback((clientId: ID, text: string): void => {
     const trimmed = text.trim();
     if (!trimmed) return;
-    const id = `note-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const id: ID = `note-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     const createdAt = new Date().toISOString();
     setClients((prev) =>
       prev.map((c) =>
@@ -94,7 +93,7 @@ export function AdminDataProvider({
     );
   }, []);
 
-  const deleteClientNote = useCallback((clientId: string, noteId: string): void => {
+  const deleteClientNote = useCallback((clientId: ID, noteId: ID): void => {
     setClients((prev) =>
       prev.map((c) =>
         c.id === clientId
