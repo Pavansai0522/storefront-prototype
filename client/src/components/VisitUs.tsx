@@ -1,13 +1,89 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
+import { MapPin, Phone, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
 import { clientConfig } from '../config/client-config';
+
+const storeImages = clientConfig.location.storeCarouselImages;
+
+function StorePhotoCarousel(): JSX.Element {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % storeImages.length);
+    }, 3000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div
+      className="relative h-56 w-full min-h-[280px] overflow-hidden rounded-2xl border border-white/10 sm:h-72 md:h-full md:min-h-[400px]"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Store photos"
+    >
+      {storeImages.map((img, i) => (
+        <img
+          key={img}
+          src={img}
+          alt={`Store view ${i + 1}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            i === current ? 'opacity-100' : 'opacity-0'
+          }`}
+          loading={i === 0 ? 'eager' : 'lazy'}
+        />
+      ))}
+
+      <div className="absolute inset-0 bg-black/20" aria-hidden />
+
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+        {storeImages.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Show store photo ${i + 1}`}
+            aria-current={i === current ? true : undefined}
+            onClick={() => setCurrent(i)}
+            className={`h-2 min-h-[20px] w-2 min-w-[20px] rounded-full transition-all duration-300 ${
+              i === current
+                ? 'scale-110 bg-brand-saffron'
+                : 'bg-white/40 hover:bg-white/60'
+            }`}
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        aria-label="Previous store photo"
+        onClick={() => setCurrent((p) => (p - 1 + storeImages.length) % storeImages.length)}
+        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors duration-200 hover:bg-black/60"
+      >
+        <ChevronLeft size={18} className="text-white" aria-hidden />
+      </button>
+
+      <button
+        type="button"
+        aria-label="Next store photo"
+        onClick={() => setCurrent((p) => (p + 1) % storeImages.length)}
+        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors duration-200 hover:bg-black/60"
+      >
+        <ChevronRight size={18} className="text-white" aria-hidden />
+      </button>
+
+      <div className="absolute bottom-0 left-0 right-0 z-10 bg-gradient-to-t from-black/70 to-transparent px-4 pb-10 pt-8">
+        <p className="font-display text-lg text-white">{clientConfig.location.mapCardTitle}</p>
+        <p className="text-xs text-white/60">{clientConfig.location.mapCardSubtitle}</p>
+      </div>
+    </div>
+  );
+}
 
 export function VisitUs() {
   return (
     <section id="visit" className="relative overflow-x-hidden py-24">
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="grid grid-cols-1 items-start gap-12 lg:grid-cols-2 lg:items-center">
+        <div className="grid grid-cols-1 items-start gap-12 md:grid-cols-2 md:items-stretch">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -68,29 +144,9 @@ export function VisitUs() {
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            className="group relative h-48 w-full overflow-hidden rounded-3xl border border-white/10 md:h-[400px] lg:h-[500px]"
+            className="relative w-full md:min-h-[400px]"
           >
-            <div className="absolute inset-0 bg-[#1a1c23] bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-50"></div>
-
-            <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-6 text-center">
-              <div className="relative mb-4">
-                <div className="absolute inset-0 animate-ping rounded-full bg-brand-saffron opacity-40"></div>
-                <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-brand-saffron shadow-[0_0_30px_rgba(255,107,0,0.5)]">
-                  <MapPin className="h-8 w-8 text-white" aria-hidden />
-                </div>
-              </div>
-
-              <div className="max-w-xs rounded-2xl border border-white/10 bg-brand-card/90 p-4 shadow-2xl backdrop-blur-md">
-                <h3 className="mb-1 text-lg font-bold text-white">{clientConfig.location.mapCardTitle}</h3>
-                <p className="mb-4 text-sm text-gray-400">{clientConfig.location.mapCardSubtitle}</p>
-                <a
-                  href="#"
-                  className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl bg-white py-2.5 text-sm font-bold text-black transition-colors hover:bg-gray-200">
-                  <Navigation className="h-4 w-4 shrink-0" aria-hidden />
-                  Get Directions
-                </a>
-              </div>
-            </div>
+            <StorePhotoCarousel />
           </motion.div>
         </div>
       </div>

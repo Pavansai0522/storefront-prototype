@@ -137,13 +137,15 @@ export function Layout(): JSX.Element {
 
             onClick={handleLogout}
 
-            className="btn-admin-secondary inline-flex shrink-0 items-center gap-2"
+            aria-label="Sign out"
+
+            className="btn-admin-secondary inline-flex shrink-0 items-center justify-center gap-2 max-md:min-h-[44px] max-md:min-w-[44px] max-md:gap-0 max-md:p-2"
 
           >
 
-            <LogOut className="h-4 w-4" aria-hidden />
+            <LogOut className="h-5 w-5 shrink-0 md:h-4 md:w-4" aria-hidden />
 
-            Sign out
+            <span className="hidden md:inline">Sign out</span>
 
           </button>
 
