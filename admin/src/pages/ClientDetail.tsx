@@ -380,7 +380,7 @@ export function ClientDetail(): JSX.Element {
                     <span className="break-words text-white">
                       {COUNTRY_OPTIONS.find((c) => c.value === client.country)?.label ?? client.country}
                       {' · '}
-                      {currencyForCountry(client.country)}
+                      {currencyForCountry(client.country, client.template)}
                     </span>
                   )}
                 </dd>

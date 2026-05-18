@@ -32,12 +32,36 @@ const CURRENCY_LOCALE: Record<CurrencyCode, string> = {
   AED: 'en-AE',
 };
 
-export function currencyForCountry(country: CountryCode): CurrencyCode {
-  return COUNTRY_TO_CURRENCY[country];
+const COUNTRY_CODES: readonly CountryCode[] = ['IN', 'US', 'GB', 'AE'];
+const CURRENCY_CODES: readonly CurrencyCode[] = ['INR', 'USD', 'GBP', 'AED'];
+
+export function isCountryCode(value: unknown): value is CountryCode {
+  return typeof value === 'string' && (COUNTRY_CODES as readonly string[]).includes(value);
+}
+
+export function isCurrencyCode(value: unknown): value is CurrencyCode {
+  return typeof value === 'string' && (CURRENCY_CODES as readonly string[]).includes(value);
+}
+
+export function currencyForCountry(
+  country: CountryCode | null | undefined,
+  fallbackTemplate?: string | null,
+): CurrencyCode {
+  if (isCountryCode(country)) {
+    return COUNTRY_TO_CURRENCY[country];
+  }
+  if (fallbackTemplate) {
+    return COUNTRY_TO_CURRENCY[defaultCountryForTemplate(fallbackTemplate)];
+  }
+  return 'INR';
 }
 
 export function localeForCurrency(currency: CurrencyCode): string {
-  return CURRENCY_LOCALE[currency];
+  return CURRENCY_LOCALE[currency] ?? CURRENCY_LOCALE.INR;
+}
+
+export function normalizeCurrencyCode(currency: CurrencyCode | null | undefined): CurrencyCode {
+  return isCurrencyCode(currency) ? currency : 'INR';
 }
 
 export function defaultCountryForTemplate(template: string): CountryCode {
@@ -57,10 +81,11 @@ export function usesRetailDecimals(currency: CurrencyCode): boolean {
   return currency === 'USD';
 }
 
-export function currencySymbol(currency: CurrencyCode): string {
-  const parts = new Intl.NumberFormat(localeForCurrency(currency), {
+export function currencySymbol(currency: CurrencyCode | null | undefined): string {
+  const code = normalizeCurrencyCode(currency);
+  const parts = new Intl.NumberFormat(localeForCurrency(code), {
     style: 'currency',
-    currency,
+    currency: code,
   }).formatToParts(0);
-  return parts.find((p) => p.type === 'currency')?.value ?? currency;
+  return parts.find((p) => p.type === 'currency')?.value ?? code;
 }

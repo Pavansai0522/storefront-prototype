@@ -7,8 +7,10 @@ import {
 import type { Client } from '../types';
 import { formatMoney } from './formatCurrency';
 
-export function getClientCurrency(client: Pick<Client, 'country'>): CurrencyCode {
-  return currencyForCountry(client.country);
+export function getClientCurrency(
+  client: Pick<Client, 'country' | 'template'>,
+): CurrencyCode {
+  return currencyForCountry(client.country, client.template);
 }
 
 export function formatClientMoney(
@@ -23,7 +25,7 @@ export function formatClientMoney(
 }
 
 export function formatCountryMoney(
-  country: CountryCode,
+  country: CountryCode | null | undefined,
   amount: number,
   options?: { retail?: boolean },
 ): string {

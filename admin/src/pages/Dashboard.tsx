@@ -291,7 +291,9 @@ function SuperadminDashboard(): JSX.Element {
             <div className="admin-card p-5">
               <p className="text-xs uppercase tracking-wide text-brand-saffron">MRR by currency</p>
               <div className="mt-2 space-y-1">
-                {(Object.entries(mrrByCurrency) as [CurrencyCode, number][]).map(([code, amount]) => (
+                {(Object.entries(mrrByCurrency) as [CurrencyCode | undefined, number][])
+                  .filter((entry): entry is [CurrencyCode, number] => Boolean(entry[0]))
+                  .map(([code, amount]) => (
                   <p key={code} className="font-display text-2xl text-white">
                     {formatMoney(amount, code)}
                   </p>
