@@ -27,5 +27,8 @@ jobs:
       - name: Lint client
         run: npm run lint:client
 
+      - name: Lint watches storefront
+        run: npm run lint:watches
+
       - name: Build all workspaces
         run: npm run build

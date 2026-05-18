@@ -1,55 +1,27 @@
 import React, { useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
-import type { Client } from '../mock/clients';
+import { COUNTRY_OPTIONS, TEMPLATES, defaultCountryForTemplate } from '../constants';
+import type { CountryCode } from '../constants/countryCurrency';
+import { isLiquorStoreTemplate } from '../constants/templates';
+import type { Client } from '../types';
 import { useAdminData } from '../context/AdminDataContext';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { upsertClient } from '../services/clientsService';
 import { showToast } from '../utils/showToast';
 import { PageTransition } from '../components/PageTransition';
-
-const TEMPLATES = ['mobile-store-v1', 'mobile-store-v2', 'salon-v1', 'restaurant-v1'] as const;
+import { generateTempPassword } from '../utils/generatePassword';
+import { slugFromStoreName } from '../utils/formatSlug';
 
 type CreateClientForm = {
   storeName: string;
   template: string;
+  country: CountryCode;
   whatsapp: string;
   address: string;
   primaryColor: string;
   adminEmail: string;
 };
-
-function generateTempPassword(): string {
-  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
-  const lower = 'abcdefghijkmnpqrstuvwxyz';
-  const num = '23456789';
-  const sym = '!#@$%';
-  const pick = (s: string): string => s[Math.floor(Math.random() * s.length)] ?? 'x';
-  const parts = [
-    pick(upper),
-    pick(upper),
-    pick(lower),
-    pick(lower),
-    pick(lower),
-    pick(num),
-    pick(num),
-    pick(sym),
-  ];
-  for (let i = parts.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [parts[i], parts[j]] = [parts[j], parts[i]];
-  }
-  return parts.join('');
-}
-
-function slugFromStoreName(name: string): string {
-  return (
-    name
-      .trim()
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '')
-      .slice(0, 48) || 'store'
-  );
-}
 
 export function CreateClient(): JSX.Element {
   const navigate = useNavigate();
@@ -59,7 +31,8 @@ export function CreateClient(): JSX.Element {
   const { register, handleSubmit, watch, setValue } = useForm<CreateClientForm>({
     defaultValues: {
       storeName: '',
-      template: TEMPLATES[0],
+      template: TEMPLATES[0].value,
+      country: defaultCountryForTemplate(TEMPLATES[0].value),
       whatsapp: '',
       address: '',
       primaryColor: '#FF6B00',
@@ -69,21 +42,33 @@ export function CreateClient(): JSX.Element {
   });
 
   const primaryColor = watch('primaryColor');
+  const selectedTemplate = watch('template');
+  const selectedCountry = watch('country');
+  const isLiquor = isLiquorStoreTemplate(selectedTemplate);
+
+  React.useEffect(() => {
+    setValue('country', defaultCountryForTemplate(selectedTemplate), { shouldDirty: true });
+  }, [selectedTemplate, setValue]);
 
   const onSubmit = useCallback(
-    (data: CreateClientForm): void => {
+    async (data: CreateClientForm): Promise<void> => {
       const id = `client-${Date.now()}`;
       const slug = slugFromStoreName(data.storeName);
       const trialEnd = new Date(Date.now() + 14 * 86400000).toISOString().slice(0, 10);
       const nextDue = new Date(Date.now() + 30 * 86400000).toISOString().slice(0, 10);
+      const liquor = isLiquorStoreTemplate(data.template);
       const next: Client = {
         id,
         storeName: data.storeName.trim(),
+        slug,
         status: 'trial',
         monthlyFee: 299,
-        template: data.template,
+        template: data.template as Client['template'],
+        country: data.country,
         liveUrl: `https://${slug}.example.com`,
-        whatsapp: data.whatsapp.trim(),
+        whatsappNumber: liquor ? '' : data.whatsapp.trim(),
+        storePhone: liquor ? data.whatsapp.trim() : '',
+        logo: '',
         address: data.address.trim(),
         primaryColor: data.primaryColor,
         adminEmail: data.adminEmail.trim(),
@@ -103,13 +88,26 @@ export function CreateClient(): JSX.Element {
         instagram: '',
         facebook: '',
         timings: 'Mon–Sat 10:00–20:00',
+        ageVerificationEnabled: liquor,
+        deliveryAvailable: false,
+        deliveryRadiusMiles: 0,
+        minimumOrderAmountUsd: 0,
         notes: [],
       };
-      setClients((prev) => [...prev, next]);
-      showToast('Client created successfully', 'success');
-      navigate('/clients', { replace: false });
+      try {
+        if (isSupabaseConfigured) {
+          const saved = await upsertClient(next);
+          setClients((prev) => [...prev, saved]);
+        } else {
+          setClients((prev) => [...prev, next]);
+        }
+        showToast('Client created successfully', 'success');
+        navigate('/clients', { replace: false });
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Create failed', 'error');
+      }
     },
-    [generatedPassword, setClients, navigate],
+    [generatedPassword, navigate, setClients],
   );
 
   return (
@@ -118,7 +116,9 @@ export function CreateClient(): JSX.Element {
         <div>
           <h1 className="admin-page-heading">Create client</h1>
           <p className="admin-page-subtitle mt-2">
-            Onboard a new store and owner in one step (mock — saved in session).
+            {isSupabaseConfigured
+              ? 'Creates the store record in Supabase. Create the owner login in Auth separately until auto-provision ships.'
+              : 'Onboard a new store (local demo — in-memory only).'}
           </p>
         </div>
 
@@ -135,11 +135,26 @@ export function CreateClient(): JSX.Element {
             <span className="admin-label">Template</span>
             <select className="admin-input" {...register('template', { required: true })}>
               {TEMPLATES.map((t) => (
-                <option key={t} value={t} className="bg-brand-bg text-white">
-                  {t}
+                <option key={t.value} value={t.value} className="bg-brand-bg text-white">
+                  {t.value}
                 </option>
               ))}
             </select>
+          </label>
+
+          <label className="block text-sm md:col-span-2">
+            <span className="admin-label">Country</span>
+            <select className="admin-input" {...register('country', { required: true })}>
+              {COUNTRY_OPTIONS.map((c) => (
+                <option key={c.value} value={c.value} className="bg-brand-bg text-white">
+                  {c.label} ({c.currency})
+                </option>
+              ))}
+            </select>
+            <p className="mt-1 text-xs text-gray-400">
+              Catalog prices and billing use{' '}
+              {COUNTRY_OPTIONS.find((c) => c.value === selectedCountry)?.currency ?? 'INR'}.
+            </p>
           </label>
 
           <label className="block text-sm md:col-span-2">
@@ -160,11 +175,11 @@ export function CreateClient(): JSX.Element {
           </label>
 
           <label className="block text-sm md:col-span-2">
-            <span className="admin-label">WhatsApp number</span>
+            <span className="admin-label">{isLiquor ? 'Phone number' : 'WhatsApp number'}</span>
             <input
               required
               className="admin-input"
-              placeholder="+91 …"
+              placeholder={isLiquor ? '+1 …' : '+91 …'}
               {...register('whatsapp', { required: true })}
             />
           </label>

@@ -1,0 +1,169 @@
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { MapPin, Phone, Clock, MessageCircle, ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
+import toast from 'react-hot-toast';
+import { clientConfig, whatsappHref } from '../config/client-config';
+import { btnWhatsApp } from '../constants/buttonStyles';
+import { StoreLogo } from './StoreLogo';
+
+const storeImages = clientConfig.location.storeCarouselImages;
+
+function StorePhotoCarousel(): JSX.Element {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % storeImages.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
+
+  return (
+    <div
+      className="relative h-[400px] w-full overflow-hidden rounded-3xl border border-brand-border bg-brand-surface md:h-[500px]"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Store photos"
+    >
+      {storeImages.map((img, i) => (
+        <img
+          key={img}
+          src={img}
+          alt={`Store view ${i + 1}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            i === current ? 'opacity-80' : 'opacity-0'
+          }`}
+          loading={i === 0 ? 'eager' : 'lazy'}
+        />
+      ))}
+
+      <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-bg/50 backdrop-blur-[2px]">
+        <StoreLogo variant="hero" linked={false} />
+      </div>
+
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+        {storeImages.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Show store photo ${i + 1}`}
+            aria-current={i === current ? true : undefined}
+            onClick={() => setCurrent(i)}
+            className={`h-2 min-h-[20px] w-2 min-w-[20px] rounded-full transition-all ${
+              i === current ? 'scale-110 bg-brand-purple' : 'bg-white/40 hover:bg-white/60'
+            }`}
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        aria-label="Previous store photo"
+        onClick={() => setCurrent((p) => (p - 1 + storeImages.length) % storeImages.length)}
+        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+      >
+        <ChevronLeft size={18} className="text-white" aria-hidden />
+      </button>
+      <button
+        type="button"
+        aria-label="Next store photo"
+        onClick={() => setCurrent((p) => (p + 1) % storeImages.length)}
+        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+      >
+        <ChevronRight size={18} className="text-white" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
+export function VisitUs(): JSX.Element {
+  const handleChatClick = (): void => {
+    toast.success('Opening WhatsApp...');
+  };
+
+  return (
+    <section id="visit" className="relative z-10 bg-brand-bg py-16 md:py-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+          >
+            <h2 className="mb-8 font-bebas text-4xl tracking-wide text-brand-text md:text-5xl">
+              VISIT OUR STORE
+            </h2>
+
+            <div className="mb-10 space-y-8">
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-brand-border bg-brand-surface">
+                  <MapPin className="h-6 w-6 text-brand-purple" aria-hidden />
+                </div>
+                <div>
+                  <h4 className="mb-1 text-lg font-semibold text-brand-text">Location</h4>
+                  <p className="leading-relaxed text-brand-muted">
+                    {clientConfig.location.addressLines.map((line) => (
+                      <span key={line}>
+                        {line}
+                        <br />
+                      </span>
+                    ))}
+                  </p>
+                  <a
+                    href={clientConfig.location.googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:underline"
+                  >
+                    Open in Google Maps
+                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
+                  </a>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-brand-border bg-brand-surface">
+                  <Phone className="h-6 w-6 text-brand-purple" aria-hidden />
+                </div>
+                <div>
+                  <h4 className="mb-1 text-lg font-semibold text-brand-text">Phone / WhatsApp</h4>
+                  <p className="text-brand-muted">{clientConfig.contact.phoneDisplay}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-brand-border bg-brand-surface">
+                  <Clock className="h-6 w-6 text-brand-purple" aria-hidden />
+                </div>
+                <div>
+                  <h4 className="mb-1 text-lg font-semibold text-brand-text">Hours</h4>
+                  <p className="text-brand-muted">{clientConfig.hours.weekdays}</p>
+                  <p className="text-brand-muted">{clientConfig.hours.sunday}</p>
+                </div>
+              </div>
+            </div>
+
+            <a
+              href={whatsappHref()}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleChatClick}
+              className={`${btnWhatsApp} w-full sm:w-auto`}
+            >
+              <MessageCircle className="h-5 w-5" aria-hidden />
+              Chat with Us
+            </a>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+          >
+            <StorePhotoCarousel />
+          </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+}

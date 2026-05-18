@@ -1,0 +1,7 @@
+## TYPESCRIPT NULLABILITY
+
+- Never use `T | null` directly
+- Always use `Nullable<T>` from `types/utils.types.ts` (re-exported via `types/index.ts` in each workspace)
+- Never use `T | undefined` directly for optional-or-absent values in type positions where the codebase standard applies; use `Optional<T>` from `types/utils.types.ts`
+- Date strings that are ISO 8601 timestamps or calendar dates in the domain model use the `ISODateString` type
+- String identifiers (`id`, `clientId`, `userId`, etc.) use the `ID` type

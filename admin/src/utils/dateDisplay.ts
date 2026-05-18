@@ -1,6 +1,7 @@
 import { format, formatDistanceToNow, isValid, parseISO } from 'date-fns';
+import type { ISODateString, Nullable } from '../types';
 
-function parseDateInput(value: string): Date | null {
+function parseDateInput(value: ISODateString): Nullable<Date> {
   try {
     const normalized = value.includes('T') ? value : `${value}T12:00:00`;
     const d = parseISO(normalized);
@@ -10,7 +11,7 @@ function parseDateInput(value: string): Date | null {
   }
 }
 
-export function formatAdminLongDate(value: string): string {
+export function formatAdminLongDate(value: ISODateString): string {
   const d = parseDateInput(value);
   if (!d) {
     return value;
@@ -18,7 +19,7 @@ export function formatAdminLongDate(value: string): string {
   return format(d, 'MMM dd, yyyy');
 }
 
-export function formatAdminDateTime(value: string): string {
+export function formatAdminDateTime(value: ISODateString): string {
   const d = parseDateInput(value);
   if (!d) {
     return value;
@@ -26,7 +27,7 @@ export function formatAdminDateTime(value: string): string {
   return format(d, 'MMM dd, yyyy, h:mm a');
 }
 
-export function formatRelativeFromNow(value: string): string {
+export function formatRelativeFromNow(value: ISODateString): string {
   const d = parseDateInput(value);
   if (!d) {
     return value;

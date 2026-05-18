@@ -12,19 +12,20 @@ import { Products } from './pages/Products';
 import { Accessories } from './pages/Accessories';
 import { StoreInfo } from './pages/StoreInfo';
 import { ChangePassword } from './pages/ChangePassword';
-import { getJwtPayloadFromStorage } from './utils/jwt';
+import { WatchesTemplatePreview } from './pages/WatchesTemplatePreview';
+import { useAuthContext } from './context/AuthContext';
 
 function SuperadminOnly({ children }: { children: JSX.Element }): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  if (payload?.role !== 'superadmin') {
+  const { isSuperadmin } = useAuthContext();
+  if (!isSuperadmin) {
     return <Navigate to="/dashboard" replace />;
   }
   return children;
 }
 
 function AdminOnly({ children }: { children: JSX.Element }): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  if (payload?.role !== 'admin') {
+  const { isAdmin, isSuperadmin } = useAuthContext();
+  if (!isAdmin && !isSuperadmin) {
     return <Navigate to="/dashboard" replace />;
   }
   return children;
@@ -66,6 +67,14 @@ export function App(): JSX.Element {
             element={
               <SuperadminOnly>
                 <Billing />
+              </SuperadminOnly>
+            }
+          />
+          <Route
+            path="/templates/watches-store-v2"
+            element={
+              <SuperadminOnly>
+                <WatchesTemplatePreview />
               </SuperadminOnly>
             }
           />

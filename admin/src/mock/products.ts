@@ -1,16 +1,8 @@
-export type CatalogItem = {
-  id: string;
-  clientId: string;
-  name: string;
-  brand: string;
-  price: number;
-  emiPrice: number;
-  imageUrl: string;
-  inStock: boolean;
-  category: string;
-};
+import type { Product } from '../types';
 
-export const MOCK_PRODUCTS: CatalogItem[] = [
+export type CatalogItem = Product;
+
+export const MOCK_PRODUCTS: Product[] = [
   {
     id: 'p-1',
     clientId: 'client-1',
@@ -18,9 +10,10 @@ export const MOCK_PRODUCTS: CatalogItem[] = [
     brand: 'Samsung',
     price: 32999,
     emiPrice: 2750,
-    imageUrl: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=200&h=200&fit=crop',
     inStock: true,
     category: 'Phone',
+    isAccessory: false,
   },
   {
     id: 'p-2',
@@ -29,9 +22,10 @@ export const MOCK_PRODUCTS: CatalogItem[] = [
     brand: 'Apple',
     price: 79900,
     emiPrice: 6658,
-    imageUrl: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=200&h=200&fit=crop',
     inStock: false,
     category: 'Phone',
+    isAccessory: false,
   },
   {
     id: 'p-3',
@@ -40,13 +34,14 @@ export const MOCK_PRODUCTS: CatalogItem[] = [
     brand: 'Google',
     price: 75999,
     emiPrice: 6333,
-    imageUrl: 'https://images.unsplash.com/photo-1598327105666-5b89351aff23?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1598327105666-5b89351aff23?w=200&h=200&fit=crop',
     inStock: true,
     category: 'Phone',
+    isAccessory: false,
   },
 ];
 
-export const MOCK_ACCESSORIES: CatalogItem[] = [
+export const MOCK_ACCESSORIES: Product[] = [
   {
     id: 'a-1',
     clientId: 'client-1',
@@ -54,9 +49,10 @@ export const MOCK_ACCESSORIES: CatalogItem[] = [
     brand: 'Anker',
     price: 1999,
     emiPrice: 167,
-    imageUrl: 'https://images.unsplash.com/photo-1583863785174-4f6a2c0c0b0b?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1583863785174-4f6a2c0c0b0b?w=200&h=200&fit=crop',
     inStock: true,
     category: 'Charger',
+    isAccessory: true,
   },
   {
     id: 'a-2',
@@ -65,9 +61,10 @@ export const MOCK_ACCESSORIES: CatalogItem[] = [
     brand: 'Ringke',
     price: 899,
     emiPrice: 75,
-    imageUrl: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=200&h=200&fit=crop',
     inStock: true,
     category: 'Case',
+    isAccessory: true,
   },
   {
     id: 'a-3',
@@ -76,8 +73,9 @@ export const MOCK_ACCESSORIES: CatalogItem[] = [
     brand: 'Boat',
     price: 3499,
     emiPrice: 292,
-    imageUrl: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop',
+    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=200&h=200&fit=crop',
     inStock: false,
     category: 'Earphone',
+    isAccessory: true,
   },
 ];

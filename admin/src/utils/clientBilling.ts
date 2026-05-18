@@ -1,4 +1,4 @@
-import type { Client } from '../mock/clients';
+import type { Client } from '../types';
 
 export function isNextDueOverdue(nextDue: string): boolean {
   const end = new Date(nextDue);

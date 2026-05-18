@@ -1,12 +1,6 @@
-export interface Phone {
-  id: number;
-  brand: string;
-  name: string;
-  price: string;
-  priceValue: number;
-  emi: string;
-  img: string;
-}
+import type { Phone } from '../types';
+
+export type { Phone };
 
 export const PHONES: Phone[] = [
 {

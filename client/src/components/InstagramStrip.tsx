@@ -22,7 +22,7 @@ export function InstagramStrip() {
             </div>
           </div>
           <div className="min-w-0 text-center sm:text-left">
-            <h3 className="text-lg font-bold leading-tight text-white">@arudramobiles</h3>
+            <h3 className="text-lg font-bold leading-tight text-white">@balamobiles</h3>
             <p className="text-sm text-gray-400">Follow us for daily deals & unboxings</p>
           </div>
         </div>

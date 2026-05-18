@@ -22,45 +22,61 @@ import {
   formatAdminLongDate,
   formatRelativeFromNow,
 } from '../utils/dateDisplay';
+import type { Nullable } from '../types';
 import { isClientPaymentOverdue } from '../utils/clientBilling';
-import { startImpersonation } from '../utils/jwt';
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function generateTempPassword(): string {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrst23456789!#';
-  let out = '';
-  for (let i = 0; i < 10; i += 1) {
-    out += chars[Math.floor(Math.random() * chars.length)] ?? 'x';
-  }
-  return out;
-}
+import { generateTempPassword } from '../utils/generatePassword';
+import { COUNTRY_OPTIONS } from '../constants';
+import type { CountryCode } from '../constants/countryCurrency';
+import { currencyForCountry, currencySymbol } from '../constants/countryCurrency';
+import { formatClientMoney, getClientCurrency } from '../utils/clientCurrency';
+import { useAuthContext } from '../context/AuthContext';
+import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import {
+  countAccessoriesForClient,
+  countProductsForClient,
+  supportsAccessoriesCatalog,
+} from '../utils/catalogAccessories';
 
 type StoreEditDraft = {
   storeName: string;
+  country: CountryCode;
+  liveUrl: string;
   whatsapp: string;
+  storePhone: string;
   address: string;
   timings: string;
   instagram: string;
+  facebook: string;
 };
 
 const emptyDraft: StoreEditDraft = {
   storeName: '',
+  country: 'IN',
+  liveUrl: '',
   whatsapp: '',
+  storePhone: '',
   address: '',
   timings: '',
   instagram: '',
+  facebook: '',
+};
+
+type BillingEditDraft = {
+  planMonthlyInr: string;
+  paidUntil: string;
+  nextDue: string;
+};
+
+const emptyBillingDraft: BillingEditDraft = {
+  planMonthlyInr: '',
+  paidUntil: '',
+  nextDue: '',
 };
 
 export function ClientDetail(): JSX.Element {
   const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
+  const { startImpersonation } = useAuthContext();
   const {
     clients,
     setClients,
@@ -70,14 +86,18 @@ export function ClientDetail(): JSX.Element {
     markPaymentReceived,
     addClientNote,
     deleteClientNote,
+    removeClient,
   } = useAdminData();
 
   const [isEditing, setIsEditing] = useState(false);
   const [draft, setDraft] = useState<StoreEditDraft>(emptyDraft);
+  const [isBillingEditing, setIsBillingEditing] = useState(false);
+  const [billingDraft, setBillingDraft] = useState<BillingEditDraft>(emptyBillingDraft);
   const [noteDraft, setNoteDraft] = useState('');
   const [confirmDeactivate, setConfirmDeactivate] = useState(false);
+  const [confirmReactivate, setConfirmReactivate] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const [passwordResetBanner, setPasswordResetBanner] = useState<string | null>(null);
+  const [passwordResetBanner, setPasswordResetBanner] = useState<Nullable<string>>(null);
 
   const client = useMemo(
     () => clients.find((c) => c.id === clientId),
@@ -85,13 +105,19 @@ export function ClientDetail(): JSX.Element {
   );
 
   const productCount = useMemo(
-    () => products.filter((p) => p.clientId === clientId).length,
-    [products, clientId],
+    () =>
+      clientId && client
+        ? countProductsForClient(products, accessories, clientId, client.template)
+        : 0,
+    [products, accessories, clientId, client],
   );
 
   const accessoryCount = useMemo(
-    () => accessories.filter((a) => a.clientId === clientId).length,
-    [accessories, clientId],
+    () =>
+      clientId && client
+        ? countAccessoriesForClient(products, accessories, clientId, client.template)
+        : 0,
+    [products, accessories, clientId, client],
   );
 
   const paymentOverdue = client ? isClientPaymentOverdue(client) : false;
@@ -100,10 +126,14 @@ export function ClientDetail(): JSX.Element {
     if (!client) return;
     setDraft({
       storeName: client.storeName,
-      whatsapp: client.whatsapp,
+      country: client.country,
+      liveUrl: client.liveUrl,
+      whatsapp: client.whatsappNumber,
+      storePhone: client.storePhone,
       address: client.address,
       timings: client.timings,
       instagram: client.instagram,
+      facebook: client.facebook,
     });
     setIsEditing(true);
   }, [client]);
@@ -112,16 +142,56 @@ export function ClientDetail(): JSX.Element {
     setIsEditing(false);
   }, []);
 
+  const beginBillingEdit = useCallback((): void => {
+    if (!client) return;
+    setBillingDraft({
+      planMonthlyInr: String(client.billing.planMonthlyInr),
+      paidUntil: client.billing.paidUntil,
+      nextDue: client.billing.nextDue,
+    });
+    setIsBillingEditing(true);
+  }, [client]);
+
+  const cancelBillingEdit = useCallback((): void => {
+    setIsBillingEditing(false);
+  }, []);
+
+  const saveBillingEdit = useCallback((): void => {
+    if (!client) return;
+    const planMonthlyInr = Number(billingDraft.planMonthlyInr);
+    if (!Number.isFinite(planMonthlyInr) || planMonthlyInr < 0) {
+      showToast('Enter a valid monthly plan amount.', 'error');
+      return;
+    }
+    if (!billingDraft.paidUntil.trim() || !billingDraft.nextDue.trim()) {
+      showToast('Paid until and next due dates are required.', 'error');
+      return;
+    }
+    void updateClient(client.id, {
+      monthlyFee: planMonthlyInr,
+      billing: {
+        ...client.billing,
+        planMonthlyInr,
+        paidUntil: billingDraft.paidUntil,
+        nextDue: billingDraft.nextDue,
+      },
+    });
+    setIsBillingEditing(false);
+  }, [client, billingDraft, updateClient]);
+
   const saveEdit = useCallback((): void => {
     if (!client) return;
-    updateClient(client.id, {
+    void updateClient(client.id, {
       storeName: draft.storeName.trim(),
-      whatsapp: draft.whatsapp.trim(),
+      country: draft.country,
+      liveUrl: draft.liveUrl.trim(),
+      whatsappNumber: draft.whatsapp.trim(),
+      storePhone: draft.storePhone.trim(),
       address: draft.address.trim(),
       timings: draft.timings.trim(),
       instagram: draft.instagram.trim(),
+      facebook: draft.facebook.trim(),
     });
-    showToast('Client updated successfully', 'success');
     setIsEditing(false);
   }, [client, draft, updateClient]);
 
@@ -143,8 +213,8 @@ export function ClientDetail(): JSX.Element {
 
   const handleImpersonate = useCallback((): void => {
     if (!client) return;
-    startImpersonation(client.id, client.storeName);
-    navigate('/dashboard');
+    startImpersonation(client.id);
+    navigate('/products');
     showToast(`Viewing as ${client.storeName}`, 'info');
   }, [client, navigate]);
 
@@ -164,8 +234,15 @@ export function ClientDetail(): JSX.Element {
     );
   }
 
+  const isLiquor = isLiquorStoreTemplate(client.template);
+  const isWatches = isWatchesStoreTemplate(client.template);
+  const clientCurrency = getClientCurrency(client);
+  const billingCurrencyLabel = currencySymbol(clientCurrency);
+  const showAccessories = supportsAccessoriesCatalog(client.template);
+
   const handleResetPassword = (): void => {
     const next = generateTempPassword();
+    void updateClient(client.id, { adminTempPassword: next });
     setClients((prev) =>
       prev.map((c) => (c.id === client.id ? { ...c, adminTempPassword: next } : c)),
     );
@@ -175,17 +252,33 @@ export function ClientDetail(): JSX.Element {
   };
 
   const handleDeactivate = (): void => {
+    void updateClient(client.id, { siteActive: false, status: 'suspended' });
     setClients((prev) =>
       prev.map((c) => (c.id === client.id ? { ...c, siteActive: false, status: 'suspended' } : c)),
     );
     setConfirmDeactivate(false);
-    showToast('Site deactivated successfully', 'success');
+    showToast('Site deactivated', 'success');
+  };
+
+  const handleReactivate = (): void => {
+    void updateClient(client.id, { siteActive: true, status: 'active' });
+    setClients((prev) =>
+      prev.map((c) => (c.id === client.id ? { ...c, siteActive: true, status: 'active' } : c)),
+    );
+    setConfirmReactivate(false);
+    showToast('Site reactivated', 'success');
   };
 
   const handleDelete = (): void => {
-    setClients((prev) => prev.filter((c) => c.id !== client.id));
-    setConfirmDelete(false);
-    navigate('/clients', { replace: true });
+    void removeClient(client.id)
+      .then(() => {
+        setConfirmDelete(false);
+        navigate('/clients', { replace: true });
+        showToast('Client deleted', 'success');
+      })
+      .catch((err) => {
+        showToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+      });
   };
 
   const sortedNotes = useMemo(
@@ -263,6 +356,33 @@ export function ClientDetail(): JSX.Element {
             </div>
             <dl className="mt-4 space-y-3 text-sm">
               <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                <dt className="shrink-0 text-gray-400">Country</dt>
+                <dd className="min-w-0 sm:max-w-[60%] sm:text-right">
+                  {isEditing ? (
+                    <select
+                      className="admin-input !mt-0 w-full sm:text-right"
+                      value={draft.country}
+                      onChange={(e) =>
+                        setDraft((d) => ({ ...d, country: e.target.value as CountryCode }))
+                      }
+                      aria-label="Country"
+                    >
+                      {COUNTRY_OPTIONS.map((c) => (
+                        <option key={c.value} value={c.value} className="bg-brand-bg text-white">
+                          {c.label} ({c.currency})
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <span className="break-words text-white">
+                      {COUNTRY_OPTIONS.find((c) => c.value === client.country)?.label ?? client.country}
+                      {' · '}
+                      {currencyForCountry(client.country)}
+                    </span>
+                  )}
+                </dd>
+              </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
                 <dt className="shrink-0 text-gray-400">Name</dt>
                 <dd className="min-w-0 sm:max-w-[60%] sm:text-right">
                   {isEditing ? (
@@ -280,32 +400,46 @@ export function ClientDetail(): JSX.Element {
               <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
                 <dt className="shrink-0 text-gray-400">Live URL</dt>
                 <dd className="min-w-0 max-w-full text-left sm:max-w-[60%] sm:text-right">
-                  <a
-                    href={client.liveUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex min-h-[44px] items-center gap-1 break-all font-medium text-brand-saffron hover:underline sm:min-h-0"
-                  >
-                    {client.liveUrl}
-                    <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  </a>
                   {isEditing ? (
-                    <p className="mt-1 text-xs text-gray-500">Live URL is read-only in this demo.</p>
-                  ) : null}
+                    <input
+                      className="admin-input !mt-0 w-full sm:text-right"
+                      value={draft.liveUrl}
+                      onChange={(e) => setDraft((d) => ({ ...d, liveUrl: e.target.value }))}
+                      aria-label="Live URL"
+                    />
+                  ) : (
+                    <a
+                      href={client.liveUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex min-h-[44px] items-center gap-1 break-all font-medium text-brand-saffron hover:underline sm:min-h-0"
+                    >
+                      {client.liveUrl}
+                      <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    </a>
+                  )}
                 </dd>
               </div>
               <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
-                <dt className="shrink-0 text-gray-400">WhatsApp</dt>
+                <dt className="shrink-0 text-gray-400">{isLiquor ? 'Phone' : 'WhatsApp'}</dt>
                 <dd className="min-w-0 sm:max-w-[60%] sm:text-right">
                   {isEditing ? (
                     <input
                       className="admin-input !mt-0 w-full sm:text-right"
-                      value={draft.whatsapp}
-                      onChange={(e) => setDraft((d) => ({ ...d, whatsapp: e.target.value }))}
-                      aria-label="WhatsApp"
+                      value={isLiquor ? draft.storePhone : draft.whatsapp}
+                      onChange={(e) =>
+                        setDraft((d) =>
+                          isLiquor
+                            ? { ...d, storePhone: e.target.value }
+                            : { ...d, whatsapp: e.target.value },
+                        )
+                      }
+                      aria-label={isLiquor ? 'Phone number' : 'WhatsApp'}
                     />
                   ) : (
-                    <span className="break-words text-white">{client.whatsapp}</span>
+                    <span className="break-words text-white">
+                      {isLiquor ? client.storePhone || '—' : client.whatsappNumber}
+                    </span>
                   )}
                 </dd>
               </div>
@@ -355,6 +489,39 @@ export function ClientDetail(): JSX.Element {
                   )}
                 </dd>
               </div>
+              <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                <dt className="shrink-0 text-gray-400">Facebook</dt>
+                <dd className="min-w-0 sm:max-w-[60%] sm:text-right">
+                  {isEditing ? (
+                    <input
+                      className="admin-input !mt-0 w-full sm:text-right"
+                      value={draft.facebook}
+                      onChange={(e) => setDraft((d) => ({ ...d, facebook: e.target.value }))}
+                      aria-label="Facebook"
+                    />
+                  ) : (
+                    <span className="break-words text-white">{client.facebook || '—'}</span>
+                  )}
+                </dd>
+              </div>
+              {!isEditing && isLiquor ? (
+                <>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                    <dt className="shrink-0 text-gray-400">Age verification</dt>
+                    <dd className="min-w-0 sm:max-w-[60%] sm:text-right text-white">
+                      {client.ageVerificationEnabled ? 'Enabled' : 'Disabled'}
+                    </dd>
+                  </div>
+                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
+                    <dt className="shrink-0 text-gray-400">Delivery</dt>
+                    <dd className="min-w-0 sm:max-w-[60%] sm:text-right text-white">
+                      {client.deliveryAvailable
+                        ? `Yes · ${client.deliveryRadiusMiles} mi · min ${formatClientMoney(client, client.minimumOrderAmountUsd, { retail: true })}`
+                        : 'No'}
+                    </dd>
+                  </div>
+                </>
+              ) : null}
             </dl>
           </section>
 
@@ -410,34 +577,40 @@ export function ClientDetail(): JSX.Element {
             <p className="mt-3 text-xs text-gray-500">
               Store admins manage SKUs in their workspace. This count reflects mock session data.
             </p>
-            <a
-              href="#catalog-accessories"
-              className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-saffron hover:underline"
-            >
-              Jump to accessories
-            </a>
+            {showAccessories ? (
+              <a
+                href="#catalog-accessories"
+                className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-saffron hover:underline"
+              >
+                Jump to accessories
+              </a>
+            ) : null}
           </section>
 
-          <section id="catalog-accessories" className="admin-card min-w-0 scroll-mt-24 p-6">
-            <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-brand-saffron">
-              <Puzzle className="h-4 w-4" aria-hidden />
-              Accessories
-            </h2>
-            <p className="mt-3 text-3xl font-display text-white">{accessoryCount}</p>
-            <p className="mt-1 text-sm text-gray-400">
-              Last updated {formatAdminDateTime(client.accessoriesLastUpdatedAt)}
-            </p>
-            <p className="mt-0.5 text-xs text-gray-500">{formatRelativeFromNow(client.accessoriesLastUpdatedAt)}</p>
-            <p className="mt-3 text-xs text-gray-500">
-              Linked to the same mock catalog as products for this client.
-            </p>
-            <a
-              href="#catalog-products"
-              className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-saffron hover:underline"
-            >
-              Jump to products
-            </a>
-          </section>
+          {showAccessories ? (
+            <section id="catalog-accessories" className="admin-card min-w-0 scroll-mt-24 p-6">
+              <h2 className="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide text-brand-saffron">
+                <Puzzle className="h-4 w-4" aria-hidden />
+                Accessories
+              </h2>
+              <p className="mt-3 text-3xl font-display text-white">{accessoryCount}</p>
+              <p className="mt-1 text-sm text-gray-400">
+                Last updated {formatAdminDateTime(client.accessoriesLastUpdatedAt)}
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500">{formatRelativeFromNow(client.accessoriesLastUpdatedAt)}</p>
+              <p className="mt-3 text-xs text-gray-500">
+                {isWatches
+                  ? 'SKUs in cables, headphones, phone accessories, or gadgets (managed under Products).'
+                  : 'SKUs on the Accessories page (cases, chargers, cables, and more).'}
+              </p>
+              <a
+                href="#catalog-products"
+                className="mt-3 inline-flex min-h-[44px] items-center text-sm font-semibold text-brand-saffron hover:underline"
+              >
+                Jump to products
+              </a>
+            </section>
+          ) : null}
 
           <section className="admin-card min-w-0 p-6 md:col-span-2">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -445,35 +618,110 @@ export function ClientDetail(): JSX.Element {
                 <CreditCard className="h-4 w-4" aria-hidden />
                 Billing
               </h2>
-              {paymentOverdue ? (
-                <button
-                  type="button"
-                  onClick={() => markPaymentReceived(client.id)}
-                  className="btn-admin-secondary inline-flex items-center gap-2 !text-xs"
-                >
-                  <CheckCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
-                  Mark Payment Received
-                </button>
-              ) : null}
+              <div className="flex flex-wrap gap-2">
+                {isBillingEditing ? (
+                  <>
+                    <button
+                      type="button"
+                      onClick={cancelBillingEdit}
+                      className="btn-admin-secondary inline-flex items-center gap-1 !text-xs"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={saveBillingEdit}
+                      className="btn-admin-primary inline-flex items-center gap-1 !text-xs"
+                    >
+                      Save
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={beginBillingEdit}
+                      className="btn-admin-secondary inline-flex items-center gap-1 !text-xs"
+                    >
+                      <Pencil className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                      Edit
+                    </button>
+                    {paymentOverdue ? (
+                      <button
+                        type="button"
+                        onClick={() => markPaymentReceived(client.id)}
+                        className="btn-admin-secondary inline-flex items-center gap-2 !text-xs"
+                      >
+                        <CheckCircle className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                        Mark Payment Received
+                      </button>
+                    ) : null}
+                  </>
+                )}
+              </div>
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-3">
               <div className="rounded-xl border border-white/10 bg-brand-bg/50 p-4">
                 <p className="text-xs uppercase tracking-wide text-gray-400">Plan</p>
-                <p className="mt-1 text-lg font-semibold text-white">
-                  {formatInr(client.billing.planMonthlyInr)} / month
-                </p>
+                {isBillingEditing ? (
+                  <label className="mt-2 block">
+                    <span className="sr-only">Monthly plan amount ({billingCurrencyLabel})</span>
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      className="admin-input !mt-0 w-full"
+                      value={billingDraft.planMonthlyInr}
+                      onChange={(e) =>
+                        setBillingDraft((d) => ({ ...d, planMonthlyInr: e.target.value }))
+                      }
+                    />
+                  </label>
+                ) : (
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {formatClientMoney(client, client.billing.planMonthlyInr)} / month
+                  </p>
+                )}
               </div>
               <div className="rounded-xl border border-white/10 bg-brand-bg/50 p-4">
                 <p className="text-xs uppercase tracking-wide text-gray-400">Paid until</p>
-                <p className="mt-1 text-lg font-semibold text-white">
-                  {formatAdminLongDate(client.billing.paidUntil)}
-                </p>
+                {isBillingEditing ? (
+                  <label className="mt-2 block">
+                    <span className="sr-only">Paid until date</span>
+                    <input
+                      type="date"
+                      className="admin-input !mt-0 w-full"
+                      value={billingDraft.paidUntil}
+                      onChange={(e) =>
+                        setBillingDraft((d) => ({ ...d, paidUntil: e.target.value }))
+                      }
+                    />
+                  </label>
+                ) : (
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {formatAdminLongDate(client.billing.paidUntil)}
+                  </p>
+                )}
               </div>
               <div className="rounded-xl border border-white/10 bg-brand-bg/50 p-4">
                 <p className="text-xs uppercase tracking-wide text-gray-400">Next due</p>
-                <p className="mt-1 text-lg font-semibold text-white">
-                  {formatAdminLongDate(client.billing.nextDue)}
-                </p>
+                {isBillingEditing ? (
+                  <label className="mt-2 block">
+                    <span className="sr-only">Next due date</span>
+                    <input
+                      type="date"
+                      className="admin-input !mt-0 w-full"
+                      value={billingDraft.nextDue}
+                      onChange={(e) =>
+                        setBillingDraft((d) => ({ ...d, nextDue: e.target.value }))
+                      }
+                    />
+                  </label>
+                ) : (
+                  <p className="mt-1 text-lg font-semibold text-white">
+                    {formatAdminLongDate(client.billing.nextDue)}
+                  </p>
+                )}
               </div>
             </div>
             <div className="mt-6 overflow-hidden rounded-xl border border-white/10">
@@ -501,7 +749,9 @@ export function ClientDetail(): JSX.Element {
                                 {formatRelativeFromNow(row.date)}
                               </span>
                             </td>
-                            <td className="px-4 py-2 text-gray-200">{formatInr(row.amount)}</td>
+                            <td className="px-4 py-2 text-gray-200">
+                              {formatClientMoney(client, row.amount)}
+                            </td>
                             <td className="px-4 py-2 capitalize text-gray-200">{row.status}</td>
                             <td className="px-4 py-2 font-mono text-xs text-gray-400">
                               {row.reference ?? '—'}
@@ -568,17 +818,26 @@ export function ClientDetail(): JSX.Element {
               <div className="flex-1">
                 <h2 className="text-sm font-semibold text-red-200">Danger zone</h2>
                 <p className="mt-1 text-sm text-red-200/80">
-                  Destructive actions require confirmation. Mock only — no external services called.
+                  Destructive actions require confirmation and are saved to the database.
                 </p>
                 <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => setConfirmDeactivate(true)}
-                    disabled={!client.siteActive}
-                    className="w-full min-h-[44px] rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-100 hover:bg-red-500/20 disabled:cursor-not-allowed disabled:opacity-40 sm:w-auto"
-                  >
-                    Deactivate site
-                  </button>
+                  {client.siteActive ? (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeactivate(true)}
+                      className="w-full min-h-[44px] rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-100 hover:bg-red-500/20 sm:w-auto"
+                    >
+                      Deactivate site
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmReactivate(true)}
+                      className="w-full min-h-[44px] rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-sm font-medium text-emerald-100 hover:bg-emerald-500/20 sm:w-auto"
+                    >
+                      Reactivate site
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => setConfirmDelete(true)}
@@ -595,16 +854,24 @@ export function ClientDetail(): JSX.Element {
         <ConfirmModal
           open={confirmDeactivate}
           title="Deactivate site?"
-          message={`This will mark ${client.storeName} as suspended and deactivate the public site flag. You can still restore data in this mock admin.`}
+          message={`This will mark ${client.storeName} as suspended and hide the public storefront.`}
           confirmLabel="Deactivate"
           variant="danger"
           onConfirm={handleDeactivate}
           onCancel={() => setConfirmDeactivate(false)}
         />
         <ConfirmModal
+          open={confirmReactivate}
+          title="Reactivate site?"
+          message={`Restore the public storefront for ${client.storeName}?`}
+          confirmLabel="Reactivate"
+          onConfirm={handleReactivate}
+          onCancel={() => setConfirmReactivate(false)}
+        />
+        <ConfirmModal
           open={confirmDelete}
           title="Delete client?"
-          message={`Permanently remove ${client.storeName} and all mock session data for this client? This cannot be undone in the demo.`}
+          message={`Permanently remove ${client.storeName} and all catalog data for this client? This cannot be undone.`}
           confirmLabel="Delete client"
           variant="danger"
           onConfirm={handleDelete}

@@ -5,7 +5,6 @@ import { FeaturedPhones } from '../components/FeaturedPhones';
 import { WhyChooseUs } from '../components/WhyChooseUs';
 import { SocialProof } from '../components/SocialProof';
 import { Services } from '../components/Services';
-import { InstagramStrip } from '../components/InstagramStrip';
 import { VisitUs } from '../components/VisitUs';
 import { Footer } from '../components/Footer';
 import { WhatsAppFAB } from '../components/WhatsAppFAB';
@@ -19,7 +18,6 @@ export function Home() {
         <WhyChooseUs />
         <SocialProof />
         <Services />
-        <InstagramStrip />
         <VisitUs />
       </main>
       <Footer />

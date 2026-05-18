@@ -8,139 +8,93 @@ import {
 } from '@tanstack/react-table';
 import Select from 'react-select';
 import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2 } from 'lucide-react';
+import { LIQUOR_CATEGORIES, PRODUCT_CATEGORIES, SKELETON_DELAY_MS, WATCHES_SUBCATEGORIES } from '../constants';
+import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
-import type { CatalogItem } from '../mock/products';
+import {
+  SORT_KEY_OPTIONS,
+  STOCK_FILTER_OPTIONS,
+  useProducts,
+  type CategoryFilterOption,
+  type SortKeyOption,
+  type StockFilterOption,
+} from '../hooks';
+import type { Nullable, Product } from '../types';
+import { getClientCurrency, formatClientMoney } from '../utils/clientCurrency';
+import { usesEmiPricing, usesRetailDecimals } from '../constants/countryCurrency';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ProductModal, type ProductModalMode } from '../components/ProductModal';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
-import { getJwtPayloadFromStorage } from '../utils/jwt';
+import { RequireStoreBanner } from '../components/RequireStoreBanner';
+import { useProfile } from '../hooks/useProfile';
+import { uploadProductImage } from '../services/catalogService';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { showToast } from '../utils/showToast';
 
-const CATEGORIES = ['Phone', 'Tablet', 'Laptop', 'Other'] as const;
-
-type StockFilter = 'all' | 'in' | 'out';
-type SortKey = 'default' | 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'stock-first';
-
-type CategoryFilterOption = { value: string; label: string };
-type StockFilterOption = { value: StockFilter; label: string };
-type SortKeyOption = { value: SortKey; label: string };
-
-const STOCK_FILTER_OPTIONS: StockFilterOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'in', label: 'In Stock' },
-  { value: 'out', label: 'Out of Stock' },
-];
-
-const SORT_KEY_OPTIONS: SortKeyOption[] = [
-  { value: 'default', label: 'Sort by: Default' },
-  { value: 'name-asc', label: 'Name A → Z' },
-  { value: 'name-desc', label: 'Name Z → A' },
-  { value: 'price-asc', label: 'Price Low → High' },
-  { value: 'price-desc', label: 'Price High → Low' },
-  { value: 'stock-first', label: 'In Stock First' },
-];
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function applyFilters(
-  list: CatalogItem[],
-  search: string,
-  category: string,
-  stock: StockFilter,
-): CatalogItem[] {
-  const q = search.trim().toLowerCase();
-  return list.filter((p) => {
-    if (q && !p.name.toLowerCase().includes(q)) {
-      return false;
-    }
-    if (category !== 'All' && p.category !== category) {
-      return false;
-    }
-    if (stock === 'in' && !p.inStock) {
-      return false;
-    }
-    if (stock === 'out' && p.inStock) {
-      return false;
-    }
-    return true;
-  });
-}
-
-function applySort(list: CatalogItem[], sortKey: SortKey): CatalogItem[] {
-  const next = [...list];
-  switch (sortKey) {
-    case 'name-asc':
-      return next.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    case 'name-desc':
-      return next.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: 'base' }));
-    case 'price-asc':
-      return next.sort((a, b) => a.price - b.price);
-    case 'price-desc':
-      return next.sort((a, b) => b.price - a.price);
-    case 'stock-first':
-      return next.sort((a, b) => {
-        if (a.inStock === b.inStock) {
-          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-        }
-        return a.inStock ? -1 : 1;
-      });
-    default:
-      return next;
-  }
-}
-
-const columnHelper = createColumnHelper<CatalogItem>();
+const columnHelper = createColumnHelper<Product>();
 
 export function Products(): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  const clientId = payload?.clientId ?? null;
-  const { products, setProducts } = useAdminData();
+  const { effectiveClientId, isSuperadmin } = useProfile();
+  const clientId = effectiveClientId;
+  const { products, setProducts, clients, saveProduct, removeProduct, removeProducts, dataLoading } =
+    useAdminData();
+
+  const client = useMemo(
+    () => (clientId ? clients.find((c) => c.id === clientId) : null),
+    [clients, clientId],
+  );
+  const isLiquor = isLiquorStoreTemplate(client?.template);
+  const isWatches = isWatchesStoreTemplate(client?.template);
+  const currencyCode = client ? getClientCurrency(client) : 'INR';
+  const showEmi = usesEmiPricing(currencyCode);
+  const useRetailPrice = usesRetailDecimals(currencyCode);
+  const productCategoryChoices = useMemo(() => {
+    if (isLiquor) return LIQUOR_CATEGORIES;
+    if (isWatches) return WATCHES_SUBCATEGORIES;
+    return PRODUCT_CATEGORIES;
+  }, [isLiquor, isWatches]);
 
   const rows = useMemo(
     () => (clientId ? products.filter((p) => p.clientId === clientId) : products),
     [products, clientId],
   );
 
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('default');
+  const {
+    filtered: displayRows,
+    search,
+    setSearch,
+    category: categoryFilter,
+    setCategory: setCategoryFilter,
+    stock: stockFilter,
+    setStock: setStockFilter,
+    sort: sortKey,
+    setSort: setSortKey,
+    clearFilters,
+    categoryFilterOptions,
+  } = useProducts(rows, productCategoryChoices);
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-
-  const filtered = useMemo(
-    () => applyFilters(rows, search, categoryFilter, stockFilter),
-    [rows, search, categoryFilter, stockFilter],
-  );
-
-  const displayRows = useMemo(() => applySort(filtered, sortKey), [filtered, sortKey]);
-
-  const categoryFilterOptions = useMemo((): CategoryFilterOption[] => {
-    return [{ value: 'All', label: 'All' }, ...CATEGORIES.map((c) => ({ value: c, label: c }))];
-  }, []);
 
   useEffect(() => {
     setRowSelection({});
   }, [search, categoryFilter, stockFilter, sortKey]);
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ProductModalMode>('create');
-  const [editing, setEditing] = useState<CatalogItem | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<CatalogItem | null>(null);
+  const [editing, setEditing] = useState<Nullable<Product>>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Nullable<Product>>(null);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    if (dataLoading) {
+      return;
+    }
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
-  }, []);
+  }, [dataLoading]);
 
   const openCreate = (): void => {
     setModalMode('create');
@@ -148,7 +102,7 @@ export function Products(): JSX.Element {
     setModalOpen(true);
   };
 
-  const openEdit = (item: CatalogItem): void => {
+  const openEdit = (item: Product): void => {
     setModalMode('edit');
     setEditing(item);
     setModalOpen(true);
@@ -201,7 +155,7 @@ export function Products(): JSX.Element {
           return (
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={p.imageUrl}
+                src={p.image ?? ''}
                 alt=""
                 className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
               />
@@ -215,16 +169,35 @@ export function Products(): JSX.Element {
       }),
       columnHelper.accessor('category', {
         header: 'Category',
-        cell: (info) => <span className="text-gray-200">{info.getValue()}</span>,
+        cell: (info) => {
+          const v = info.getValue();
+          const choices = isLiquor ? LIQUOR_CATEGORIES : PRODUCT_CATEGORIES;
+          const label = choices.find((c) => c.value === v)?.label ?? v;
+          return <span className="text-gray-200">{label}</span>;
+        },
       }),
       columnHelper.accessor('price', {
         header: 'Price',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
+        cell: (info) => (
+          <span className="text-gray-200">
+            {client
+              ? formatClientMoney(client, info.getValue(), { retail: useRetailPrice })
+              : String(info.getValue())}
+          </span>
+        ),
       }),
-      columnHelper.accessor('emiPrice', {
-        header: 'EMI / mo',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
-      }),
+      ...(showEmi
+        ? []
+        : [
+            columnHelper.accessor('emiPrice', {
+              header: 'EMI / mo',
+              cell: (info) => (
+                <span className="text-gray-200">
+                  {client ? formatClientMoney(client, info.getValue()) : String(info.getValue())}
+                </span>
+              ),
+            }),
+          ]),
       columnHelper.accessor('inStock', {
         header: 'Stock',
         cell: (info) => {
@@ -270,7 +243,7 @@ export function Products(): JSX.Element {
         },
       }),
     ],
-    [],
+    [isLiquor, client, showEmi, useRetailPrice],
   );
 
   const table = useReactTable({
@@ -283,57 +256,70 @@ export function Products(): JSX.Element {
     enableRowSelection: true,
   });
 
-  const handleSave = (values: {
+  const handleSave = async (values: {
     name: string;
     brand: string;
     price: number;
     emiPrice: number;
-    imageUrl: string;
+    image: string;
+    imageFile: File | null;
     inStock: boolean;
     category: string;
-  }): void => {
-    if (!clientId && payload?.role === 'admin') {
-      showToast('Unable to save product. No store is linked to this account.', 'error');
+  }): Promise<void> => {
+    if (!clientId) {
+      showToast(
+        isSuperadmin
+          ? 'Open Clients and use Manage as store on PR Watches first.'
+          : 'Unable to save product. No store is linked to this account.',
+        'error',
+      );
       return;
     }
-    const ownerId = clientId ?? rows[0]?.clientId ?? 'client-1';
-    if (modalMode === 'create') {
-      const next: CatalogItem = {
-        id: `p-${Date.now()}`,
+    const ownerId = clientId ?? editing?.clientId;
+    if (!ownerId) {
+      showToast('No store selected for this product.', 'error');
+      return;
+    }
+    setSaving(true);
+    try {
+      const productId =
+        modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
+      let imageUrl = values.image.trim();
+
+      if (values.imageFile) {
+        imageUrl = await uploadProductImage(ownerId, productId, values.imageFile);
+      }
+
+      if (!imageUrl) {
+        showToast('Add a product image (upload or URL).', 'error');
+        return;
+      }
+
+      const subcategory = isWatches ? values.category : null;
+      const category = (isWatches ? values.category : values.category) as Product['category'];
+
+      const product: Product = {
+        id: productId,
         clientId: ownerId,
         name: values.name,
         brand: values.brand,
         price: values.price,
         emiPrice: values.emiPrice,
-        imageUrl: values.imageUrl,
+        image: imageUrl,
         inStock: values.inStock,
-        category: values.category,
+        category,
+        subcategory,
+        isAccessory: false,
       };
-      setProducts((prev) => [...prev, next]);
-      showToast('Product added successfully', 'success');
-      return;
+
+      await saveProduct(product);
+      showToast(modalMode === 'create' ? 'Product added successfully' : 'Product updated successfully', 'success');
+      setModalOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Save failed', 'error');
+    } finally {
+      setSaving(false);
     }
-    if (!editing) {
-      showToast('Unable to update product.', 'error');
-      return;
-    }
-    setProducts((prev) =>
-      prev.map((p) =>
-        p.id === editing.id
-          ? {
-              ...p,
-              name: values.name,
-              brand: values.brand,
-              price: values.price,
-              emiPrice: values.emiPrice,
-              imageUrl: values.imageUrl,
-              inStock: values.inStock,
-              category: values.category,
-            }
-          : p,
-      ),
-    );
-    showToast('Product updated successfully', 'success');
   };
 
   const selectedIds = useMemo(() => {
@@ -345,13 +331,6 @@ export function Products(): JSX.Element {
   }, [rowSelection]);
 
   const selectedCount = selectedIds.size;
-
-  const clearFilters = (): void => {
-    setSearch('');
-    setCategoryFilter('All');
-    setStockFilter('all');
-    setSortKey('default');
-  };
 
   const markBulkStock = (inStock: boolean): void => {
     if (selectedCount === 0) {
@@ -366,14 +345,18 @@ export function Products(): JSX.Element {
     setRowSelection({});
   };
 
-  const confirmBulkDelete = (): void => {
+  const confirmBulkDelete = async (): Promise<void> => {
     if (selectedCount === 0) {
       return;
     }
-    setProducts((prev) => prev.filter((p) => !selectedIds.has(p.id)));
-    showToast(`${selectedCount} product${selectedCount === 1 ? '' : 's'} deleted`, 'success');
-    setRowSelection({});
-    setBulkDeleteOpen(false);
+    try {
+      await removeProducts([...selectedIds]);
+      showToast(`${selectedCount} product${selectedCount === 1 ? '' : 's'} deleted`, 'success');
+      setRowSelection({});
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    }
   };
 
   const showFilterEmpty = rows.length > 0 && displayRows.length === 0;
@@ -381,17 +364,23 @@ export function Products(): JSX.Element {
   return (
     <PageTransition>
       <div className="space-y-6">
+        <RequireStoreBanner />
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div className="min-w-0">
             <h1 className="admin-page-heading">Products</h1>
             <p className="admin-page-subtitle mt-2 break-words">
-              {clientId ? `Managing catalog for ${clientId}.` : 'All products (demo).'}
+              {client
+                ? `Managing catalog for ${client.storeName}.`
+                : isSuperadmin
+                  ? 'Select a store from Clients to manage its catalog.'
+                  : 'Products'}
             </p>
           </div>
           <button
             type="button"
             onClick={openCreate}
-            className="btn-admin-primary inline-flex w-full items-center justify-center gap-2 sm:w-auto"
+            disabled={isSuperadmin && !clientId}
+            className="btn-admin-primary inline-flex w-full items-center justify-center gap-2 sm:w-auto disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus className="h-4 w-4" aria-hidden />
             Add product
@@ -406,7 +395,11 @@ export function Products(): JSX.Element {
               <Smartphone className="size-16 text-white/20" aria-hidden />
               <h2 className="font-display text-2xl text-white/60">No products yet</h2>
               <p className="max-w-xs text-center text-sm text-white/40">
-                Add your first phone or device to start building your catalog
+                {isLiquor
+                  ? 'Add your first bottle or product to start building your catalog'
+                  : isWatches
+                    ? 'Add your first watch, toy, or accessory to start building your catalog'
+                    : 'Add your first phone or device to start building your catalog'}
               </p>
               <button type="button" onClick={openCreate} className="btn-admin-primary w-full sm:w-auto">
                 + Add First Product
@@ -416,7 +409,7 @@ export function Products(): JSX.Element {
         ) : (
           <>
             <div className="flex flex-wrap gap-3 mb-4 items-end">
-              <div className="relative min-w-[200px] flex-1 basis-full sm:basis-48">
+              <div className="relative min-w-[min(100%,280px)] flex-[2] basis-[240px]">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
                   aria-hidden
@@ -562,11 +555,14 @@ export function Products(): JSX.Element {
         <ProductModal
           open={modalOpen}
           title={modalMode === 'create' ? 'Add product' : 'Edit product'}
-          categories={[...CATEGORIES]}
+          categoryChoices={[...productCategoryChoices]}
           mode={modalMode}
+          currencyCode={currencyCode}
           initial={editing}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
+          saving={saving}
+          allowImageUpload
         />
         <ConfirmModal
           open={deleteTarget !== null}
@@ -576,8 +572,11 @@ export function Products(): JSX.Element {
           variant="danger"
           onConfirm={() => {
             if (deleteTarget) {
-              setProducts((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-              showToast('Product deleted', 'success');
+              void removeProduct(deleteTarget.id)
+                .then(() => showToast('Product deleted', 'success'))
+                .catch((err: unknown) =>
+                  showToast(err instanceof Error ? err.message : 'Delete failed', 'error'),
+                );
             }
             setDeleteTarget(null);
           }}
@@ -596,3 +595,5 @@ export function Products(): JSX.Element {
     </PageTransition>
   );
 }
+
+

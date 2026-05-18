@@ -1,19 +1,36 @@
 {
   "name": "my-agency",
   "private": true,
+  "overrides": {
+    "tailwindcss": "3.4.17"
+  },
   "workspaces": [
     "client",
     "admin",
-    "server"
+    "server",
+    "liquor-store-v1",
+    "watches-store-v2"
   ],
   "scripts": {
     "dev:client": "npm run dev -w client",
     "dev:admin": "npm run dev -w admin",
     "dev:server": "npm run dev -w server",
+    "dev:liquor": "npm run dev -w liquor-store-v1",
+    "dev:watches": "npm run dev -w watches-store-v2",
     "build:client": "npm run build -w client",
     "build:admin": "npm run build -w admin",
     "build:server": "npm run build -w server",
-    "build": "npm run build:client && npm run build:admin && npm run build:server",
-    "lint:client": "npm run lint -w client"
+    "build:liquor": "npm run build -w liquor-store-v1",
+    "build:watches": "npm run build -w watches-store-v2",
+    "build": "npm run build:client && npm run build:admin && npm run build:server && npm run build:watches",
+    "lint:client": "npm run lint -w client",
+    "lint:watches": "npm run lint -w watches-store-v2",
+    "seed:watches": "tsx scripts/seed-watches-catalog.ts",
+    "setup:supabase": "tsx scripts/setup-supabase-full.ts",
+    "set:pr-watches-url": "tsx scripts/set-pr-watches-live-url.ts"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "tsx": "^4.22.0"
   }
 }

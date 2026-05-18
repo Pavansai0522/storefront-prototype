@@ -1,6 +1,7 @@
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
 import { whatsappHref } from '../config/client-config';
+import { WHATSAPP_FAB_ANIMATION_DELAY_S, WHATSAPP_FAB_SPRING } from '../constants';
 import { motion } from 'framer-motion';
 import toast from 'react-hot-toast';
 
@@ -19,9 +20,9 @@ export function WhatsAppFAB(): JSX.Element {
       animate={{ scale: 1 }}
       transition={{
         type: 'spring',
-        stiffness: 260,
-        damping: 20,
-        delay: 1
+        stiffness: WHATSAPP_FAB_SPRING.stiffness,
+        damping: WHATSAPP_FAB_SPRING.damping,
+        delay: WHATSAPP_FAB_ANIMATION_DELAY_S,
       }}
       className="group fixed bottom-6 right-4 z-50 md:right-6"
       aria-label="Chat on WhatsApp"

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import {
   createColumnHelper,
   flexRender,
@@ -8,124 +9,65 @@ import {
 } from '@tanstack/react-table';
 import Select from 'react-select';
 import { CheckSquare, Package, Pencil, Plus, Search, Trash2 } from 'lucide-react';
+import { ACCESSORY_CATEGORIES, SKELETON_DELAY_MS } from '../constants';
+import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
-import type { CatalogItem } from '../mock/products';
+import {
+  SORT_KEY_OPTIONS,
+  STOCK_FILTER_OPTIONS,
+  useAccessories,
+  type CategoryFilterOption,
+  type SortKeyOption,
+  type StockFilterOption,
+} from '../hooks';
+import type { Nullable, Product } from '../types';
+import { formatClientMoney } from '../utils/clientCurrency';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ProductModal, type ProductModalMode } from '../components/ProductModal';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
-import { getJwtPayloadFromStorage } from '../utils/jwt';
+import { RequireStoreBanner } from '../components/RequireStoreBanner';
+import { useProfile } from '../hooks/useProfile';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { showToast } from '../utils/showToast';
 
-const CATEGORIES = ['Case', 'Charger', 'Earphone', 'Cable', 'Other'] as const;
-
-type StockFilter = 'all' | 'in' | 'out';
-type SortKey = 'default' | 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'stock-first';
-
-type CategoryFilterOption = { value: string; label: string };
-type StockFilterOption = { value: StockFilter; label: string };
-type SortKeyOption = { value: SortKey; label: string };
-
-const STOCK_FILTER_OPTIONS: StockFilterOption[] = [
-  { value: 'all', label: 'All' },
-  { value: 'in', label: 'In Stock' },
-  { value: 'out', label: 'Out of Stock' },
-];
-
-const SORT_KEY_OPTIONS: SortKeyOption[] = [
-  { value: 'default', label: 'Sort by: Default' },
-  { value: 'name-asc', label: 'Name A → Z' },
-  { value: 'name-desc', label: 'Name Z → A' },
-  { value: 'price-asc', label: 'Price Low → High' },
-  { value: 'price-desc', label: 'Price High → Low' },
-  { value: 'stock-first', label: 'In Stock First' },
-];
-
-function formatInr(n: number): string {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    maximumFractionDigits: 0,
-  }).format(n);
-}
-
-function applyFilters(
-  list: CatalogItem[],
-  search: string,
-  category: string,
-  stock: StockFilter,
-): CatalogItem[] {
-  const q = search.trim().toLowerCase();
-  return list.filter((p) => {
-    if (q && !p.name.toLowerCase().includes(q)) {
-      return false;
-    }
-    if (category !== 'All' && p.category !== category) {
-      return false;
-    }
-    if (stock === 'in' && !p.inStock) {
-      return false;
-    }
-    if (stock === 'out' && p.inStock) {
-      return false;
-    }
-    return true;
-  });
-}
-
-function applySort(list: CatalogItem[], sortKey: SortKey): CatalogItem[] {
-  const next = [...list];
-  switch (sortKey) {
-    case 'name-asc':
-      return next.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-    case 'name-desc':
-      return next.sort((a, b) => b.name.localeCompare(a.name, undefined, { sensitivity: 'base' }));
-    case 'price-asc':
-      return next.sort((a, b) => a.price - b.price);
-    case 'price-desc':
-      return next.sort((a, b) => b.price - a.price);
-    case 'stock-first':
-      return next.sort((a, b) => {
-        if (a.inStock === b.inStock) {
-          return a.name.localeCompare(b.name, undefined, { sensitivity: 'base' });
-        }
-        return a.inStock ? -1 : 1;
-      });
-    default:
-      return next;
-  }
-}
-
-const columnHelper = createColumnHelper<CatalogItem>();
+const columnHelper = createColumnHelper<Product>();
 
 export function Accessories(): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  const clientId = payload?.clientId ?? null;
-  const { accessories, setAccessories } = useAdminData();
+  const { effectiveClientId: clientId, isSuperadmin } = useProfile();
+  const { accessories, setAccessories, clients, saveProduct, removeProduct, removeProducts } =
+    useAdminData();
+
+  const client = useMemo(
+    () => (clientId ? clients.find((c) => c.id === clientId) : null),
+    [clients, clientId],
+  );
+
+  if (client && (isLiquorStoreTemplate(client.template) || isWatchesStoreTemplate(client.template))) {
+    return <Navigate to="/products" replace />;
+  }
 
   const rows = useMemo(
     () => (clientId ? accessories.filter((p) => p.clientId === clientId) : accessories),
     [accessories, clientId],
   );
 
-  const [search, setSearch] = useState('');
-  const [categoryFilter, setCategoryFilter] = useState<string>('All');
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all');
-  const [sortKey, setSortKey] = useState<SortKey>('default');
+  const {
+    filtered: displayRows,
+    search,
+    setSearch,
+    category: categoryFilter,
+    setCategory: setCategoryFilter,
+    stock: stockFilter,
+    setStock: setStockFilter,
+    sort: sortKey,
+    setSort: setSortKey,
+    clearFilters,
+    categoryFilterOptions,
+  } = useAccessories(rows);
+
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-
-  const filtered = useMemo(
-    () => applyFilters(rows, search, categoryFilter, stockFilter),
-    [rows, search, categoryFilter, stockFilter],
-  );
-
-  const displayRows = useMemo(() => applySort(filtered, sortKey), [filtered, sortKey]);
-
-  const categoryFilterOptions = useMemo((): CategoryFilterOption[] => {
-    return [{ value: 'All', label: 'All' }, ...CATEGORIES.map((c) => ({ value: c, label: c }))];
-  }, []);
 
   useEffect(() => {
     setRowSelection({});
@@ -134,11 +76,11 @@ export function Accessories(): JSX.Element {
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<ProductModalMode>('create');
-  const [editing, setEditing] = useState<CatalogItem | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<CatalogItem | null>(null);
+  const [editing, setEditing] = useState<Nullable<Product>>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Nullable<Product>>(null);
 
   useEffect(() => {
-    const t = window.setTimeout(() => setLoading(false), 600);
+    const t = window.setTimeout(() => setLoading(false), SKELETON_DELAY_MS);
     return () => window.clearTimeout(t);
   }, []);
 
@@ -148,7 +90,7 @@ export function Accessories(): JSX.Element {
     setModalOpen(true);
   };
 
-  const openEdit = (item: CatalogItem): void => {
+  const openEdit = (item: Product): void => {
     setModalMode('edit');
     setEditing(item);
     setModalOpen(true);
@@ -201,7 +143,7 @@ export function Accessories(): JSX.Element {
           return (
             <div className="flex min-w-0 items-center gap-3">
               <img
-                src={p.imageUrl}
+                src={p.image ?? ''}
                 alt=""
                 className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
               />
@@ -219,11 +161,19 @@ export function Accessories(): JSX.Element {
       }),
       columnHelper.accessor('price', {
         header: 'Price',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
+        cell: (info) => (
+          <span className="text-gray-200">
+            {client ? formatClientMoney(client, info.getValue()) : String(info.getValue())}
+          </span>
+        ),
       }),
       columnHelper.accessor('emiPrice', {
         header: 'EMI / mo',
-        cell: (info) => <span className="text-gray-200">{formatInr(info.getValue())}</span>,
+        cell: (info) => (
+          <span className="text-gray-200">
+            {client ? formatClientMoney(client, info.getValue()) : String(info.getValue())}
+          </span>
+        ),
       }),
       columnHelper.accessor('inStock', {
         header: 'Stock',
@@ -283,57 +233,43 @@ export function Accessories(): JSX.Element {
     enableRowSelection: true,
   });
 
-  const handleSave = (values: {
+  const handleSave = async (values: {
     name: string;
     brand: string;
     price: number;
     emiPrice: number;
-    imageUrl: string;
+    image: string;
     inStock: boolean;
     category: string;
-  }): void => {
-    if (!clientId && payload?.role === 'admin') {
+  }): Promise<void> => {
+    if (!clientId && !isSuperadmin) {
       showToast('Unable to save accessory. No store is linked to this account.', 'error');
       return;
     }
-    const ownerId = clientId ?? rows[0]?.clientId ?? 'client-1';
-    if (modalMode === 'create') {
-      const next: CatalogItem = {
-        id: `a-${Date.now()}`,
-        clientId: ownerId,
-        name: values.name,
-        brand: values.brand,
-        price: values.price,
-        emiPrice: values.emiPrice,
-        imageUrl: values.imageUrl,
-        inStock: values.inStock,
-        category: values.category,
-      };
-      setAccessories((prev) => [...prev, next]);
-      showToast('Accessory added successfully', 'success');
-      return;
+    const ownerId = clientId ?? editing?.clientId ?? rows[0]?.clientId ?? 'client-1';
+    const productId = modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
+    const product: Product = {
+      id: productId,
+      clientId: ownerId,
+      name: values.name,
+      brand: values.brand,
+      price: values.price,
+      emiPrice: values.emiPrice,
+      image: values.image,
+      inStock: values.inStock,
+      category: values.category as Product['category'],
+      isAccessory: true,
+    };
+    try {
+      await saveProduct(product);
+      showToast(
+        modalMode === 'create' ? 'Accessory added successfully' : 'Accessory updated successfully',
+        'success',
+      );
+      setModalOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Save failed', 'error');
     }
-    if (!editing) {
-      showToast('Unable to update accessory.', 'error');
-      return;
-    }
-    setAccessories((prev) =>
-      prev.map((p) =>
-        p.id === editing.id
-          ? {
-              ...p,
-              name: values.name,
-              brand: values.brand,
-              price: values.price,
-              emiPrice: values.emiPrice,
-              imageUrl: values.imageUrl,
-              inStock: values.inStock,
-              category: values.category,
-            }
-          : p,
-      ),
-    );
-    showToast('Accessory updated successfully', 'success');
   };
 
   const selectedIds = useMemo(() => {
@@ -345,13 +281,6 @@ export function Accessories(): JSX.Element {
   }, [rowSelection]);
 
   const selectedCount = selectedIds.size;
-
-  const clearFilters = (): void => {
-    setSearch('');
-    setCategoryFilter('All');
-    setStockFilter('all');
-    setSortKey('default');
-  };
 
   const markBulkStock = (inStock: boolean): void => {
     if (selectedCount === 0) {
@@ -366,14 +295,18 @@ export function Accessories(): JSX.Element {
     setRowSelection({});
   };
 
-  const confirmBulkDelete = (): void => {
+  const confirmBulkDelete = async (): Promise<void> => {
     if (selectedCount === 0) {
       return;
     }
-    setAccessories((prev) => prev.filter((p) => !selectedIds.has(p.id)));
-    showToast(`${selectedCount} accessories deleted`, 'success');
-    setRowSelection({});
-    setBulkDeleteOpen(false);
+    try {
+      await removeProducts([...selectedIds]);
+      showToast(`${selectedCount} accessories deleted`, 'success');
+      setRowSelection({});
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    }
   };
 
   const showFilterEmpty = rows.length > 0 && displayRows.length === 0;
@@ -381,11 +314,16 @@ export function Accessories(): JSX.Element {
   return (
     <PageTransition>
       <div className="space-y-6">
+        <RequireStoreBanner />
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div className="min-w-0">
             <h1 className="admin-page-heading">Accessories</h1>
             <p className="admin-page-subtitle mt-2 break-words">
-              {clientId ? `Managing accessories for ${clientId}.` : 'All accessories (demo).'}
+              {client
+                ? `Managing accessories for ${client.storeName}.`
+                : isSuperadmin
+                  ? 'Select a store from Clients to manage accessories.'
+                  : 'Accessories'}
             </p>
           </div>
           <button
@@ -416,7 +354,7 @@ export function Accessories(): JSX.Element {
         ) : (
           <>
             <div className="flex flex-wrap gap-3 mb-4 items-end">
-              <div className="relative min-w-[200px] flex-1 basis-full sm:basis-48">
+              <div className="relative min-w-[min(100%,280px)] flex-[2] basis-[240px]">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
                   aria-hidden
@@ -562,7 +500,7 @@ export function Accessories(): JSX.Element {
         <ProductModal
           open={modalOpen}
           title={modalMode === 'create' ? 'Add accessory' : 'Edit accessory'}
-          categories={[...CATEGORIES]}
+          categoryChoices={[...ACCESSORY_CATEGORIES]}
           mode={modalMode}
           initial={editing}
           onClose={() => setModalOpen(false)}
@@ -575,11 +513,16 @@ export function Accessories(): JSX.Element {
           confirmLabel="Delete"
           variant="danger"
           onConfirm={() => {
-            if (deleteTarget) {
-              setAccessories((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-              showToast('Accessory deleted', 'success');
+            if (!deleteTarget) {
+              setDeleteTarget(null);
+              return;
             }
-            setDeleteTarget(null);
+            void removeProduct(deleteTarget.id)
+              .then(() => showToast('Accessory deleted', 'success'))
+              .catch((err) =>
+                showToast(err instanceof Error ? err.message : 'Delete failed', 'error'),
+              )
+              .finally(() => setDeleteTarget(null));
           }}
           onCancel={() => setDeleteTarget(null)}
         />
@@ -596,3 +539,4 @@ export function Accessories(): JSX.Element {
     </PageTransition>
   );
 }
+

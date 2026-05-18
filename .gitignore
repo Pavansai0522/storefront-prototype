@@ -9,7 +9,12 @@ lerna-debug.log*
 
 node_modules
 dist
+.next
 .env
+.env.*
+!.env.example
+admin/.env
+watches-store-v2/.env
 dist-ssr
 *.local
 

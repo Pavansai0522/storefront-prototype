@@ -24,11 +24,15 @@ import {
 
   Users,
 
+  Watch,
+
   X,
 
 } from 'lucide-react';
 
-import type { JwtRole } from '../utils/jwt';
+import type { Nullable } from '../types';
+import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import type { UserRole } from '../types';
 
 
 
@@ -46,25 +50,30 @@ const linkActive =
 
 type SidebarProps = {
 
-  role: JwtRole;
+  role: UserRole;
 
   isOpen: boolean;
 
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 
-  liveUrl: string | null;
+  liveUrl: Nullable<string>;
+
+  clientTemplate: Nullable<string>;
 
 };
 
 
 
-export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX.Element {
+export function Sidebar({ role, isOpen, setIsOpen, liveUrl, clientTemplate }: SidebarProps): JSX.Element {
 
   const closeMobile = (): void => {
 
     setIsOpen(false);
 
   };
+
+  const isLiquorStore = isLiquorStoreTemplate(clientTemplate);
+  const isWatchesStore = isWatchesStoreTemplate(clientTemplate);
 
 
 
@@ -74,9 +83,11 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX
 
       className={[
 
-        'flex w-56 flex-col border-r border-white/5 bg-surface-sidebar',
+        'flex w-56 shrink-0 flex-col border-r border-white/5 bg-surface-sidebar',
 
-        'fixed inset-y-0 left-0 z-40 transform transition-transform duration-300 md:static md:z-auto',
+        'fixed inset-y-0 left-0 z-40 transform transition-transform duration-300',
+
+        'md:sticky md:top-0 md:z-auto md:h-screen md:self-start',
 
         isOpen ? 'translate-x-0' : '-translate-x-full',
 
@@ -124,7 +135,7 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX
 
       </div>
 
-      <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Main">
+      <nav className="admin-scroll-rail flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Main">
 
         <NavLink
 
@@ -196,6 +207,22 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX
 
             </NavLink>
 
+            <NavLink
+
+              to="/templates/watches-store-v2"
+
+              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+
+              onClick={closeMobile}
+
+            >
+
+              <Watch className="h-4 w-4 shrink-0" aria-hidden />
+
+              Watches template
+
+            </NavLink>
+
           </>
 
         ) : (
@@ -218,21 +245,23 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl }: SidebarProps): JSX
 
             </NavLink>
 
-            <NavLink
+            {!isLiquorStore && !isWatchesStore ? (
+              <NavLink
 
-              to="/accessories"
+                to="/accessories"
 
-              className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+                className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
 
-              onClick={closeMobile}
+                onClick={closeMobile}
 
-            >
+              >
 
-              <Puzzle className="h-4 w-4 shrink-0" aria-hidden />
+                <Puzzle className="h-4 w-4 shrink-0" aria-hidden />
 
-              Accessories
+                Accessories
 
-            </NavLink>
+              </NavLink>
+            ) : null}
 
             <NavLink
 
