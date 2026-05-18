@@ -27,6 +27,7 @@
     "lint:watches": "npm run lint -w watches-store-v2",
     "seed:watches": "tsx scripts/seed-watches-catalog.ts",
     "setup:supabase": "tsx scripts/setup-supabase-full.ts",
+    "fix:superadmin-profile": "tsx scripts/fix-superadmin-profile.ts",
     "set:pr-watches-url": "tsx scripts/set-pr-watches-live-url.ts"
   },
   "devDependencies": {

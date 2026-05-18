@@ -8,6 +8,7 @@ import React, {
 } from 'react';
 import type { Session } from '@supabase/supabase-js';
 import { isLocalDevMode } from '../lib/devMode';
+import { isConfiguredSuperadminEmail, isMockSuperadminEmail } from '../lib/superadminEmail';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import type { DbProfile, ProfileRole } from '../lib/supabaseTypes';
 import type { ID, JwtPayload, Nullable } from '../types';
@@ -16,7 +17,6 @@ import {
   createMockJwt,
   decodeJwtPayload,
   getJwtPayloadFromStorage,
-  getStoredToken,
   setStoredToken,
 } from '../utils/jwt';
 
@@ -48,24 +48,35 @@ type AuthContextValue = {
 
 const AuthContext = createContext<Nullable<AuthContextValue>>(null);
 
+function finalizeProfile(profile: AuthProfile): AuthProfile {
+  if (profile.role === 'superadmin' || isConfiguredSuperadminEmail(profile.email)) {
+    return {
+      ...profile,
+      role: 'superadmin',
+      clientId: null,
+    };
+  }
+  return profile;
+}
+
 function mapProfile(row: DbProfile): AuthProfile {
-  return {
+  return finalizeProfile({
     id: row.id,
     email: row.email,
     role: row.role,
     clientId: row.client_id,
     mustChangePassword: row.must_change_password,
-  };
+  });
 }
 
 function mapJwtToProfile(payload: JwtPayload): AuthProfile {
-  return {
+  return finalizeProfile({
     id: payload.userId ?? `mock-${payload.role}`,
     email: payload.email ?? '',
     role: payload.role,
     clientId: payload.clientId ?? null,
     mustChangePassword: payload.firstLogin === true,
-  };
+  });
 }
 
 function resolveMockClientId(email: string): ID {
@@ -82,8 +93,7 @@ async function mockLoginRequest(email: string, password: string): Promise<string
     throw new Error('Email and password are required.');
   }
   const normalized = email.trim().toLowerCase();
-  const isSuperadmin =
-    normalized.startsWith('superadmin') || normalized === 'super@agency.com';
+  const isSuperadmin = isMockSuperadminEmail(email);
   const payload: JwtPayload = isSuperadmin
     ? { role: 'superadmin', email: email.trim(), iat: Date.now() }
     : {
@@ -103,6 +113,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
   const [impersonateClientId, setImpersonateClientId] = useState<Nullable<ID>>(() =>
     localStorage.getItem(IMPERSONATE_KEY),
   );
+
+  const clearImpersonation = useCallback((): void => {
+    localStorage.removeItem(IMPERSONATE_KEY);
+    setImpersonateClientId(null);
+  }, []);
 
   const loadProfile = useCallback(async (userId: string): Promise<void> => {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
@@ -177,6 +192,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
   }, [isLocalDevMode, loadMockProfileFromStorage, loadProfile]);
 
   const login = useCallback(async (email: string, password: string): Promise<void> => {
+    clearImpersonation();
+    clearStoredToken();
+
     if (isLocalDevMode) {
       const token = await mockLoginRequest(email, password);
       setStoredToken(token);
@@ -196,11 +214,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     if (error) {
       throw new Error(error.message);
     }
-  }, []);
+  }, [clearImpersonation]);
 
   const logout = useCallback(async (): Promise<void> => {
-    localStorage.removeItem(IMPERSONATE_KEY);
-    setImpersonateClientId(null);
+    clearImpersonation();
     if (isLocalDevMode) {
       clearStoredToken();
       setProfile(null);
@@ -210,7 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     await supabase.auth.signOut();
     setProfile(null);
     setSession(null);
-  }, []);
+  }, [clearImpersonation]);
 
   const startImpersonation = useCallback((clientId: ID): void => {
     localStorage.setItem(IMPERSONATE_KEY, clientId);

@@ -94,7 +94,7 @@ async function writeEnvFiles(): Promise<void> {
     );
     return;
   }
-  const adminEnv = `VITE_SUPABASE_URL=${url}\nVITE_SUPABASE_ANON_KEY=${anonKey}\n`;
+  const adminEnv = `VITE_SUPABASE_URL=${url}\nVITE_SUPABASE_ANON_KEY=${anonKey}\nVITE_SUPERADMIN_EMAIL=${superadminEmail}\n`;
   const watchesEnv = `${adminEnv}VITE_CLIENT_SLUG=pr-watches-gadgets\nVITE_CLIENT_ID=client-watches-1\n`;
   const fs = await import('node:fs');
   fs.writeFileSync('admin/.env', adminEnv);
