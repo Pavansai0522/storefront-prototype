@@ -83,7 +83,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
   const showingTo = Math.min(startIdx + PAGE_SIZE, sorted.length);
 
   const selectClass =
-    'min-h-[44px] w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-sm text-brand-text outline-none transition focus:border-brand-purple focus:ring-1 focus:ring-brand-purple/40 sm:min-w-[140px] sm:w-auto';
+    'min-h-[44px] w-full rounded-xl border border-brand-border bg-brand-bg px-3 py-2 text-base text-brand-text outline-none transition focus:border-brand-purple focus:ring-1 focus:ring-brand-purple/40 md:text-sm sm:min-w-[140px] sm:w-auto';
 
   return (
     <div className="border-t border-brand-border pt-8">
@@ -99,7 +99,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search by name or brand…"
             autoComplete="off"
-            className="min-h-[44px] w-full rounded-xl border border-brand-border bg-brand-bg py-2.5 pl-10 pr-3 text-sm text-brand-text outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-1 focus:ring-brand-purple/40"
+            className="min-h-[44px] w-full rounded-xl border border-brand-border bg-brand-bg py-2.5 pl-10 pr-3 text-base text-brand-text outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-1 focus:ring-brand-purple/40 md:text-sm"
             aria-label="Search catalog"
           />
         </div>

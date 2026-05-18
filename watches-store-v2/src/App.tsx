@@ -65,7 +65,7 @@ export function App(): JSX.Element {
             toastOptions={{ duration: 2000 }}
           />
           <ScrollToTop />
-          <div className="flex min-h-screen flex-col bg-brand-bg font-sans text-brand-text selection:bg-brand-purple selection:text-white">
+          <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip bg-brand-bg font-sans text-brand-text selection:bg-brand-purple selection:text-white">
             <Navbar />
 
             <main className="flex-grow pb-20 md:pb-0">

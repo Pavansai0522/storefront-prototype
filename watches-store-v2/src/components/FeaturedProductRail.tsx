@@ -31,7 +31,7 @@ export function FeaturedProductRail({
       {/*
         Do not use touch-pan-x — it blocks vertical page scroll when the finger starts on this row.
       */}
-      <div className="scroll-rail -mx-px w-full snap-x snap-proximity overflow-x-auto overflow-y-visible pb-10 md:mx-0 md:overflow-visible md:snap-none md:pb-0">
+      <div className="scroll-rail w-full max-w-[100vw] snap-x snap-proximity overflow-x-auto overflow-y-visible pb-10 md:overflow-visible md:snap-none md:pb-0">
         <div className="flex w-max min-w-full gap-4 px-4 sm:gap-6 sm:px-6 md:container md:mx-auto md:w-full md:max-w-7xl md:grid md:grid-cols-2 md:gap-6 md:px-8 lg:grid-cols-3 xl:grid-cols-4">
           {children}
         </div>

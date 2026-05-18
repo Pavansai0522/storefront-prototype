@@ -84,6 +84,8 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: 5.5rem;
   scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 @layer base {
@@ -93,12 +95,28 @@ html {
   html,
   body {
     @apply overflow-x-hidden;
+    max-width: 100%;
   }
   body {
     @apply bg-brand-bg bg-brand-mesh text-brand-text font-sans antialiased selection:bg-brand-purple/40 selection:text-white;
+    overflow-x: clip;
   }
   #root {
-    @apply min-h-screen;
+    @apply min-h-screen w-full max-w-[100vw] overflow-x-clip;
+  }
+
+  /* iOS Safari zooms focused fields below 16px */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  @media (min-width: 768px) {
+    input,
+    select,
+    textarea {
+      font-size: inherit;
+    }
   }
 
   /* Modern page scrollbar (vertical) */
