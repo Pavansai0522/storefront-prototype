@@ -80,7 +80,7 @@ export function FeaturedAccessories(): JSX.Element {
       {accessories.map((item, index) => (
         <motion.div
           key={item.id}
-          className="shrink-0 snap-center md:snap-none md:shrink md:w-full"
+          className="shrink-0 snap-start md:w-full md:snap-none md:shrink"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}

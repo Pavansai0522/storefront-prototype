@@ -37,7 +37,7 @@ export function InstagramStrip(): JSX.Element {
         </a>
       </div>
 
-      <div className="scroll-rail w-full overflow-x-auto overflow-y-visible overscroll-x-contain touch-pan-x snap-x snap-mandatory md:overflow-visible md:snap-none">
+      <div className="scroll-rail w-full snap-x snap-proximity overflow-x-auto overflow-y-visible md:overflow-visible md:snap-none">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex w-max gap-3 sm:gap-4 md:w-full md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
             {POSTS.map((img, index) => (

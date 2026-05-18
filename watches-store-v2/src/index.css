@@ -139,8 +139,12 @@ html {
     scrollbar-width: none;
   }
 
-  /* Horizontal rails: slim accent thumb when scrollbar is visible (Firefox fallback) */
+  /* Horizontal rails: allow vertical page scroll; contain horizontal overscroll only */
   .scroll-rail {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    touch-action: manipulation;
     scrollbar-width: thin;
     scrollbar-color: rgba(139, 92, 246, 0.55) transparent;
   }

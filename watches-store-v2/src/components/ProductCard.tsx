@@ -34,7 +34,7 @@ export function ProductCard({
       className={
         isGrid
           ? 'flex w-full min-w-0 max-w-none flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 md:hover:shadow-lg md:hover:shadow-brand-purple/10'
-          : 'flex w-[min(78vw,280px)] min-w-[240px] max-w-[280px] shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 sm:w-[min(72vw,300px)] sm:max-w-[300px] md:w-full md:min-w-0 md:max-w-none md:shrink'
+          : 'flex w-[min(78vw,280px)] min-w-[240px] max-w-[280px] shrink-0 flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 sm:w-[min(72vw,300px)] sm:max-w-[300px] md:w-full md:min-w-0 md:max-w-none md:shrink'
       }
     >
       <div className="group relative flex aspect-square items-center justify-center overflow-hidden bg-brand-surface p-6">
