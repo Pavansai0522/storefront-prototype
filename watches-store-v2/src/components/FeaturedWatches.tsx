@@ -15,10 +15,9 @@ export function FeaturedWatches(): JSX.Element {
       {featuredWatches.map((watch, index) => (
         <div
           key={`${watch.id}-${watch.name}`}
-          className="shrink-0 snap-center md:snap-none md:shrink md:w-full"
+          className="shrink-0 snap-center md:w-full md:snap-none md:shrink"
         >
           <ProductCard
-            layout="grid"
             type="watch"
             brand={watch.brand}
             name={watch.name}

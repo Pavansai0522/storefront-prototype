@@ -15,10 +15,9 @@ export function FeaturedToys(): JSX.Element {
       {featuredToys.map((toy, index) => (
         <div
           key={`${toy.id}-${toy.name}`}
-          className="shrink-0 snap-center md:snap-none md:shrink md:w-full"
+          className="shrink-0 snap-center md:w-full md:snap-none md:shrink"
         >
           <ProductCard
-            layout="grid"
             type="toy"
             brand={toy.brand}
             name={toy.name}

@@ -87,7 +87,6 @@ export function FeaturedAccessories(): JSX.Element {
           transition={{ delay: index * 0.05 }}
         >
           <ProductCard
-            layout="grid"
             type="accessory"
             brand={item.brand}
             name={item.name}

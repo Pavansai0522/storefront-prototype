@@ -28,12 +28,15 @@ export function FeaturedProductRail({
         </motion.div>
       </div>
 
-      <div className="scroll-rail w-full overflow-x-auto overflow-y-visible overscroll-x-contain touch-pan-x snap-x snap-mandatory pb-10 md:overflow-visible md:snap-none md:pb-0">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex w-max gap-4 sm:gap-6 md:w-full md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
-            {children}
-          </div>
-        </div>
+      <div className="scroll-rail -mx-px w-full overflow-x-auto overflow-y-visible overscroll-x-contain touch-pan-x snap-x snap-mandatory pb-10 [-webkit-overflow-scrolling:touch] md:mx-0 md:overflow-visible md:snap-none md:pb-0">
+        <motion.div
+          className="flex w-max min-w-full gap-4 px-4 sm:gap-6 sm:px-6 md:container md:mx-auto md:grid md:w-full md:max-w-7xl md:grid-cols-2 md:gap-6 md:px-8 lg:grid-cols-3 xl:grid-cols-4"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+        >
+          {children}
+        </motion.div>
       </div>
     </section>
   );
