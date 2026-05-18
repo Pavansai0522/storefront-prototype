@@ -28,6 +28,10 @@
     "seed:watches": "tsx scripts/seed-watches-catalog.ts",
     "setup:supabase": "tsx scripts/setup-supabase-full.ts",
     "fix:superadmin-profile": "tsx scripts/fix-superadmin-profile.ts",
+    "reset:admin-auth": "tsx scripts/reset-admin-auth.ts",
+    "cleanup:pr-watches-only": "tsx scripts/cleanup-pr-watches-only.ts",
+    "create:store-admin": "tsx scripts/create-store-admin.ts",
+    "ensure:pr-watches-users": "tsx scripts/ensure-pr-watches-users.ts",
     "set:pr-watches-url": "tsx scripts/set-pr-watches-live-url.ts"
   },
   "devDependencies": {

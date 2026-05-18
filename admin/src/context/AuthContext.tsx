@@ -21,6 +21,20 @@ import {
 } from '../utils/jwt';
 
 const IMPERSONATE_KEY = 'admin_impersonate_client_id';
+const ORIGINAL_ADMIN_JWT_KEY = 'original_admin_jwt';
+
+function isSuperadminProfile(profile: Nullable<AuthProfile>): boolean {
+  if (!profile) {
+    return false;
+  }
+  return profile.role === 'superadmin' || isConfiguredSuperadminEmail(profile.email);
+}
+
+function clearAllAuthStorage(): void {
+  clearStoredToken();
+  localStorage.removeItem(IMPERSONATE_KEY);
+  localStorage.removeItem(ORIGINAL_ADMIN_JWT_KEY);
+}
 
 export type AuthProfile = {
   id: string;
@@ -81,7 +95,10 @@ function mapJwtToProfile(payload: JwtPayload): AuthProfile {
 
 function resolveMockClientId(email: string): ID {
   const normalized = email.trim().toLowerCase();
-  if (normalized === 'owner@prwatches.example') {
+  if (
+    normalized === 'owner@prwatches.example' ||
+    normalized === 'prwatchesv1@gmail.com'
+  ) {
     return 'client-watches-1';
   }
   return 'client-1';
@@ -119,13 +136,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     setImpersonateClientId(null);
   }, []);
 
+  const applyProfile = useCallback((next: AuthProfile): void => {
+    setProfile(finalizeProfile(next));
+  }, []);
+
   const loadProfile = useCallback(async (userId: string): Promise<void> => {
     const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
     if (error) {
       throw new Error(error.message);
     }
-    setProfile(mapProfile(data as DbProfile));
-  }, []);
+    applyProfile(mapProfile(data as DbProfile));
+  }, [applyProfile]);
 
   const loadMockProfileFromStorage = useCallback((): void => {
     const payload = getJwtPayloadFromStorage();
@@ -133,8 +154,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
       setProfile(null);
       return;
     }
-    setProfile(mapJwtToProfile(payload));
-  }, []);
+    applyProfile(mapJwtToProfile(payload));
+  }, [applyProfile]);
 
   const refreshProfile = useCallback(async (): Promise<void> => {
     if (isLocalDevMode) {
@@ -192,15 +213,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
   }, [isLocalDevMode, loadMockProfileFromStorage, loadProfile]);
 
   const login = useCallback(async (email: string, password: string): Promise<void> => {
+    clearAllAuthStorage();
     clearImpersonation();
-    clearStoredToken();
+    setProfile(null);
+    setSession(null);
 
     if (isLocalDevMode) {
       const token = await mockLoginRequest(email, password);
       setStoredToken(token);
       const payload = decodeJwtPayload(token);
       if (payload) {
-        setProfile(mapJwtToProfile(payload));
+        applyProfile(mapJwtToProfile(payload));
       }
       return;
     }
@@ -214,12 +237,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
     if (error) {
       throw new Error(error.message);
     }
-  }, [clearImpersonation]);
+    const { data: sessionData } = await supabase.auth.getSession();
+    const userId = sessionData.session?.user.id;
+    if (userId) {
+      setSession(sessionData.session);
+      await loadProfile(userId);
+    }
+  }, [applyProfile, clearImpersonation, loadProfile]);
 
   const logout = useCallback(async (): Promise<void> => {
+    clearAllAuthStorage();
     clearImpersonation();
     if (isLocalDevMode) {
-      clearStoredToken();
       setProfile(null);
       setSession(null);
       return;
@@ -240,10 +269,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
   }, []);
 
   const effectiveClientId = useMemo((): Nullable<ID> => {
-    if (profile?.role === 'superadmin' && impersonateClientId) {
+    if (!profile || isSuperadminProfile(profile)) {
       return impersonateClientId;
     }
-    return profile?.clientId ?? null;
+    return profile.clientId ?? null;
   }, [profile, impersonateClientId]);
 
   const isLoggedIn = isLocalDevMode ? Boolean(profile) : Boolean(session && profile);
@@ -254,9 +283,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }): JSX.E
       profile,
       effectiveClientId,
       isLoggedIn,
-      isSuperadmin: profile?.role === 'superadmin',
-      isAdmin: profile?.role === 'admin',
-      isImpersonating: profile?.role === 'superadmin' && Boolean(impersonateClientId),
+      isSuperadmin: isSuperadminProfile(profile),
+      isAdmin: Boolean(profile) && !isSuperadminProfile(profile),
+      isImpersonating: isSuperadminProfile(profile) && Boolean(impersonateClientId),
       loading,
       login,
       logout,
