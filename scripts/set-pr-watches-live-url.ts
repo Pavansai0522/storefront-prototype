@@ -24,14 +24,20 @@ const supabase = createClient(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 
-const { error } = await supabase
-  .from('clients')
-  .update({ live_url: liveUrl.replace(/\/$/, '') })
-  .eq('id', 'client-watches-1');
+async function main(): Promise<void> {
+  const { error } = await supabase
+    .from('clients')
+    .update({ live_url: liveUrl.replace(/\/$/, '') })
+    .eq('id', 'client-watches-1');
 
-if (error) {
-  console.error(error.message);
-  process.exit(1);
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  console.log(`Updated PR Watches live_url → ${liveUrl.replace(/\/$/, '')}`);
 }
 
-console.log(`Updated PR Watches live_url → ${liveUrl}`);
+main().catch((err: unknown) => {
+  console.error(err);
+  process.exit(1);
+});

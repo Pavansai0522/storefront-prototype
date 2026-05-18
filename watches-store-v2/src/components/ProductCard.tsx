@@ -1,6 +1,6 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { ProductWhatsAppActions } from './ProductWhatsAppActions';
+import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 
 interface ProductCardProps {
   image: string;
@@ -11,6 +11,8 @@ interface ProductCardProps {
   type: 'watch' | 'toy' | 'accessory';
   /** carousel = horizontal rail card; grid = full-width in desktop grid */
   layout?: 'carousel' | 'grid';
+  /** First visible card in a rail — loads image sooner */
+  priority?: boolean;
 }
 
 export function ProductCard({
@@ -21,24 +23,30 @@ export function ProductCard({
   emi,
   type,
   layout = 'carousel',
+  priority = false,
 }: ProductCardProps): JSX.Element {
   const isWatch = type === 'watch';
   const isGrid = layout === 'grid';
+  const imageSrc = optimizeImageUrl(image, priority ? 640 : 400);
 
   return (
-    <motion.div
-      whileHover={{ y: -5 }}
+    <article
       className={
         isGrid
-          ? 'flex w-full min-w-0 max-w-none flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-all duration-300 hover:border-brand-purple/30 hover:shadow-lg hover:shadow-brand-purple/10'
-          : 'flex w-[min(85vw,320px)] min-w-[260px] max-w-[320px] flex-shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-all duration-300 hover:border-brand-purple/30 hover:shadow-lg hover:shadow-brand-purple/10 sm:min-w-[280px]'
+          ? 'flex w-full min-w-0 max-w-none flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 md:hover:shadow-lg md:hover:shadow-brand-purple/10'
+          : 'flex w-[min(85vw,320px)] min-w-[260px] max-w-[320px] flex-shrink-0 snap-center flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 md:min-w-[280px] md:hover:shadow-lg md:hover:shadow-brand-purple/10'
       }
     >
       <div className="group relative flex aspect-square items-center justify-center overflow-hidden bg-brand-surface p-6">
         <img
-          src={image}
+          src={imageSrc}
           alt={name}
-          className="h-full w-full object-contain transition-transform duration-500 group-hover:scale-110"
+          width={400}
+          height={400}
+          loading={priority ? 'eager' : 'lazy'}
+          decoding="async"
+          fetchPriority={priority ? 'high' : 'auto'}
+          className="h-full w-full object-contain md:transition-transform md:duration-500 md:group-hover:scale-105"
         />
         <div className="absolute left-4 top-4 rounded-full border border-brand-border bg-brand-bg/90 px-3 py-1 backdrop-blur-sm">
           <span className="text-xs font-bold uppercase tracking-wider text-brand-text">
@@ -73,6 +81,7 @@ export function ProductCard({
           <ProductWhatsAppActions productName={name} priceLabel={price} variant="card" />
         </div>
       </div>
-    </motion.div>
+    </article>
   );
 }
+

@@ -25,6 +25,8 @@ export type StoreClientConfig = typeof staticClientConfig;
 type StoreDataContextValue = {
   clientConfig: StoreClientConfig;
   siteActive: boolean;
+  /** True once store metadata is loaded (page shell can render). */
+  storeReady: boolean;
   catalogLoading: boolean;
   catalogError: string | null;
   reloadCatalog: () => Promise<void>;
@@ -88,15 +90,18 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
   const [featuredWatches, setFeaturedWatches] = useState(FEATURED_WATCHES);
   const [featuredToys, setFeaturedToys] = useState(FEATURED_TOYS);
   const [featuredAccessories, setFeaturedAccessories] = useState<FeaturedProduct[]>([]);
+  const [storeReady, setStoreReady] = useState(!isSupabaseConfigured);
   const [catalogLoading, setCatalogLoading] = useState(isSupabaseConfigured);
   const [catalogError, setCatalogError] = useState<string | null>(null);
 
   const loadRemote = useCallback(async (): Promise<void> => {
     if (!isSupabaseConfigured) {
+      setStoreReady(true);
       setCatalogLoading(false);
       return;
     }
 
+    setStoreReady(false);
     setCatalogLoading(true);
     setCatalogError(null);
 
@@ -134,8 +139,10 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
 
       setSiteActive(clientRow.site_active);
       setClientConfig(mergeClientConfig(clientRow));
+      setStoreReady(true);
 
       if (!clientRow.site_active) {
+        setCatalogLoading(false);
         return;
       }
 
@@ -186,6 +193,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
     (): StoreDataContextValue => ({
       clientConfig,
       siteActive,
+      storeReady,
       catalogLoading,
       catalogError,
       reloadCatalog: loadRemote,
@@ -197,6 +205,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
     [
       clientConfig,
       siteActive,
+      storeReady,
       catalogLoading,
       catalogError,
       loadRemote,
