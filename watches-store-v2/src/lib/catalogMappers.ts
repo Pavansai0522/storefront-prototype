@@ -1,5 +1,6 @@
 import type { FeaturedProduct } from '../data/featured';
 import type { CatalogTileItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
+import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 import type { DbProduct } from './supabaseTypes';
 
 export function formatInrLabel(amount: number): string {
@@ -21,7 +22,7 @@ export function dbProductToCatalogTile(row: DbProduct): CatalogTileItem {
     brand: row.brand,
     priceInr: row.price_inr,
     priceLabel: formatInrLabel(row.price_inr),
-    image: row.image_url ?? '',
+    image: optimizeImageUrl(row.image_url ?? ''),
   };
 }
 
@@ -35,7 +36,7 @@ export function dbProductToFeatured(
     name: row.name,
     price: formatInrLabel(row.price_inr),
     emi: formatEmiLabel(row.emi_price_inr, row.price_inr),
-    image: row.image_url ?? '',
+    image: optimizeImageUrl(row.image_url ?? '', 400),
     type,
   };
 }

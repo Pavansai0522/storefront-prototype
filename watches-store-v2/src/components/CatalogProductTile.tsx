@@ -1,6 +1,7 @@
 import React from 'react';
 import { ProductWhatsAppActions } from './ProductWhatsAppActions';
 import type { CatalogTileItem } from '../types/catalogTile.types';
+import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 
 type CatalogProductTileProps = {
   item: CatalogTileItem;
@@ -11,7 +12,7 @@ export function CatalogProductTile({ item }: CatalogProductTileProps): JSX.Eleme
     <article className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-brand-border bg-brand-card transition-all duration-300 hover:border-brand-purple/40 hover:shadow-lg hover:shadow-brand-purple/10">
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-brand-surface">
         <img
-          src={item.image}
+          src={optimizeImageUrl(item.image, 360)}
           alt={`${item.name} — ${item.brand}`}
           width={400}
           height={400}

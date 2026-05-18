@@ -59,8 +59,8 @@ export default {content: [
         'destructive-foreground': 'var(--destructive-foreground)'
       },
       fontFamily: {
-        heading: ['Geist'],
-        mono: ['"Geist Mono"'],
+        heading: ['"Bebas Neue"', 'sans-serif'],
+        mono: ['Inter', 'monospace'],
         bebas: ['"Bebas Neue"', 'sans-serif'],
         sans: ['Inter', 'sans-serif']
       },

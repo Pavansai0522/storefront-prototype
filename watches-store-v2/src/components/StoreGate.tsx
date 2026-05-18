@@ -10,13 +10,13 @@ type StoreGateProps = {
 };
 
 export function StoreGate({ children }: StoreGateProps): JSX.Element {
-  const { siteActive, catalogLoading, catalogError, reloadCatalog } = useStoreData();
+  const { siteActive, storeReady, catalogError, reloadCatalog } = useStoreData();
 
   if (!isSupabaseConfigured) {
     return <>{children}</>;
   }
 
-  if (catalogLoading) {
+  if (!storeReady) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-brand-bg px-4">
         <Spinner size="lg" label="Loading store…" />
