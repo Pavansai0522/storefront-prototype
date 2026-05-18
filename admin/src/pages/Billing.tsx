@@ -7,7 +7,7 @@ import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
 import { formatAdminLongDate } from '../utils/dateDisplay';
 import { isClientPaymentOverdue } from '../utils/clientBilling';
-import { formatINR } from '../utils/formatCurrency';
+import { formatClientMoney } from '../utils/clientCurrency';
 
 export function Billing(): JSX.Element {
   const { clients, markPaymentReceived } = useAdminData();
@@ -30,7 +30,7 @@ export function Billing(): JSX.Element {
       <div>
         <h1 className="admin-page-heading">Billing</h1>
         <p className="admin-page-subtitle mt-2">
-          Payment status per client (mock data — replace with API later).
+          Payment status per client (billing fields on each store record).
         </p>
       </div>
 
@@ -87,7 +87,7 @@ export function Billing(): JSX.Element {
                         </div>
                       </td>
                       <td className="px-4 py-3 text-gray-200">
-                        {formatINR(c.billing.planMonthlyInr)}
+                        {formatClientMoney(c, c.billing.planMonthlyInr)}
                       </td>
                       <td className="hidden px-4 py-3 text-gray-200 md:table-cell">
                         {formatAdminLongDate(c.billing.paidUntil)}

@@ -1,4 +1,6 @@
+export * from './catalogAccessories';
 export * from './formatCurrency';
+export * from './clientCurrency';
 export * from './formatSlug';
 export * from './generatePassword';
 export * from './generateId';
@@ -6,4 +8,3 @@ export * from './classNames';
 export * from './dateDisplay';
 export * from './clientBilling';
 export * from './showToast';
-export * from './jwt';

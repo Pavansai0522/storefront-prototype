@@ -1,11 +1,30 @@
 import React from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { getStoredToken } from '../utils/jwt';
+import { Spinner } from './Spinner';
+import { useAuthContext } from '../context/AuthContext';
+
+function StatusCard({ children }: { children: React.ReactNode }): JSX.Element {
+  return React.createElement(
+    'div',
+    { className: 'flex min-h-screen items-center justify-center bg-brand-bg px-4' },
+    React.createElement('div', { className: 'admin-card max-w-lg p-8 text-center' }, children),
+  );
+}
 
 export function ProtectedRoute(): JSX.Element {
-  const token = getStoredToken();
-  if (!token) {
+  const { isLoggedIn, loading } = useAuthContext();
+
+  if (loading) {
+    return (
+      <StatusCard>
+        <Spinner size="lg" label="Loading session…" />
+      </StatusCard>
+    );
+  }
+
+  if (!isLoggedIn) {
     return <Navigate to="/" replace />;
   }
+
   return <Outlet />;
 }

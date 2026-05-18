@@ -1,3 +1,4 @@
+import type { CountryCode } from '../constants/countryCurrency';
 import type { TemplateId } from '../constants/templates';
 import type { ID, ISODateString, Nullable } from './utils.types';
 
@@ -30,13 +31,21 @@ export interface Client {
   id: ID;
   storeName: string;
   slug: string;
+  /** ISO 3166-1 alpha-2 — drives catalog and billing currency. */
+  country: CountryCode;
   template: TemplateId;
   primaryColor: string;
   whatsappNumber: string;
+  /** Contact phone for liquor-store templates (mobile stores use WhatsApp). */
+  storePhone: string;
   address: string;
   timings: string;
   instagram: string;
   facebook: string;
+  ageVerificationEnabled: boolean;
+  deliveryAvailable: boolean;
+  deliveryRadiusMiles: number;
+  minimumOrderAmountUsd: number;
   logo: string;
   liveUrl: string;
   siteActive: boolean;

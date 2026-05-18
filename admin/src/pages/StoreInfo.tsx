@@ -2,75 +2,113 @@ import React, { useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { useAdminData } from '../context/AdminDataContext';
 import { showToast } from '../utils/showToast';
-import { getJwtPayloadFromStorage } from '../utils/jwt';
+import { useProfile } from '../hooks/useProfile';
 import { PageTransition } from '../components/PageTransition';
+import { RequireStoreBanner } from '../components/RequireStoreBanner';
+import { useAuthContext } from '../context/AuthContext';
+import { isLiquorStoreTemplate } from '../constants/templates';
+import { currencySymbol } from '../constants/countryCurrency';
+import { getClientCurrency } from '../utils/clientCurrency';
+import { joinStoreTimings, parseStoreTimings } from '../utils/storeTimings';
 
 type StoreInfoForm = {
   whatsapp: string;
+  storePhone: string;
   address: string;
-  timings: string;
+  timingsWeekdays: string;
+  timingsSunday: string;
   instagram: string;
   facebook: string;
+  ageVerificationEnabled: boolean;
+  deliveryAvailable: boolean;
+  deliveryRadiusMiles: number;
+  minimumOrderAmountUsd: number;
 };
 
 export function StoreInfo(): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  const clientId = payload?.clientId;
-  const { clients, setClients } = useAdminData();
+  const { isSuperadmin } = useAuthContext();
+  const { effectiveClientId: clientId } = useProfile();
+  const { clients, updateClient } = useAdminData();
 
   const client = useMemo(() => clients.find((c) => c.id === clientId), [clients, clientId]);
+  const isLiquor = isLiquorStoreTemplate(client?.template);
+  const minOrderCurrency = client ? currencySymbol(getClientCurrency(client)) : 'USD';
 
-  const { register, handleSubmit, reset } = useForm<StoreInfoForm>({
+  const { register, handleSubmit, reset, watch } = useForm<StoreInfoForm>({
     defaultValues: {
       whatsapp: '',
+      storePhone: '',
       address: '',
-      timings: '',
+      timingsWeekdays: '',
+      timingsSunday: '',
       instagram: '',
       facebook: '',
+      ageVerificationEnabled: false,
+      deliveryAvailable: false,
+      deliveryRadiusMiles: 0,
+      minimumOrderAmountUsd: 0,
     },
     mode: 'onSubmit',
   });
+
+  const deliveryOn = watch('deliveryAvailable');
 
   useEffect(() => {
     if (!client) {
       return;
     }
+    const { weekdays, sunday } = parseStoreTimings(client.timings);
     reset({
       whatsapp: client.whatsappNumber,
+      storePhone: client.storePhone,
       address: client.address,
-      timings: client.timings,
+      timingsWeekdays: weekdays,
+      timingsSunday: sunday,
       instagram: client.instagram,
       facebook: client.facebook,
+      ageVerificationEnabled: client.ageVerificationEnabled,
+      deliveryAvailable: client.deliveryAvailable,
+      deliveryRadiusMiles: client.deliveryRadiusMiles,
+      minimumOrderAmountUsd: client.minimumOrderAmountUsd,
     });
   }, [client, reset]);
 
   if (!clientId || !client) {
     return (
       <PageTransition>
-        <div className="admin-card-static p-8 text-center">
-          <p className="text-white">No store is linked to this account.</p>
-          <p className="mt-2 text-sm text-gray-400">Sign in as an admin with a clientId claim.</p>
+        <div className="mx-auto max-w-2xl space-y-6">
+          <RequireStoreBanner />
+          <div className="admin-card-static p-8 text-center">
+            <p className="text-white">No store selected</p>
+            <p className="mt-2 text-sm text-gray-400">
+              {isSuperadmin
+                ? 'Use Clients → Manage as store on PR Watches to edit store info.'
+                : 'Sign in as a store admin linked to this account.'}
+            </p>
+          </div>
         </div>
       </PageTransition>
     );
   }
 
-  const onSubmit = (data: StoreInfoForm): void => {
-    setClients((prev) =>
-      prev.map((c) =>
-        c.id === client.id
-          ? {
-              ...c,
-              whatsappNumber: data.whatsapp.trim(),
-              address: data.address.trim(),
-              timings: data.timings.trim(),
-              instagram: data.instagram.trim(),
-              facebook: data.facebook.trim(),
-            }
-          : c,
-      ),
-    );
-    showToast('Store info saved', 'success');
+  const onSubmit = async (data: StoreInfoForm): Promise<void> => {
+    const timings = joinStoreTimings(data.timingsWeekdays, data.timingsSunday).trim();
+    if (!timings) {
+      showToast('Please enter at least one hours line (Monday–Saturday and/or Sunday).', 'error');
+      return;
+    }
+    await updateClient(client.id, {
+      whatsappNumber: isLiquor ? client.whatsappNumber : data.whatsapp.trim(),
+      storePhone: isLiquor ? data.storePhone.trim() : client.storePhone,
+      address: data.address.trim(),
+      timings,
+      instagram: data.instagram.trim(),
+      facebook: data.facebook.trim(),
+      ageVerificationEnabled: isLiquor ? data.ageVerificationEnabled : client.ageVerificationEnabled,
+      deliveryAvailable: isLiquor ? data.deliveryAvailable : client.deliveryAvailable,
+      deliveryRadiusMiles: isLiquor ? data.deliveryRadiusMiles : client.deliveryRadiusMiles,
+      minimumOrderAmountUsd: isLiquor ? data.minimumOrderAmountUsd : client.minimumOrderAmountUsd,
+    });
   };
 
   return (
@@ -84,20 +122,41 @@ export function StoreInfo(): JSX.Element {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="admin-card grid grid-cols-1 gap-5 p-6 md:grid-cols-2">
-          <label className="block text-sm">
-            <span className="admin-label">WhatsApp number</span>
-            <input required className="admin-input" {...register('whatsapp', { required: true })} />
-          </label>
+          {isLiquor ? (
+            <label className="block text-sm md:col-span-2">
+              <span className="admin-label">Phone number</span>
+              <input required className="admin-input" {...register('storePhone', { required: true })} />
+            </label>
+          ) : (
+            <label className="block text-sm md:col-span-2">
+              <span className="admin-label">WhatsApp number</span>
+              <input required className="admin-input" {...register('whatsapp', { required: true })} />
+            </label>
+          )}
 
-          <label className="block text-sm">
-            <span className="admin-label">Timings</span>
-            <input
-              required
-              className="admin-input"
-              placeholder="Mon–Sat 10:00–20:00"
-              {...register('timings', { required: true })}
-            />
-          </label>
+          <div className="grid grid-cols-1 gap-4 md:col-span-2 md:grid-cols-2">
+            <label className="block text-sm">
+              <span className="admin-label">Monday–Saturday hours</span>
+              <input
+                className="admin-input"
+                placeholder="e.g. Mon–Sat 10:00 AM – 10:00 PM"
+                aria-label="Monday through Saturday opening hours"
+                {...register('timingsWeekdays')}
+              />
+            </label>
+            <label className="block text-sm">
+              <span className="admin-label">Sunday hours</span>
+              <input
+                className="admin-input"
+                placeholder="e.g. Sun 10:00 AM – 9:00 PM"
+                aria-label="Sunday opening hours"
+                {...register('timingsSunday')}
+              />
+            </label>
+          </div>
+          <p className="text-xs text-gray-500 md:col-span-2">
+            Enter at least one line. If both are filled, they are combined for your storefront.
+          </p>
 
           <label className="block text-sm md:col-span-2">
             <span className="admin-label">Address</span>
@@ -119,6 +178,50 @@ export function StoreInfo(): JSX.Element {
             <input className="admin-input" placeholder="Page URL" {...register('facebook')} />
           </label>
 
+          {isLiquor ? (
+            <>
+              <div className="md:col-span-2">
+                <p className="admin-label mb-2">Compliance</p>
+                <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-brand-bg/40 px-4 py-3 text-sm text-white">
+                  <input type="checkbox" className="h-4 w-4 rounded border-white/20 accent-brand-saffron" {...register('ageVerificationEnabled')} />
+                  <span>Require age verification on the storefront</span>
+                </label>
+              </div>
+
+              <div className="md:col-span-2 space-y-3 rounded-xl border border-white/10 bg-brand-bg/40 p-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-brand-saffron">Delivery</p>
+                <label className="flex cursor-pointer items-center gap-3 text-sm text-white">
+                  <input type="checkbox" className="h-4 w-4 rounded border-white/20 accent-brand-saffron" {...register('deliveryAvailable')} />
+                  <span>Delivery available</span>
+                </label>
+                <label className="block text-sm">
+                  <span className="admin-label">Delivery radius (miles)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={1}
+                    disabled={!deliveryOn}
+                    className="admin-input disabled:opacity-50"
+                    {...register('deliveryRadiusMiles', { valueAsNumber: true, min: 0 })}
+                  />
+                </label>
+                <label className="block text-sm">
+                  <span className="admin-label">Minimum order amount ({minOrderCurrency})</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    className="admin-input"
+                    {...register('minimumOrderAmountUsd', { valueAsNumber: true, min: 0 })}
+                  />
+                  <span className="mt-1 block text-xs text-gray-500">
+                    Shown in {minOrderCurrency} on the storefront.
+                  </span>
+                </label>
+              </div>
+            </>
+          ) : null}
+
           <div className="flex justify-end pt-2 md:col-span-2">
             <button type="submit" className="btn-admin-primary w-full sm:w-auto">
               Save changes
@@ -129,3 +232,4 @@ export function StoreInfo(): JSX.Element {
     </PageTransition>
   );
 }
+

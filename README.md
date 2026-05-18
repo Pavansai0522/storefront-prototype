@@ -8,13 +8,17 @@ This platform is built for an agency that ships **modern websites for Indian loc
 
 ## Monorepo structure
 
-The repo is an **npm workspaces** monorepo with three packages:
+The repo is an **npm workspaces** monorepo with five packages:
 
 | Workspace | Role |
 |-----------|------|
 | **`client/`** | Public **storefront** (Vite + React). Template-driven, mobile-first catalog and lead capture (WhatsApp). |
+| **`liquor-store-v1/`** | **Liquor storefront** (Vite + React 18, same stack pattern as `client/`). For clients on the `liquor-store-v1` admin template; dev server defaults to `http://localhost:3000`. |
+| **`watches-store-v2/`** | **Watches storefront** (Vite + React 18; from `Downloads/pr-watches`). For clients on the `watches-store-v2` admin template; dev server defaults to `http://localhost:3002`. |
 | **`admin/`** | **Agency + store-owner** panel (Vite + React). Superadmin manages clients and billing; each store admin manages catalog and store info. |
 | **`server/`** | **API** (Express + TypeScript). Health check and MongoDB wiring today; REST expansion in Phase 2. |
+
+Use `npm run dev:liquor` / `npm run build:liquor` and `npm run dev:watches` / `npm run build:watches` from the repo root.
 
 ### Folder tree
 
@@ -23,6 +27,22 @@ my-agency/
 ├── package.json                 # workspaces + root scripts
 ├── package-lock.json
 ├── README.md
+├── liquor-store-v1/             # Vite + React template (liquor)
+│   ├── src/
+│   │   ├── App.tsx              # Routes: /, /shop, /spirits, /wine, /beer + age gate
+│   │   ├── pages/
+│   │   ├── components/
+│   │   └── data/
+│   ├── package.json
+│   └── vite.config.ts
+├── watches-store-v2/            # Vite + React template (watches; from Downloads/pr-watches)
+│   ├── src/
+│   │   ├── App.tsx              # Routes: /, /watches, /toys, /accessories, /visit
+│   │   ├── pages/
+│   │   └── components/
+│   ├── public/
+│   ├── package.json
+│   └── vite.config.ts
 ├── client/
 │   ├── index.html
 │   ├── package.json

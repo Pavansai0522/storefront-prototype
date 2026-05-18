@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from './context/AuthContext';
 import { AdminDataProvider } from './context/AdminDataContext';
 import { App } from './App';
 import { TOAST_DURATION_MS } from './constants';
@@ -10,8 +11,9 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
-      <AdminDataProvider>
-        <App />
+      <AuthProvider>
+        <AdminDataProvider>
+          <App />
         <Toaster
           position="bottom-right"
           toastOptions={{
@@ -24,7 +26,8 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
             },
           }}
         />
-      </AdminDataProvider>
+        </AdminDataProvider>
+      </AuthProvider>
     </BrowserRouter>
   </React.StrictMode>,
 );

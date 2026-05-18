@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { MIN_PASSWORD_LENGTH } from '../constants';
-import type { JwtPayload, Nullable } from '../types';
+import { useAuthContext } from '../context/AuthContext';
+import { isLocalDevMode } from '../lib/devMode';
+import { supabase } from '../lib/supabase';
 import { createMockJwt, decodeJwtPayload, getStoredToken, setStoredToken } from '../utils/jwt';
+import type { JwtPayload } from '../types';
 import { showToast } from '../utils/showToast';
 import { PageTransition } from '../components/PageTransition';
 
@@ -15,6 +18,7 @@ type ChangePasswordForm = {
 
 export function ChangePassword(): JSX.Element {
   const navigate = useNavigate();
+  const { profile, refreshProfile } = useAuthContext();
   const [submitting, setSubmitting] = useState(false);
 
   const {
@@ -28,31 +32,61 @@ export function ChangePassword(): JSX.Element {
     mode: 'onSubmit',
   });
 
-  const onSubmit = (_data: ChangePasswordForm): void => {
-    const token = getStoredToken();
-    const prev: Nullable<JwtPayload> = token ? decodeJwtPayload(token) : null;
-    if (!prev || prev.role !== 'admin') {
+  const onSubmit = async (data: ChangePasswordForm): Promise<void> => {
+    if (!profile?.email) {
       setError('root', { message: 'Unable to update password for this session.' });
       return;
     }
 
     setSubmitting(true);
-    window.setTimeout(() => {
-      const nextPayload: JwtPayload = {
-        ...prev,
-        firstLogin: false,
-      };
-      setStoredToken(createMockJwt(nextPayload));
-      const wasFirstLogin = prev.firstLogin === true;
-      if (wasFirstLogin) {
-        showToast('Welcome! Password updated.', 'success');
-        navigate('/dashboard', { replace: true });
-      } else {
+    try {
+      if (isLocalDevMode) {
+        const token = getStoredToken();
+        const payload = token ? decodeJwtPayload(token) : null;
+        if (!payload) {
+          setError('root', { message: 'Session expired. Sign in again.' });
+          return;
+        }
+        const next: JwtPayload = { ...payload, firstLogin: false };
+        setStoredToken(createMockJwt(next));
+        await refreshProfile();
         showToast('Password changed successfully', 'success');
         navigate('/dashboard', { replace: true });
+        return;
       }
+
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: profile.email,
+        password: data.currentPassword,
+      });
+      if (signInError) {
+        setError('currentPassword', { message: 'Current password is incorrect.' });
+        return;
+      }
+
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: data.newPassword,
+      });
+      if (updateError) {
+        setError('root', { message: updateError.message });
+        return;
+      }
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({ must_change_password: false })
+        .eq('id', profile.id);
+      if (profileError) {
+        setError('root', { message: profileError.message });
+        return;
+      }
+
+      await refreshProfile();
+      showToast('Password changed successfully', 'success');
+      navigate('/dashboard', { replace: true });
+    } finally {
       setSubmitting(false);
-    }, 400);
+    }
   };
 
   return (
@@ -71,6 +105,11 @@ export function ChangePassword(): JSX.Element {
                 className="admin-input mt-1"
                 {...register('currentPassword', { required: 'All fields are required.' })}
               />
+              {errors.currentPassword ? (
+                <p className="mt-1 text-sm text-red-300" role="alert">
+                  {errors.currentPassword.message}
+                </p>
+              ) : null}
             </label>
             <label className="block text-sm">
               <span className="admin-label">New password</span>

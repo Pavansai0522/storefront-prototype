@@ -8,6 +8,18 @@ export interface Phone {
   img: string;
 }
 
+/** Liquor template catalog values — aligned with admin `LIQUOR_CATEGORIES` and liquor-store-v1. */
+export type LiquorCategory =
+  | 'Whisky'
+  | 'Scotch'
+  | 'Rare Bottles'
+  | 'Wine'
+  | 'Vodka'
+  | 'Beer'
+  | 'Tequila'
+  | 'Rum'
+  | 'Other';
+
 export type AccessoryCategoryId = 'audio' | 'cables' | 'wearables' | 'power';
 
 export interface Accessory {

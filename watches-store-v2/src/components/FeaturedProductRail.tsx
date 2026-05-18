@@ -1,0 +1,40 @@
+import React from 'react';
+import { motion } from 'framer-motion';
+
+type FeaturedProductRailProps = {
+  id?: string;
+  title: string;
+  accentClassName?: string;
+  children: React.ReactNode;
+};
+
+/** Mobile: horizontal snap rail. Desktop: responsive grid — single page scroll only. */
+export function FeaturedProductRail({
+  id,
+  title,
+  accentClassName = 'bg-brand-text',
+  children,
+}: FeaturedProductRailProps): JSX.Element {
+  return (
+    <section id={id} className="relative z-10 bg-brand-bg py-16 md:py-24">
+      <div className="container mx-auto mb-10 px-4 sm:mb-12 sm:px-6 lg:px-8">
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+        >
+          <h2 className="font-bebas text-4xl tracking-wide text-brand-text md:text-5xl">{title}</h2>
+          <div className={`mt-4 h-1 w-24 rounded-full ${accentClassName}`} />
+        </motion.div>
+      </div>
+
+      <div className="scroll-rail w-full overflow-x-auto overflow-y-visible overscroll-x-contain touch-pan-x snap-x snap-mandatory pb-10 md:overflow-visible md:snap-none md:pb-0">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex w-max gap-4 sm:gap-6 md:w-full md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+            {children}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}

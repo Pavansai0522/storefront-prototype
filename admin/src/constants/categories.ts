@@ -5,10 +5,56 @@ export const PRODUCT_CATEGORIES = [
   { value: 'Other', label: 'Other' },
 ] as const;
 
+/** Stored `Product.category` values — must match liquor-store-v1 catalog / `Product.category`. */
+export const LIQUOR_CATEGORIES = [
+  { value: 'Whisky', label: 'Whisky & Bourbon' },
+  { value: 'Scotch', label: 'Scotch' },
+  { value: 'Rare Bottles', label: 'Rare Bottles' },
+  { value: 'Wine', label: 'Wine & Champagne' },
+  { value: 'Vodka', label: 'Vodka & Gin' },
+  { value: 'Beer', label: 'Beer & Craft' },
+  { value: 'Tequila', label: 'Tequila & Mezcal' },
+  { value: 'Rum', label: 'Rum & Brandy' },
+  { value: 'Other', label: 'Other Spirits' },
+] as const;
+
+export type LiquorCategory = (typeof LIQUOR_CATEGORIES)[number]['value'];
+
 export const ACCESSORY_CATEGORIES = [
   { value: 'Case', label: 'Case' },
   { value: 'Charger', label: 'Charger' },
   { value: 'Earphone', label: 'Earphone' },
   { value: 'Cable', label: 'Cable' },
   { value: 'Other', label: 'Other' },
+] as const;
+
+/** Matches watches-store-v2 `/accessories/*` catalog keys. */
+export const WATCHES_ACCESSORY_SUBCATEGORY_KEYS = [
+  'cables',
+  'headphones',
+  'phone-accessories',
+  'gadgets',
+] as const;
+
+export type WatchesAccessorySubcategory = (typeof WATCHES_ACCESSORY_SUBCATEGORY_KEYS)[number];
+
+export function isWatchesAccessorySubcategory(key: string | null | undefined): boolean {
+  return Boolean(
+    key &&
+      (WATCHES_ACCESSORY_SUBCATEGORY_KEYS as readonly string[]).includes(key),
+  );
+}
+
+/** Matches watches-store-v2 SubcategoryCatalogKey values. */
+export const WATCHES_SUBCATEGORIES = [
+  { value: 'smart-watches', label: 'Smart watches' },
+  { value: 'dial-watches', label: 'Dial watches' },
+  { value: 'kids-watches', label: 'Kids watches' },
+  { value: 'rc-toys', label: 'RC toys' },
+  { value: 'soft-toys', label: 'Soft toys' },
+  { value: 'education-toys', label: 'Education toys' },
+  { value: 'cables', label: 'Cables' },
+  { value: 'headphones', label: 'Headphones' },
+  { value: 'phone-accessories', label: 'Phone accessories' },
+  { value: 'gadgets', label: 'Gadgets' },
 ] as const;

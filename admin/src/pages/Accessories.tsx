@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Navigate } from 'react-router-dom';
 import {
   createColumnHelper,
   flexRender,
@@ -9,6 +10,7 @@ import {
 import Select from 'react-select';
 import { CheckSquare, Package, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { ACCESSORY_CATEGORIES, SKELETON_DELAY_MS } from '../constants';
+import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
 import {
   SORT_KEY_OPTIONS,
@@ -19,22 +21,31 @@ import {
   type StockFilterOption,
 } from '../hooks';
 import type { Nullable, Product } from '../types';
-import { formatINR } from '../utils/formatCurrency';
+import { formatClientMoney } from '../utils/clientCurrency';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ProductModal, type ProductModalMode } from '../components/ProductModal';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
-import { getJwtPayloadFromStorage } from '../utils/jwt';
+import { RequireStoreBanner } from '../components/RequireStoreBanner';
+import { useProfile } from '../hooks/useProfile';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
-const ACCESSORY_CATEGORY_VALUES = ACCESSORY_CATEGORIES.map((c) => c.value);
 
 export function Accessories(): JSX.Element {
-  const payload = getJwtPayloadFromStorage();
-  const clientId = payload?.clientId ?? null;
-  const { accessories, setAccessories } = useAdminData();
+  const { effectiveClientId: clientId, isSuperadmin } = useProfile();
+  const { accessories, setAccessories, clients, saveProduct, removeProduct, removeProducts } =
+    useAdminData();
+
+  const client = useMemo(
+    () => (clientId ? clients.find((c) => c.id === clientId) : null),
+    [clients, clientId],
+  );
+
+  if (client && (isLiquorStoreTemplate(client.template) || isWatchesStoreTemplate(client.template))) {
+    return <Navigate to="/products" replace />;
+  }
 
   const rows = useMemo(
     () => (clientId ? accessories.filter((p) => p.clientId === clientId) : accessories),
@@ -150,11 +161,19 @@ export function Accessories(): JSX.Element {
       }),
       columnHelper.accessor('price', {
         header: 'Price',
-        cell: (info) => <span className="text-gray-200">{formatINR(info.getValue())}</span>,
+        cell: (info) => (
+          <span className="text-gray-200">
+            {client ? formatClientMoney(client, info.getValue()) : String(info.getValue())}
+          </span>
+        ),
       }),
       columnHelper.accessor('emiPrice', {
         header: 'EMI / mo',
-        cell: (info) => <span className="text-gray-200">{formatINR(info.getValue())}</span>,
+        cell: (info) => (
+          <span className="text-gray-200">
+            {client ? formatClientMoney(client, info.getValue()) : String(info.getValue())}
+          </span>
+        ),
       }),
       columnHelper.accessor('inStock', {
         header: 'Stock',
@@ -214,7 +233,7 @@ export function Accessories(): JSX.Element {
     enableRowSelection: true,
   });
 
-  const handleSave = (values: {
+  const handleSave = async (values: {
     name: string;
     brand: string;
     price: number;
@@ -222,50 +241,35 @@ export function Accessories(): JSX.Element {
     image: string;
     inStock: boolean;
     category: string;
-  }): void => {
-    if (!clientId && payload?.role === 'admin') {
+  }): Promise<void> => {
+    if (!clientId && !isSuperadmin) {
       showToast('Unable to save accessory. No store is linked to this account.', 'error');
       return;
     }
-    const ownerId = clientId ?? rows[0]?.clientId ?? 'client-1';
-    if (modalMode === 'create') {
-      const next: Product = {
-        id: `a-${Date.now()}`,
-        clientId: ownerId,
-        name: values.name,
-        brand: values.brand,
-        price: values.price,
-        emiPrice: values.emiPrice,
-        image: values.image,
-        inStock: values.inStock,
-        category: values.category as Product['category'],
-        isAccessory: true,
-      };
-      setAccessories((prev) => [...prev, next]);
-      showToast('Accessory added successfully', 'success');
-      return;
+    const ownerId = clientId ?? editing?.clientId ?? rows[0]?.clientId ?? 'client-1';
+    const productId = modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
+    const product: Product = {
+      id: productId,
+      clientId: ownerId,
+      name: values.name,
+      brand: values.brand,
+      price: values.price,
+      emiPrice: values.emiPrice,
+      image: values.image,
+      inStock: values.inStock,
+      category: values.category as Product['category'],
+      isAccessory: true,
+    };
+    try {
+      await saveProduct(product);
+      showToast(
+        modalMode === 'create' ? 'Accessory added successfully' : 'Accessory updated successfully',
+        'success',
+      );
+      setModalOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Save failed', 'error');
     }
-    if (!editing) {
-      showToast('Unable to update accessory.', 'error');
-      return;
-    }
-    setAccessories((prev) =>
-      prev.map((p) =>
-        p.id === editing.id
-          ? {
-              ...p,
-              name: values.name,
-              brand: values.brand,
-              price: values.price,
-              emiPrice: values.emiPrice,
-              image: values.image,
-              inStock: values.inStock,
-              category: values.category as Product['category'],
-            }
-          : p,
-      ),
-    );
-    showToast('Accessory updated successfully', 'success');
   };
 
   const selectedIds = useMemo(() => {
@@ -291,14 +295,18 @@ export function Accessories(): JSX.Element {
     setRowSelection({});
   };
 
-  const confirmBulkDelete = (): void => {
+  const confirmBulkDelete = async (): Promise<void> => {
     if (selectedCount === 0) {
       return;
     }
-    setAccessories((prev) => prev.filter((p) => !selectedIds.has(p.id)));
-    showToast(`${selectedCount} accessories deleted`, 'success');
-    setRowSelection({});
-    setBulkDeleteOpen(false);
+    try {
+      await removeProducts([...selectedIds]);
+      showToast(`${selectedCount} accessories deleted`, 'success');
+      setRowSelection({});
+      setBulkDeleteOpen(false);
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Delete failed', 'error');
+    }
   };
 
   const showFilterEmpty = rows.length > 0 && displayRows.length === 0;
@@ -306,11 +314,16 @@ export function Accessories(): JSX.Element {
   return (
     <PageTransition>
       <div className="space-y-6">
+        <RequireStoreBanner />
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div className="min-w-0">
             <h1 className="admin-page-heading">Accessories</h1>
             <p className="admin-page-subtitle mt-2 break-words">
-              {clientId ? `Managing accessories for ${clientId}.` : 'All accessories (demo).'}
+              {client
+                ? `Managing accessories for ${client.storeName}.`
+                : isSuperadmin
+                  ? 'Select a store from Clients to manage accessories.'
+                  : 'Accessories'}
             </p>
           </div>
           <button
@@ -341,7 +354,7 @@ export function Accessories(): JSX.Element {
         ) : (
           <>
             <div className="flex flex-wrap gap-3 mb-4 items-end">
-              <div className="relative min-w-[200px] flex-1 basis-full sm:basis-48">
+              <div className="relative min-w-[min(100%,280px)] flex-[2] basis-[240px]">
                 <Search
                   className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500"
                   aria-hidden
@@ -487,7 +500,7 @@ export function Accessories(): JSX.Element {
         <ProductModal
           open={modalOpen}
           title={modalMode === 'create' ? 'Add accessory' : 'Edit accessory'}
-          categories={[...ACCESSORY_CATEGORY_VALUES]}
+          categoryChoices={[...ACCESSORY_CATEGORIES]}
           mode={modalMode}
           initial={editing}
           onClose={() => setModalOpen(false)}
@@ -500,11 +513,16 @@ export function Accessories(): JSX.Element {
           confirmLabel="Delete"
           variant="danger"
           onConfirm={() => {
-            if (deleteTarget) {
-              setAccessories((prev) => prev.filter((p) => p.id !== deleteTarget.id));
-              showToast('Accessory deleted', 'success');
+            if (!deleteTarget) {
+              setDeleteTarget(null);
+              return;
             }
-            setDeleteTarget(null);
+            void removeProduct(deleteTarget.id)
+              .then(() => showToast('Accessory deleted', 'success'))
+              .catch((err) =>
+                showToast(err instanceof Error ? err.message : 'Delete failed', 'error'),
+              )
+              .finally(() => setDeleteTarget(null));
           }}
           onCancel={() => setDeleteTarget(null)}
         />
@@ -521,3 +539,4 @@ export function Accessories(): JSX.Element {
     </PageTransition>
   );
 }
+

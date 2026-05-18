@@ -9,12 +9,12 @@ import { buildWhatsAppUrl } from '../utils/whatsapp';
 export const clientConfig = {
   brand: {
     /** Used in sentences: "Hi {chatName}!" and headings */
-    chatName: 'Arudra Mobiles',
+    chatName: 'Bala Mobiles',
     /** Short legal / footer entity name */
-    legalName: 'Arudra Mobiles',
+    legalName: 'Bala Mobiles',
     /** Split logo wordmark: [before accent][accent in brand color] */
     wordmark: {
-      beforeAccent: 'ARUDRA ',
+      beforeAccent: 'BALA ',
       accent: 'MOBILES'
     }
   },
@@ -22,7 +22,7 @@ export const clientConfig = {
     /** WhatsApp number only, country code without + (e.g. 919876543210) */
     whatsappE164: '919876543210',
     phoneDisplay: '+91 98765 43210',
-    email: 'hello@arudramobiles.in'
+    email: 'hello@balamobiles.in'
   },
   location: {
     /** Rendered with line breaks between entries */
@@ -33,7 +33,7 @@ export const clientConfig = {
     ],
     /** Single line for compact mobile footer (no pincode) */
     footerCompactAddress: 'Shop No. 42, Tech Market, MG Road',
-    mapCardTitle: 'Arudra Mobiles',
+    mapCardTitle: 'Bala Mobiles',
     mapCardSubtitle: 'Tech Market, MG Road',
     /** Store photo carousel (replace with real storefront images when available) */
     storeCarouselImages: [

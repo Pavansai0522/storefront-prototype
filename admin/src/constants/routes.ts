@@ -5,6 +5,7 @@ export const ROUTES = {
   CLIENT_DETAIL: '/clients/:id',
   CREATE_CLIENT: '/create-client',
   BILLING: '/billing',
+  WATCHES_TEMPLATE_PREVIEW: '/templates/watches-store-v2',
   PRODUCTS: '/products',
   ACCESSORIES: '/accessories',
   STORE_INFO: '/store-info',

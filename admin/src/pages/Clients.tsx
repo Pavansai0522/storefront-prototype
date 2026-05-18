@@ -9,9 +9,9 @@ import { useAdminData } from '../context/AdminDataContext';
 import { SkeletonTable } from '../components/AdminSkeleton';
 import { PageTransition } from '../components/PageTransition';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
-import { startImpersonation } from '../utils/jwt';
+import { useAuthContext } from '../context/AuthContext';
 import { showToast } from '../utils/showToast';
-import { formatINR } from '../utils/formatCurrency';
+import { formatClientMoney } from '../utils/clientCurrency';
 
 function escapeCsvCell(cell: string | number): string {
   const s = String(cell);
@@ -20,6 +20,7 @@ function escapeCsvCell(cell: string | number): string {
 
 export function Clients(): JSX.Element {
   const navigate = useNavigate();
+  const { startImpersonation } = useAuthContext();
   const { clients, toggleSiteActive } = useAdminData();
   const [loading, setLoading] = useState(true);
   const {
@@ -49,7 +50,7 @@ export function Clients(): JSX.Element {
       'Email',
       'Template',
       'Status',
-      'Plan (INR)',
+      'Plan / mo',
       'Paid Until',
       'Next Due',
       'Live URL',
@@ -79,8 +80,8 @@ export function Clients(): JSX.Element {
   };
 
   const handleLoginAsClient = (c: (typeof clients)[0]): void => {
-    startImpersonation(c.id, c.storeName);
-    navigate('/dashboard');
+    startImpersonation(c.id);
+    navigate('/products');
     showToast(`Viewing as ${c.storeName}`, 'info');
   };
 
@@ -261,7 +262,7 @@ export function Clients(): JSX.Element {
                           {c.billing.paidUntil}
                         </td>
                         <td className="hidden px-4 py-3 text-gray-200 md:table-cell">
-                          {formatINR(c.billing.planMonthlyInr)}
+                          {formatClientMoney(c, c.billing.planMonthlyInr)}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <div className="flex flex-col items-end gap-2 sm:flex-row sm:justify-end sm:gap-2">

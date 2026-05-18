@@ -1,5 +1,6 @@
 import { useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import type { Product } from '../types';
+import { productCategoryKey } from '../types/product.types';
 
 export type StockFilter = 'all' | 'in' | 'out';
 export type SortKey =
@@ -10,6 +11,7 @@ export type SortKey =
   | 'price-desc'
   | 'stock-first';
 
+export type CategoryChoice = { value: string; label: string };
 export type CategoryFilterOption = { value: string; label: string };
 export type StockFilterOption = { value: StockFilter; label: string };
 export type SortKeyOption = { value: SortKey; label: string };
@@ -40,7 +42,7 @@ function applyFilters(
     if (q && !p.name.toLowerCase().includes(q)) {
       return false;
     }
-    if (category !== 'All' && p.category !== category) {
+    if (category !== 'All' && productCategoryKey(p) !== category) {
       return false;
     }
     if (stock === 'in' && !p.inStock) {
@@ -90,15 +92,18 @@ export type ProductFilterState = {
   categoryFilterOptions: CategoryFilterOption[];
 };
 
-export function useProductFilters(rows: Product[], categoryValues: readonly string[]): ProductFilterState {
+export function useProductFilters(
+  rows: Product[],
+  categoryChoices: ReadonlyArray<CategoryChoice>,
+): ProductFilterState {
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState<string>('All');
   const [stock, setStock] = useState<StockFilter>('all');
   const [sort, setSort] = useState<SortKey>('default');
 
   const categoryFilterOptions = useMemo((): CategoryFilterOption[] => {
-    return [{ value: 'All', label: 'All' }, ...categoryValues.map((c) => ({ value: c, label: c }))];
-  }, [categoryValues]);
+    return [{ value: 'All', label: 'All' }, ...categoryChoices.map((c) => ({ value: c.value, label: c.label }))];
+  }, [categoryChoices]);
 
   const preFiltered = useMemo(
     () => applyFilters(rows, search, category, stock),

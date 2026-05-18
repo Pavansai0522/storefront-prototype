@@ -1,8 +1,10 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import Select from 'react-select';
 import { ImageOff, X } from 'lucide-react';
+import type { CurrencyCode } from '../constants/countryCurrency';
+import { currencySymbol, usesEmiPricing, usesRetailDecimals } from '../constants/countryCurrency';
 import type { Nullable, Product } from '../types';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 
@@ -14,6 +16,7 @@ export type ProductModalValues = {
   price: number;
   emiPrice: number;
   image: string;
+  imageFile: File | null;
   inStock: boolean;
   category: string;
 };
@@ -24,6 +27,7 @@ const defaultValues: ProductModalValues = {
   price: 0,
   emiPrice: 0,
   image: '',
+  imageFile: null,
   inStock: true,
   category: '',
 };
@@ -31,11 +35,15 @@ const defaultValues: ProductModalValues = {
 type ProductModalProps = {
   open: boolean;
   title: string;
-  categories: string[];
+  categoryChoices: ReadonlyArray<{ value: string; label: string }>;
   mode: ProductModalMode;
+  /** Derived from client country (IN → INR + EMI, US → USD retail). */
+  currencyCode?: CurrencyCode;
   initial?: Nullable<Product>;
+  allowImageUpload?: boolean;
+  saving?: boolean;
   onClose: () => void;
-  onSave: (values: ProductModalValues) => void;
+  onSave: (values: ProductModalValues) => void | Promise<void>;
 };
 
 type CategoryOption = { value: string; label: string };
@@ -49,27 +57,35 @@ const STOCK_MODAL_OPTIONS: StockOption[] = [
 export function ProductModal({
   open,
   title,
-  categories,
+  categoryChoices,
   mode,
+  currencyCode = 'INR',
   initial,
+  allowImageUpload = false,
+  saving = false,
   onClose,
   onSave,
 }: ProductModalProps): JSX.Element {
-  const { register, control, handleSubmit, reset, watch, formState } = useForm<ProductModalValues>({
+  const showEmi = usesEmiPricing(currencyCode);
+  const priceStep = usesRetailDecimals(currencyCode) ? 0.01 : 1;
+  const priceLabel = `Price (${currencySymbol(currencyCode)})`;
+  const { register, control, handleSubmit, reset, watch, setValue, formState } = useForm<ProductModalValues>({
     defaultValues,
     mode: 'onSubmit',
   });
 
   const image = watch('image');
-  const [imageBroken, setImageBroken] = React.useState(false);
+  const imageFile = watch('imageFile');
+  const [imageBroken, setImageBroken] = useState(false);
+  const [filePreview, setFilePreview] = useState<string | null>(null);
 
   useEffect(() => {
     setImageBroken(false);
   }, [image]);
 
   const categoryOptions = useMemo((): CategoryOption[] => {
-    return categories.map((c) => ({ value: c, label: c }));
-  }, [categories]);
+    return categoryChoices.map((c) => ({ value: c.value, label: c.label }));
+  }, [categoryChoices]);
 
   useEffect(() => {
     if (!open) {
@@ -80,22 +96,44 @@ export function ProductModal({
         name: initial.name,
         brand: initial.brand,
         price: initial.price,
-        emiPrice: initial.emiPrice,
+        emiPrice: showEmi ? initial.emiPrice : 0,
         image: initial.image ?? '',
+        imageFile: null,
         inStock: initial.inStock,
-        category: initial.category,
+        category: initial.subcategory ?? initial.category,
       });
     } else {
       reset({
         ...defaultValues,
-        category: categories[0] ?? '',
+        emiPrice: showEmi ? defaultValues.emiPrice : 0,
+        category: categoryChoices[0]?.value ?? '',
       });
     }
-  }, [open, mode, initial, categories, reset]);
+  }, [open, mode, initial, categoryChoices, reset, showEmi]);
 
-  const onSubmit = (values: ProductModalValues): void => {
-    onSave(values);
-    onClose();
+  useEffect(() => {
+    if (!imageFile) {
+      setFilePreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(imageFile);
+    setFilePreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [imageFile]);
+
+  const previewSrc = filePreview ?? image;
+
+  const onSubmit = async (values: ProductModalValues): Promise<void> => {
+    const payload = showEmi ? values : { ...values, emiPrice: 0 };
+    if (!payload.imageFile && !payload.image.trim()) {
+      return;
+    }
+    await onSave(payload);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const file = e.target.files?.[0] ?? null;
+    setValue('imageFile', file, { shouldValidate: true });
   };
 
   return (
@@ -134,14 +172,14 @@ export function ProductModal({
                   <input required className="admin-input" {...register('brand', { required: true })} />
                 </label>
               </div>
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className={`grid grid-cols-1 gap-4 ${showEmi ? 'md:grid-cols-2' : ''}`}>
                 <label className="block text-sm">
-                  <span className="admin-label">Price (₹)</span>
+                  <span className="admin-label">{priceLabel}</span>
                   <input
                     required
                     type="number"
                     min={0}
-                    step={1}
+                    step={priceStep}
                     className="admin-input"
                     {...register('price', {
                       required: true,
@@ -153,33 +191,54 @@ export function ProductModal({
                     <p className="mt-1 text-xs text-red-300">{formState.errors.price.message}</p>
                   ) : null}
                 </label>
-                <label className="block text-sm">
-                  <span className="admin-label">EMI price / mo (₹)</span>
-                  <input
-                    required
-                    type="number"
-                    min={0}
-                    step={1}
-                    className="admin-input"
-                    {...register('emiPrice', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: { value: 0, message: 'EMI must be 0 or greater' },
-                    })}
-                  />
-                  {formState.errors.emiPrice ? (
-                    <p className="mt-1 text-xs text-red-300">{formState.errors.emiPrice.message}</p>
-                  ) : null}
-                </label>
+                {showEmi ? (
+                  <label className="block text-sm">
+                    <span className="admin-label">EMI price / mo ({currencySymbol(currencyCode)})</span>
+                    <input
+                      required
+                      type="number"
+                      min={0}
+                      step={1}
+                      className="admin-input"
+                      {...register('emiPrice', {
+                        required: true,
+                        valueAsNumber: true,
+                        min: { value: 0, message: 'EMI must be 0 or greater' },
+                      })}
+                    />
+                    {formState.errors.emiPrice ? (
+                      <p className="mt-1 text-xs text-red-300">{formState.errors.emiPrice.message}</p>
+                    ) : null}
+                  </label>
+                ) : null}
               </div>
               <label className="block text-sm">
-                <span className="admin-label">Image URL</span>
-                <input required type="url" className="admin-input" {...register('image', { required: true })} />
-                {image ? (
+                <span className="admin-label">Product image</span>
+                {allowImageUpload ? (
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="admin-input mt-1"
+                    onChange={handleFileChange}
+                  />
+                ) : null}
+                <input
+                  type="url"
+                  placeholder="Or paste image URL"
+                  className="admin-input mt-2"
+                  {...register('image', {
+                    validate: (v) =>
+                      imageFile != null || (typeof v === 'string' && v.trim().length > 0) || 'Image required',
+                  })}
+                />
+                {formState.errors.image ? (
+                  <p className="mt-1 text-xs text-red-300">{String(formState.errors.image.message)}</p>
+                ) : null}
+                {previewSrc ? (
                   <div className="mt-2 flex h-32 items-center justify-center overflow-hidden rounded-lg bg-white/5">
                     {!imageBroken ? (
                       <img
-                        src={image}
+                        src={previewSrc}
                         alt="Preview"
                         className="h-full object-contain"
                         onError={() => setImageBroken(true)}
@@ -252,8 +311,8 @@ export function ProductModal({
                 <button type="button" onClick={onClose} className="btn-admin-secondary w-full sm:w-auto">
                   Cancel
                 </button>
-                <button type="submit" className="btn-admin-primary w-full sm:w-auto">
-                  {mode === 'create' ? 'Add' : 'Save changes'}
+                <button type="submit" disabled={saving} className="btn-admin-primary w-full sm:w-auto">
+                  {saving ? 'Saving…' : mode === 'create' ? 'Add' : 'Save changes'}
                 </button>
               </div>
             </form>

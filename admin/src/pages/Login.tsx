@@ -2,20 +2,27 @@ import React, { useState } from 'react';
 import { Navigate } from 'react-router-dom';
 import { Lock, Mail } from 'lucide-react';
 import type { Nullable } from '../types';
-import { getJwtPayloadFromStorage, getStoredToken } from '../utils/jwt';
-import { useAuth } from '../hooks/useAuth';
+import { useAuthContext } from '../context/AuthContext';
+import { isLocalDevMode } from '../lib/devMode';
 import { PageTransition } from '../components/PageTransition';
 
+function LoginIconWrap({ children }: { children: React.ReactNode }): JSX.Element {
+  return (
+    <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-saffron/15 ring-1 ring-brand-saffron/40">
+      {children}
+    </div>
+  );
+}
+
 export function Login(): JSX.Element {
-  const { login } = useAuth();
+  const { login, isLoggedIn, profile, loading } = useAuthContext();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<Nullable<string>>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  if (getStoredToken()) {
-    const existing = getJwtPayloadFromStorage();
-    if (existing?.role === 'admin' && existing.firstLogin === true) {
+  if (!loading && isLoggedIn) {
+    if (profile?.mustChangePassword) {
       return <Navigate to="/change-password" replace />;
     }
     return <Navigate to="/dashboard" replace />;
@@ -39,18 +46,27 @@ export function Login(): JSX.Element {
       <PageTransition>
         <div className="admin-card mx-auto w-full max-w-sm p-8 shadow-2xl shadow-black/50">
           <div className="mb-8 text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-saffron/15 ring-1 ring-brand-saffron/40">
+            <LoginIconWrap>
               <Lock className="h-6 w-6 text-brand-saffron" aria-hidden />
-            </div>
+            </LoginIconWrap>
             <h1 className="font-display text-2xl uppercase tracking-wide text-white md:text-3xl lg:text-4xl">
               Admin sign in
             </h1>
             <p className="mt-2 break-words text-sm text-gray-400">
-              Use an email starting with <span className="text-white">superadmin</span> for full
-              access, or any other email for a store admin (demo uses{' '}
-              <span className="text-white">client-1</span>). Include{' '}
-              <span className="text-white">firstlogin</span> in your email to test the forced
-              password-change flow.
+              {isLocalDevMode ? (
+                <>
+                  Local demo mode (no Supabase). Use{' '}
+                  <span className="text-white">super@agency.com</span> for superadmin,{' '}
+                  <span className="text-white">owner@prwatches.example</span> for the watches store, or any
+                  other email for <span className="text-white">client-1</span>. Add{' '}
+                  <span className="text-white">firstlogin</span> in the email to test password change.
+                </>
+              ) : (
+                <>
+                  Sign in with your Supabase account. Store admins manage{' '}
+                  <span className="text-white">PR Watches & Gadgets</span>; superadmins manage all clients.
+                </>
+              )}
             </p>
           </div>
 
@@ -67,7 +83,7 @@ export function Login(): JSX.Element {
                   autoComplete="email"
                   required
                   className="admin-input !mt-0 py-2.5 pl-10"
-                  placeholder="superadmin@agency.com"
+                  placeholder={isLocalDevMode ? 'super@agency.com' : 'owner@prwatches.example'}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
