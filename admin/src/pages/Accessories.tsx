@@ -29,6 +29,7 @@ import { PageTransition } from '../components/PageTransition';
 import { RequireStoreBanner } from '../components/RequireStoreBanner';
 import { useProfile } from '../hooks/useProfile';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
+import { findClientById } from '../utils/clientLookup';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
@@ -39,7 +40,7 @@ export function Accessories(): JSX.Element {
     useAdminData();
 
   const client = useMemo(
-    () => (clientId ? clients.find((c) => c.id === clientId) : null),
+    () => findClientById(clients, clientId) ?? null,
     [clients, clientId],
   );
 

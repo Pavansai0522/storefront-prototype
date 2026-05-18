@@ -6,6 +6,7 @@ import { useAdminData } from '../context/AdminDataContext';
 import { useAuthContext } from '../context/AuthContext';
 import type { Nullable } from '../types';
 import { useAuth } from '../hooks/useAuth';
+import { findClientById } from '../utils/clientLookup';
 
 function RequirePasswordChange(): JSX.Element {
   const location = useLocation();
@@ -41,21 +42,21 @@ export function Layout(): JSX.Element {
     if (!activeClientId) {
       return null;
     }
-    return clients.find((c) => c.id === activeClientId)?.liveUrl ?? null;
+    return findClientById(clients, activeClientId)?.liveUrl ?? null;
   }, [clients, activeClientId]);
 
   const adminClientTemplate = useMemo((): Nullable<string> => {
     if (!activeClientId) {
       return null;
     }
-    return clients.find((c) => c.id === activeClientId)?.template ?? null;
+    return findClientById(clients, activeClientId)?.template ?? null;
   }, [clients, activeClientId]);
 
   const impersonatedStoreName = useMemo((): Nullable<string> => {
     if (!isImpersonating || !activeClientId) {
       return null;
     }
-    return clients.find((c) => c.id === activeClientId)?.storeName ?? null;
+    return findClientById(clients, activeClientId)?.storeName ?? null;
   }, [clients, activeClientId, isImpersonating]);
 
   const handleExitImpersonation = (): void => {

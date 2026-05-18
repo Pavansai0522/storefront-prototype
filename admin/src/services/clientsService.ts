@@ -4,6 +4,7 @@ import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { MOCK_CLIENTS } from '../mock/clients';
 import type { DbClient } from '../lib/supabaseTypes';
 import type { Client } from '../types';
+import { compactClients } from '../utils/clientLookup';
 
 export async function fetchAllClients(): Promise<Client[]> {
   if (isLocalDevMode) {
@@ -16,7 +17,9 @@ export async function fetchAllClients(): Promise<Client[]> {
   if (error) {
     throw new Error(error.message);
   }
-  return (data as DbClient[]).map(dbClientToClient);
+  return compactClients(
+    (data as DbClient[]).filter((row) => Boolean(row?.id)).map(dbClientToClient),
+  );
 }
 
 export async function updateClientFields(clientId: string, fields: Partial<Client>): Promise<Client> {

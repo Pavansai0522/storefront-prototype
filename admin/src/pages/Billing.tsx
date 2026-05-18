@@ -20,7 +20,7 @@ export function Billing(): JSX.Element {
 
   const rows = useMemo(
     () =>
-      [...clients].sort((a, b) => a.storeName.localeCompare(b.storeName)),
+      [...clients].filter((c) => Boolean(c?.id)).sort((a, b) => a.storeName.localeCompare(b.storeName)),
     [clients],
   );
 

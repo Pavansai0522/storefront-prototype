@@ -30,6 +30,7 @@ import { RequireStoreBanner } from '../components/RequireStoreBanner';
 import { useProfile } from '../hooks/useProfile';
 import { uploadProductImage } from '../services/catalogService';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
+import { findClientById } from '../utils/clientLookup';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
@@ -41,7 +42,7 @@ export function Products(): JSX.Element {
     useAdminData();
 
   const client = useMemo(
-    () => (clientId ? clients.find((c) => c.id === clientId) : null),
+    () => findClientById(clients, clientId) ?? null,
     [clients, clientId],
   );
   const isLiquor = isLiquorStoreTemplate(client?.template);

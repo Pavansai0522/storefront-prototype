@@ -20,6 +20,7 @@ import {
 } from '../services/catalogService';
 import { useAuthContext } from './AuthContext';
 import type { Client, ID, Nullable, Product } from '../types';
+import { compactClients } from '../utils/clientLookup';
 import { showToast } from '../utils/showToast';
 
 type AdminDataContextValue = {
@@ -71,7 +72,7 @@ export function AdminDataProvider({
         fetchAllClients(),
         fetchAllProducts(),
       ]);
-      setClients(nextClients);
+      setClients(compactClients(nextClients));
       setProducts(nextProducts.filter((p) => !p.isAccessory));
       setAccessories(nextProducts.filter((p) => p.isAccessory));
     } catch (err) {
@@ -186,7 +187,7 @@ export function AdminDataProvider({
 
   const markPaymentReceived = useCallback((clientId: ID): void => {
     setClients((prev) => {
-      const target = prev.find((c) => c.id === clientId);
+      const target = prev.find((c) => c?.id === clientId);
       if (!target) {
         return prev;
       }
@@ -237,7 +238,7 @@ export function AdminDataProvider({
     const id: ID = `note-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
     const createdAt = new Date().toISOString();
     setClients((prev) => {
-      const target = prev.find((c) => c.id === clientId);
+      const target = prev.find((c) => c?.id === clientId);
       if (!target) {
         return prev;
       }
@@ -253,7 +254,7 @@ export function AdminDataProvider({
 
   const deleteClientNote = useCallback((clientId: ID, noteId: ID): void => {
     setClients((prev) => {
-      const target = prev.find((c) => c.id === clientId);
+      const target = prev.find((c) => c?.id === clientId);
       if (!target) {
         return prev;
       }

@@ -17,6 +17,7 @@ import { PageTransition } from '../components/PageTransition';
 import type { CurrencyCode } from '../constants/countryCurrency';
 import { formatMoney } from '../utils/formatCurrency';
 import { getClientCurrency } from '../utils/clientCurrency';
+import { findClientById } from '../utils/clientLookup';
 
 const STORE_INFO_FIELDS = 5;
 
@@ -68,6 +69,9 @@ type ActivityItem = {
 function buildActivityFeed(clients: Client[]): ActivityItem[] {
   const items: ActivityItem[] = [];
   for (const c of clients) {
+    if (!c?.id) {
+      continue;
+    }
     items.push({
       id: `${c.id}-products`,
       at: new Date(c.productsLastUpdatedAt).getTime(),
@@ -104,7 +108,7 @@ function AdminStoreDashboard(): JSX.Element {
   const { clients, products, accessories } = useAdminData();
 
   const myClient = useMemo(
-    () => (clientId ? clients.find((c) => c.id === clientId) : undefined),
+    () => findClientById(clients, clientId),
     [clients, clientId],
   );
 
@@ -227,11 +231,14 @@ function SuperadminDashboard(): JSX.Element {
   }, []);
 
   const totalClients = clients.length;
-  const activeClients = useMemo(() => clients.filter((c) => c.status === 'active').length, [clients]);
+  const activeClients = useMemo(
+    () => clients.filter((c) => c?.id && c.status === 'active').length,
+    [clients],
+  );
 
   const mrrByCurrency = useMemo(() => {
     const totals: Partial<Record<CurrencyCode, number>> = {};
-    for (const c of clients.filter((x) => x.status === 'active' || x.status === 'trial')) {
+    for (const c of clients.filter((x) => x?.id && (x.status === 'active' || x.status === 'trial'))) {
       const code = getClientCurrency(c);
       totals[code] = (totals[code] ?? 0) + c.billing.planMonthlyInr;
     }
@@ -241,7 +248,7 @@ function SuperadminDashboard(): JSX.Element {
   const overdueCount = useMemo(
     () =>
       clients.filter(
-        (c) => c.status !== 'suspended' && isDueOverdue(c.billing.nextDue),
+        (c) => c?.id && c.status !== 'suspended' && isDueOverdue(c.billing.nextDue),
       ).length,
     [clients],
   );
@@ -250,9 +257,9 @@ function SuperadminDashboard(): JSX.Element {
 
   const needingAttention = useMemo(() => {
     const overdue = clients.filter(
-      (c) => c.status !== 'suspended' && isDueOverdue(c.billing.nextDue),
+      (c) => c?.id && c.status !== 'suspended' && isDueOverdue(c.billing.nextDue),
     );
-    const neverIn = clients.filter((c) => c.adminLastLoginAt === null);
+    const neverIn = clients.filter((c) => c?.id && c.adminLastLoginAt === null);
     return { overdue, neverIn };
   }, [clients]);
 

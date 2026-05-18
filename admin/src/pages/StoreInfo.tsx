@@ -9,6 +9,7 @@ import { useAuthContext } from '../context/AuthContext';
 import { isLiquorStoreTemplate } from '../constants/templates';
 import { currencySymbol } from '../constants/countryCurrency';
 import { getClientCurrency } from '../utils/clientCurrency';
+import { findClientById } from '../utils/clientLookup';
 import { joinStoreTimings, parseStoreTimings } from '../utils/storeTimings';
 
 type StoreInfoForm = {
@@ -30,7 +31,7 @@ export function StoreInfo(): JSX.Element {
   const { effectiveClientId: clientId } = useProfile();
   const { clients, updateClient } = useAdminData();
 
-  const client = useMemo(() => clients.find((c) => c.id === clientId), [clients, clientId]);
+  const client = useMemo(() => findClientById(clients, clientId), [clients, clientId]);
   const isLiquor = isLiquorStoreTemplate(client?.template);
   const minOrderCurrency = client ? currencySymbol(getClientCurrency(client)) : 'USD';
 

@@ -48,6 +48,9 @@ export function useClients(clients: Client[]): UseClientsResult {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return clients.filter((c) => {
+      if (!c?.id) {
+        return false;
+      }
       if (q && !c.storeName.toLowerCase().includes(q)) {
         return false;
       }

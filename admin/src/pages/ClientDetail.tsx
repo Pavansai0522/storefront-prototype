@@ -29,6 +29,7 @@ import { COUNTRY_OPTIONS } from '../constants';
 import type { CountryCode } from '../constants/countryCurrency';
 import { currencyForCountry, currencySymbol } from '../constants/countryCurrency';
 import { formatClientMoney, getClientCurrency } from '../utils/clientCurrency';
+import { findClientById } from '../utils/clientLookup';
 import { useAuthContext } from '../context/AuthContext';
 import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import {
@@ -100,9 +101,16 @@ export function ClientDetail(): JSX.Element {
   const [passwordResetBanner, setPasswordResetBanner] = useState<Nullable<string>>(null);
 
   const client = useMemo(
-    () => clients.find((c) => c.id === clientId),
+    () => findClientById(clients, clientId),
     [clients, clientId],
   );
+
+  const sortedNotes = useMemo(() => {
+    const notes = client?.notes ?? [];
+    return [...notes]
+      .filter((n) => Boolean(n?.id))
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [client]);
 
   const productCount = useMemo(
     () =>
@@ -280,11 +288,6 @@ export function ClientDetail(): JSX.Element {
         showToast(err instanceof Error ? err.message : 'Delete failed', 'error');
       });
   };
-
-  const sortedNotes = useMemo(
-    () => [...client.notes].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    [client.notes],
-  );
 
   return (
     <PageTransition>

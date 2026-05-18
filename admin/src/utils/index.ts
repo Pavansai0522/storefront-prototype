@@ -7,4 +7,5 @@ export * from './generateId';
 export * from './classNames';
 export * from './dateDisplay';
 export * from './clientBilling';
+export * from './clientLookup';
 export * from './showToast';
