@@ -7,11 +7,7 @@ import React, {
   useState,
 } from 'react';
 import { clientConfig as staticClientConfig } from '../config/client-config';
-import { FEATURED_TOYS, FEATURED_WATCHES, type FeaturedProduct } from '../data/featured';
-import {
-  getSubcategoryCatalog,
-  SUBCATEGORY_CATALOG,
-} from '../data/subcategoryCatalog';
+import type { FeaturedProduct } from '../data/featured';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import {
   featuredFromProducts,
@@ -86,9 +82,9 @@ function mergeClientConfig(row: DbClientPublic): StoreClientConfig {
 export function StoreDataProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [clientConfig, setClientConfig] = useState<StoreClientConfig>(staticClientConfig);
   const [siteActive, setSiteActive] = useState(true);
-  const [catalogByKey, setCatalogByKey] = useState(SUBCATEGORY_CATALOG);
-  const [featuredWatches, setFeaturedWatches] = useState(FEATURED_WATCHES);
-  const [featuredToys, setFeaturedToys] = useState(FEATURED_TOYS);
+  const [catalogByKey, setCatalogByKey] = useState(() => groupProductsBySubcategory([]));
+  const [featuredWatches, setFeaturedWatches] = useState<FeaturedProduct[]>([]);
+  const [featuredToys, setFeaturedToys] = useState<FeaturedProduct[]>([]);
   const [featuredAccessories, setFeaturedAccessories] = useState<FeaturedProduct[]>([]);
   const [storeReady, setStoreReady] = useState(!isSupabaseConfigured);
   const [catalogLoading, setCatalogLoading] = useState(isSupabaseConfigured);
@@ -157,17 +153,11 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       }
 
       const rows = (products ?? []) as DbProduct[];
-      if (rows.length > 0) {
-        setCatalogByKey(groupProductsBySubcategory(rows));
-        const featured = featuredFromProducts(rows);
-        if (featured.watches.length > 0) {
-          setFeaturedWatches(featured.watches);
-        }
-        if (featured.toys.length > 0) {
-          setFeaturedToys(featured.toys);
-        }
-        setFeaturedAccessories(featured.accessories);
-      }
+      setCatalogByKey(groupProductsBySubcategory(rows));
+      const featured = featuredFromProducts(rows);
+      setFeaturedWatches(featured.watches);
+      setFeaturedToys(featured.toys);
+      setFeaturedAccessories(featured.accessories);
     } catch (err) {
       setCatalogError(err instanceof Error ? err.message : 'Failed to load catalog');
     } finally {
@@ -180,12 +170,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
   }, [loadRemote]);
 
   const getSubcategory = useCallback(
-    (key: SubcategoryCatalogKey): CatalogTileItem[] => {
-      if (!isSupabaseConfigured) {
-        return getSubcategoryCatalog(key);
-      }
-      return catalogByKey[key] ?? [];
-    },
+    (key: SubcategoryCatalogKey): CatalogTileItem[] => catalogByKey[key] ?? [],
     [catalogByKey],
   );
 

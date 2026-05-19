@@ -3,8 +3,12 @@ import { ProductCard } from './ProductCard';
 import { FeaturedProductRail } from './FeaturedProductRail';
 import { useStoreData } from '../context/StoreDataContext';
 
-export function FeaturedToys(): JSX.Element {
+export function FeaturedToys(): JSX.Element | null {
   const { featuredToys } = useStoreData();
+
+  if (featuredToys.length === 0) {
+    return null;
+  }
 
   return (
     <FeaturedProductRail

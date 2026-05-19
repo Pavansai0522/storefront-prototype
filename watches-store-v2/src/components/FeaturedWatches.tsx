@@ -3,8 +3,12 @@ import { ProductCard } from './ProductCard';
 import { FeaturedProductRail } from './FeaturedProductRail';
 import { useStoreData } from '../context/StoreDataContext';
 
-export function FeaturedWatches(): JSX.Element {
+export function FeaturedWatches(): JSX.Element | null {
   const { featuredWatches } = useStoreData();
+
+  if (featuredWatches.length === 0) {
+    return null;
+  }
 
   return (
     <FeaturedProductRail
