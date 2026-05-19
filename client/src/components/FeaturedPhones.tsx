@@ -2,10 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { PhoneCard } from './PhoneCard';
-import { PHONES } from '../data/phones';
+import { useStorePhones } from '../context/StoreDataContext';
 
 export function FeaturedPhones() {
-  const featured = PHONES.slice(0, 6);
+  const phones = useStorePhones();
+  const featured = phones.slice(0, 6);
   return (
     <section id="phones" className="relative py-24">
       <div className="mx-auto mb-12 max-w-7xl px-4 md:px-8">

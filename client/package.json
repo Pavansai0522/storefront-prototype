@@ -10,6 +10,8 @@
     "preview": "npx vite preview"
   },
   "dependencies": {
+    "@my-agency/admin-ui": "*",
+    "@supabase/supabase-js": "^2.105.4",
     "@emotion/react": "^11.13.3",
     "@headlessui/react": "^2.2.10",
     "date-fns": "^4.1.0",

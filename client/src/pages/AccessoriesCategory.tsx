@@ -15,13 +15,12 @@ import { Footer } from '../components/Footer';
 import { WhatsAppFAB } from '../components/WhatsAppFAB';
 import { AccessoryTileCard } from '../components/AccessoryTileCard';
 import {
-  ACCESSORY_ITEMS,
   ACCESSORY_PRICE_RANGES,
   getAccessoryCategoryMeta,
-  getTagsForCategory,
   isAccessoryCategoryId,
-  type AccessoryCategoryId
+  type AccessoryCategoryId,
 } from '../data/accessories';
+import { useStoreAccessories } from '../context/StoreDataContext';
 import { clientSelectStyles } from '../config/clientSelectStyles';
 import type { Nullable } from '../types';
 
@@ -43,8 +42,19 @@ interface AccessoriesCategoryInnerProps {
 function AccessoriesCategoryInner({
   categoryId
 }: AccessoriesCategoryInnerProps): JSX.Element {
+  const allAccessories = useStoreAccessories();
   const categoryMeta = getAccessoryCategoryMeta(categoryId);
-  const categoryTags = useMemo(() => getTagsForCategory(categoryId), [categoryId]);
+  const categoryItems = useMemo(
+    () => allAccessories.filter((p) => p.categoryId === categoryId),
+    [allAccessories, categoryId],
+  );
+  const categoryTags = useMemo(() => {
+    const set = new Set<string>();
+    categoryItems.forEach((p) => {
+      p.tags.forEach((t) => set.add(t));
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [categoryItems]);
 
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedPriceIndex, setSelectedPriceIndex] = useState<Nullable<number>>(null);
@@ -76,7 +86,7 @@ function AccessoriesCategoryInner({
   };
 
   const filteredItems = useMemo(() => {
-    let list = ACCESSORY_ITEMS.filter((p) => p.categoryId === categoryId);
+    let list = categoryItems;
 
     if (selectedTags.length > 0) {
       list = list.filter((p) =>
@@ -106,7 +116,7 @@ function AccessoriesCategoryInner({
     }
 
     return list;
-  }, [categoryId, selectedTags, selectedPriceIndex, sortBy]);
+  }, [categoryItems, selectedTags, selectedPriceIndex, sortBy]);
 
   const totalPages = Math.max(1, Math.ceil(filteredItems.length / PAGE_SIZE));
   const paginatedItems = filteredItems.slice(

@@ -7,11 +7,12 @@ import { Navbar } from '../components/Navbar.tsx';
 import { Footer } from '../components/Footer.tsx';
 import { WhatsAppFAB } from '../components/WhatsAppFAB.tsx';
 import { PhoneCard } from '../components/PhoneCard.tsx';
-import { PHONES } from '../data/phones.ts';
 import { clientSelectStyles } from '../config/clientSelectStyles.ts';
 import { usePhones, type SortOption } from '../hooks/usePhones';
+import { useStorePhones } from '../context/StoreDataContext';
 
 export function AllPhones() {
+  const phones = useStorePhones();
   const {
     filteredPhones,
     paginatedPhones,
@@ -32,7 +33,7 @@ export function AllPhones() {
     brandList,
     priceRanges,
     sortOptions,
-  } = usePhones(PHONES);
+  } = usePhones(phones);
 
   const FilterPanel = () => (
     <div className="space-y-8">

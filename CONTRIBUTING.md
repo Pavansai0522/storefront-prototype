@@ -10,7 +10,7 @@ These are not suggestions. They are standards.
 1. Clone the repo
 2. Run `npm install` from root
 3. Copy `server/.env.example` to `server/.env`
-4. Run `npm run dev:client` / `npm run dev:admin` / `npm run dev:server`
+4. Run `npm run dev:client` / `npm run dev:watches` / `npm run dev:liquor` / `npm run dev:server`
 
 ## Branch Strategy
 

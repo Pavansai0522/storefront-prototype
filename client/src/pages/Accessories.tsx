@@ -4,11 +4,8 @@ import { ArrowLeft, Headphones, Cable, Watch, BatteryCharging, LucideIcon } from
 import { Navbar } from '../components/Navbar';
 import { Footer } from '../components/Footer';
 import { WhatsAppFAB } from '../components/WhatsAppFAB';
-import {
-  ACCESSORY_CATEGORIES,
-  ACCESSORY_ITEMS,
-  type AccessoryCategoryId
-} from '../data/accessories';
+import { ACCESSORY_CATEGORIES, type AccessoryCategoryId } from '../data/accessories';
+import { useStoreAccessories } from '../context/StoreDataContext';
 
 const CATEGORY_VISUALS: Record<
   AccessoryCategoryId,
@@ -37,6 +34,7 @@ const CATEGORY_VISUALS: Record<
 };
 
 export function Accessories(): JSX.Element {
+  const accessoryItems = useStoreAccessories();
   return (
     <div className="min-h-screen overflow-x-hidden bg-brand-bg text-brand-text selection:bg-brand-saffron selection:text-white">
       <Navbar />
@@ -67,7 +65,7 @@ export function Accessories(): JSX.Element {
             {ACCESSORY_CATEGORIES.map((cat, index) => {
               const visual = CATEGORY_VISUALS[cat.id];
               const Icon = visual.icon;
-              const count = ACCESSORY_ITEMS.filter((p) => p.categoryId === cat.id).length;
+              const count = accessoryItems.filter((p) => p.categoryId === cat.id).length;
               return (
                 <motion.div
                   key={cat.id}

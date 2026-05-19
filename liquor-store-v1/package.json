@@ -2,7 +2,7 @@
   "name": "liquor-store-v1",
   "version": "0.1.0",
   "private": true,
-  "description": "Vite + React storefront for liquor-store-v1 (US). Copied from Downloads; wire to admin/API later.",
+  "description": "Vite + React storefront for liquor-store-v1 (US). Supabase catalog + embedded /admin.",
   "type": "module",
   "scripts": {
     "dev": "vite",

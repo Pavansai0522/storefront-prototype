@@ -2,21 +2,21 @@
 
 ## Overview
 
-This platform is built for an agency that ships **modern websites for Indian local businesses** (mobile stores, salons, restaurants). It uses a **shared admin panel** and a **multi-client architecture**: one codebase can be white-labeled per client via config and data, with a path toward per-client domains and backend isolation in later phases.
+This platform is built for an agency that ships **modern websites for Indian local businesses** (mobile stores, salons, restaurants). Admin UI lives in **`packages/admin-ui`** and is embedded at **`/admin`** on each storefront. One codebase can be white-labeled per client via config and Supabase data.
 
 ---
 
 ## Monorepo structure
 
-The repo is an **npm workspaces** monorepo with five packages:
+The repo is an **npm workspaces** monorepo:
 
-| Workspace | Role |
-|-----------|------|
-| **`client/`** | Public **storefront** (Vite + React). Template-driven, mobile-first catalog and lead capture (WhatsApp). |
-| **`liquor-store-v1/`** | **Liquor storefront** (Vite + React 18, same stack pattern as `client/`). For clients on the `liquor-store-v1` admin template; dev server defaults to `http://localhost:3000`. |
-| **`watches-store-v2/`** | **Watches storefront** (Vite + React 18; from `Downloads/pr-watches`). For clients on the `watches-store-v2` admin template; dev server defaults to `http://localhost:3002`. |
-| **`admin/`** | **Agency + store-owner** panel (Vite + React). Superadmin manages clients and billing; each store admin manages catalog and store info. |
-| **`server/`** | **API** (Express + TypeScript). Health check and MongoDB wiring today; REST expansion in Phase 2. |
+| Workspace | Role | Admin URL (local) |
+|-----------|------|-------------------|
+| **`packages/admin-ui/`** | Shared admin SPA (`AdminApp`, auth, catalog CRUD) | (imported by storefronts) |
+| **`client/`** | Bala Mobiles **mobile storefront** | http://localhost:5173/admin |
+| **`liquor-store-v1/`** | **Liquor storefront** | http://localhost:3000/admin |
+| **`watches-store-v2/`** | **Watches storefront** | http://localhost:3002/admin |
+| **`server/`** | **API** (Express + TypeScript) | — |
 
 Use `npm run dev:liquor` / `npm run build:liquor` and `npm run dev:watches` / `npm run build:watches` from the repo root.
 
@@ -190,10 +190,12 @@ Copy `server/.env.example` to `server/.env` and adjust values (see [Environment 
 
 | Command | What it runs | Default URL |
 |---------|----------------|---------------|
-| `npm run dev:client` | Vite dev server for **storefront** | **http://localhost:5173** (Vite default; `client/vite.config.ts` does not override port) |
-| `npm run dev:admin` | Vite dev server for **admin** | **http://localhost:5174** |
-| `npm run dev:server` | Express API with `tsx watch` | **http://localhost:4000** (`PORT` or 4000) |
-| `npm run build` | `build:client` → `build:admin` → `build:server` | Produces `client/dist`, `admin/dist`, `server/dist` |
+| `npm run dev:client` | Bala Mobiles storefront | **http://localhost:5173** (+ `/admin`) |
+| `npm run dev:liquor` | Liquor storefront | **http://localhost:3000** (+ `/admin`) |
+| `npm run dev:watches` | Watches storefront | **http://localhost:3002** (+ `/admin`) |
+| `npm run dev:server` | Express API with `tsx watch` | **http://localhost:4000** |
+| `npm run seed:bala` | Seed `client-bala-1` + catalog in Supabase | (requires root `.env`) |
+| `npm run build` | client + liquor + watches + server | All `dist/` outputs |
 
 ---
 

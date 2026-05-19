@@ -36,7 +36,7 @@ In the watches Vercel project → Settings → Environment Variables (Production
 - `VITE_CLIENT_ID` = `client-watches-1`
 - `VITE_SUPERADMIN_EMAIL` = your superadmin email(s), comma-separated
 
-Store owners and superadmins use **embedded admin** at `/admin` on the same domain (e.g. `https://pr-watches.com/admin`). The separate `admin/` Vercel app is for agency internal use only.
+Store owners and superadmins use **embedded admin** at `/admin` on the same domain (e.g. `https://pr-watches.com/admin`).
 
 ### 3. Deploy
 
@@ -66,7 +66,6 @@ npm run set:pr-watches-url -- https://your-app.vercel.app
 | Superadmin catalog edits | Sign in → Clients → **Manage as store** → Products |
 | Store owner login | Supabase account linked to `client-watches-1` |
 | Take site offline | Admin → impersonate store → Client detail → deactivate site |
-| Agency-only panel | Separate `admin/` workspace deploy (internal) |
 
 ## Scripts
 
