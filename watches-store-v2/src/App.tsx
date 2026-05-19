@@ -10,6 +10,11 @@ import { StoreDataProvider } from './context/StoreDataContext';
 import { StoreGate } from './components/StoreGate';
 import { Spinner } from './components/Spinner';
 
+const AdminApp = lazy(async () => {
+  const mod = await import('@my-agency/admin-ui');
+  return { default: mod.AdminApp };
+});
+
 const Watches = lazy(async () => ({ default: (await import('./pages/Watches')).Watches }));
 const Toys = lazy(async () => ({ default: (await import('./pages/Toys')).Toys }));
 const Accessories = lazy(async () => ({ default: (await import('./pages/Accessories')).Accessories }));
@@ -45,6 +50,14 @@ function RouteFallback(): JSX.Element {
   );
 }
 
+function AdminFallback(): JSX.Element {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
+      <Spinner size="md" label="Loading admin…" />
+    </div>
+  );
+}
+
 function ScrollToTop(): null {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -53,53 +66,75 @@ function ScrollToTop(): null {
   return null;
 }
 
-export function App(): JSX.Element {
+function AdminMount(): JSX.Element {
+  const clientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
   return (
-    <StoreDataProvider>
-      <StoreGate>
-        <BrowserRouter>
-          <SeoHead />
-          <Toaster
-            position="top-center"
-            containerStyle={{ top: 80 }}
-            toastOptions={{ duration: 2000 }}
-          />
-          <ScrollToTop />
-          <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip bg-brand-bg font-sans text-brand-text selection:bg-brand-purple selection:text-white">
-            <Navbar />
-
-            <main className="flex-grow pb-20 md:pb-0">
-              <Suspense fallback={<RouteFallback />}>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/watches/smart" element={<SmartWatchesPage />} />
-                  <Route path="/watches/dial" element={<DialWatchesPage />} />
-                  <Route path="/watches/kids" element={<KidsWatchesPage />} />
-                  <Route path="/watches" element={<Watches />} />
-                  <Route path="/toys/rc" element={<RcToysPage />} />
-                  <Route path="/toys/soft" element={<SoftToysPage />} />
-                  <Route path="/toys/education" element={<EducationToysPage />} />
-                  <Route path="/toys" element={<Toys />} />
-                  <Route path="/accessories/cables" element={<CablesPage />} />
-                  <Route path="/accessories/headphones" element={<HeadphonesPage />} />
-                  <Route path="/accessories/phone-accessories" element={<PhoneAccessoriesPage />} />
-                  <Route
-                    path="/accessories/case-covers"
-                    element={<Navigate to="/accessories/phone-accessories" replace />}
-                  />
-                  <Route path="/accessories/gadgets" element={<GadgetsPage />} />
-                  <Route path="/accessories" element={<Accessories />} />
-                  <Route path="/visit" element={<VisitUsPage />} />
-                </Routes>
-              </Suspense>
-            </main>
-
-            <Footer />
-            <WhatsAppFAB />
-          </div>
-        </BrowserRouter>
-      </StoreGate>
-    </StoreDataProvider>
+    <Suspense fallback={<AdminFallback />}>
+      <AdminApp
+        basePath="/admin"
+        templateId="watches-store-v2"
+        enforceClientId={clientId}
+        storefrontOrigin={typeof window !== 'undefined' ? window.location.origin : undefined}
+      />
+    </Suspense>
   );
 }
 
+function StorefrontShell(): JSX.Element {
+  return (
+    <StoreGate>
+      <SeoHead />
+      <Toaster
+        position="top-center"
+        containerStyle={{ top: 80 }}
+        toastOptions={{ duration: 2000 }}
+      />
+      <ScrollToTop />
+      <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip bg-brand-bg font-sans text-brand-text selection:bg-brand-purple selection:text-white">
+        <Navbar />
+
+        <main className="flex-grow pb-20 md:pb-0">
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/watches/smart" element={<SmartWatchesPage />} />
+              <Route path="/watches/dial" element={<DialWatchesPage />} />
+              <Route path="/watches/kids" element={<KidsWatchesPage />} />
+              <Route path="/watches" element={<Watches />} />
+              <Route path="/toys/rc" element={<RcToysPage />} />
+              <Route path="/toys/soft" element={<SoftToysPage />} />
+              <Route path="/toys/education" element={<EducationToysPage />} />
+              <Route path="/toys" element={<Toys />} />
+              <Route path="/accessories/cables" element={<CablesPage />} />
+              <Route path="/accessories/headphones" element={<HeadphonesPage />} />
+              <Route path="/accessories/phone-accessories" element={<PhoneAccessoriesPage />} />
+              <Route
+                path="/accessories/case-covers"
+                element={<Navigate to="/accessories/phone-accessories" replace />}
+              />
+              <Route path="/accessories/gadgets" element={<GadgetsPage />} />
+              <Route path="/accessories" element={<Accessories />} />
+              <Route path="/visit" element={<VisitUsPage />} />
+            </Routes>
+          </Suspense>
+        </main>
+
+        <Footer />
+        <WhatsAppFAB />
+      </div>
+    </StoreGate>
+  );
+}
+
+export function App(): JSX.Element {
+  return (
+    <StoreDataProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/admin/*" element={<AdminMount />} />
+          <Route path="/*" element={<StorefrontShell />} />
+        </Routes>
+      </BrowserRouter>
+    </StoreDataProvider>
+  );
+}

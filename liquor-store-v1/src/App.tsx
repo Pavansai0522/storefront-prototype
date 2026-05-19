@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AgeGate } from './components/AgeGate';
 import { Navbar } from './components/Navbar';
@@ -8,15 +8,22 @@ import { Shop } from './pages/Shop';
 import { Spirits } from './pages/Spirits';
 import { Wine } from './pages/Wine';
 import { Beer } from './pages/Beer';
-// Scroll to top on route change
-function ScrollToTop() {
+import { StoreDataProvider } from './context/StoreDataContext';
+import { StoreGate } from './components/StoreGate';
+
+const AdminApp = lazy(async () => {
+  const mod = await import('@my-agency/admin-ui');
+  return { default: mod.AdminApp };
+});
+
+function ScrollToTop(): null {
   const { pathname, hash } = useLocation();
   useEffect(() => {
     if (hash) {
       const element = document.querySelector(hash);
       if (element) {
         element.scrollIntoView({
-          behavior: 'smooth'
+          behavior: 'smooth',
         });
       }
     } else {
@@ -25,21 +32,43 @@ function ScrollToTop() {
   }, [pathname, hash]);
   return null;
 }
-export function App() {
-  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+function AdminFallback(): JSX.Element {
   return (
-    <Router>
+    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
+      <p className="text-sm text-muted">Loading admin…</p>
+    </div>
+  );
+}
+
+function AdminMount(): JSX.Element {
+  const clientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
+  return (
+    <Suspense fallback={<AdminFallback />}>
+      <AdminApp
+        basePath="/admin"
+        templateId="liquor-store-v1"
+        enforceClientId={clientId}
+        storefrontOrigin={typeof window !== 'undefined' ? window.location.origin : undefined}
+      />
+    </Suspense>
+  );
+}
+
+function StorefrontShell(): JSX.Element {
+  const [isAgeVerified, setIsAgeVerified] = useState(false);
+
+  return (
+    <>
       <ScrollToTop />
-      <div className="min-h-screen flex flex-col bg-background text-foreground font-sans selection:bg-gold selection:text-background">
+      <div className="flex min-h-screen flex-col bg-background font-sans text-foreground selection:bg-gold selection:text-background">
         {!isAgeVerified && <AgeGate onVerify={() => setIsAgeVerified(true)} />}
 
         <div
-          className={`flex-grow flex flex-col transition-opacity duration-1000 ${isAgeVerified ? 'opacity-100' : 'opacity-0 h-screen overflow-hidden'}`}>
-          
+          className={`flex flex-grow flex-col transition-opacity duration-1000 ${isAgeVerified ? 'opacity-100' : 'h-screen overflow-hidden opacity-0'}`}
+        >
           <Navbar />
           <div className="flex-grow pt-20">
-            {' '}
-            {/* Add padding top to account for fixed navbar */}
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />
@@ -51,6 +80,26 @@ export function App() {
           <Footer />
         </div>
       </div>
-    </Router>);
+    </>
+  );
+}
 
+export function App(): JSX.Element {
+  return (
+    <StoreDataProvider>
+      <Router>
+        <Routes>
+          <Route path="/admin/*" element={<AdminMount />} />
+          <Route
+            path="/*"
+            element={
+              <StoreGate>
+                <StorefrontShell />
+              </StoreGate>
+            }
+          />
+        </Routes>
+      </Router>
+    </StoreDataProvider>
+  );
 }

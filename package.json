@@ -9,7 +9,8 @@
     "admin",
     "server",
     "liquor-store-v1",
-    "watches-store-v2"
+    "watches-store-v2",
+    "packages/admin-ui"
   ],
   "scripts": {
     "dev:client": "npm run dev -w client",

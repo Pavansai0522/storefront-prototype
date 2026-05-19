@@ -1,12 +1,14 @@
 import React from 'react';
 import { ProductCatalog } from '../components/ProductCatalog';
-import { allProducts } from '../data/products';
-export function Shop() {
+import { useStoreProducts } from '../context/StoreDataContext';
+
+export function Shop(): JSX.Element {
+  const products = useStoreProducts();
   return (
     <ProductCatalog
-      title="All Products"
-      description="Browse our complete collection of premium spirits, fine wines, and craft beers."
-      products={allProducts} />);
-
-
+      title="Shop All"
+      description="Browse our full selection of spirits, wine, and beer."
+      products={products}
+    />
+  );
 }

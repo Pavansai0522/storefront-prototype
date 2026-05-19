@@ -1,8 +1,12 @@
 import type { Config } from 'tailwindcss';
 
-/** Must match client `src/config/client-config.ts` theme (fonts + brand colors). */
+/** Admin UI tokens — consumed by @my-agency/admin-ui via Tailwind @apply in styles/admin.css */
 export default {
-  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  content: [
+    './index.html',
+    './src/**/*.{js,ts,jsx,tsx}',
+    '../packages/admin-ui/src/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     extend: {
       colors: {

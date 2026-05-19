@@ -2,7 +2,8 @@
 
 export default {content: [
   './index.html',
-  './src/**/*.{js,ts,jsx,tsx}'
+  './src/**/*.{js,ts,jsx,tsx}',
+  '../packages/admin-ui/src/**/*.{js,ts,jsx,tsx}'
 ],
   darkMode: 'selector',
   theme: {
@@ -25,6 +26,17 @@ export default {content: [
         'brand-text': '#F4F4FA',
         'brand-muted': '#9494B8',
         'brand-border': 'rgba(255, 255, 255, 0.1)',
+        brand: {
+          bg: '#0A0A0A',
+          card: '#1A1A2E',
+          saffron: '#FF6B00',
+          saffronHover: '#ff8533',
+          text: '#FFFFFF',
+        },
+        surface: {
+          sidebar: '#111111',
+          rowAlt: '#1A1A1A',
+        },
         background: 'var(--background)',
         foreground: 'var(--foreground)',
         card: 'var(--card)',
@@ -60,6 +72,7 @@ export default {content: [
       },
       fontFamily: {
         heading: ['"Bebas Neue"', 'sans-serif'],
+        display: ['"Bebas Neue"', 'sans-serif'],
         mono: ['Inter', 'monospace'],
         bebas: ['"Bebas Neue"', 'sans-serif'],
         sans: ['Inter', 'sans-serif']
