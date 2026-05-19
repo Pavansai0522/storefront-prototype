@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
-import type { AccessoryProduct } from '../data/accessories';
+import type { Accessory } from '../types';
 import { clientConfig, whatsappHref } from '../config/client-config';
 
-function buildWhatsappHref(product: AccessoryProduct): string {
+function buildWhatsappHref(product: Accessory): string {
   const text =
     `Hi ${clientConfig.brand.chatName}! I'm asking about ${product.itemCode} — ${product.name}. ` +
     `${product.detail} ` +
@@ -13,7 +13,7 @@ function buildWhatsappHref(product: AccessoryProduct): string {
 }
 
 export interface AccessoryTileCardProps {
-  product: AccessoryProduct;
+  product: Accessory;
   index: number;
 }
 

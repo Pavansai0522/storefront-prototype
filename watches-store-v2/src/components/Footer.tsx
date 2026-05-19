@@ -1,4 +1,5 @@
 import React from 'react';
+import { format } from 'date-fns';
 import { Instagram, Youtube, Facebook } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { STORE_NAME } from '../config/storeBranding';
@@ -99,7 +100,9 @@ export function Footer(): JSX.Element {
         <div className="mb-8 h-px w-full bg-brand-border" />
 
         <div className="px-2 text-center text-sm text-brand-muted">
-          <p className="break-words">© 2026 {STORE_NAME}, Chilakaluripet. All Rights Reserved.</p>
+          <p className="break-words">
+            © {format(new Date(), 'yyyy')} {STORE_NAME}, Chilakaluripet. All Rights Reserved.
+          </p>
         </div>
       </div>
     </footer>

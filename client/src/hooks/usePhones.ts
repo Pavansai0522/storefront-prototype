@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type Dispatch, type SetStateAction } from 'react';
 import { PHONES_PAGE_SIZE } from '../constants';
-import { BRANDS } from '../data/phones';
 import type { Nullable, Phone } from '../types';
 
 export type SortOption = { value: string; label: string };
@@ -65,6 +64,12 @@ export function usePhones(phones: Phone[]): {
     setSortBy('featured');
   };
 
+  const brandList = useMemo(() => {
+    const uniq = new Set<string>();
+    phones.forEach((phone) => uniq.add(phone.brand));
+    return Array.from(uniq).sort((a, b) => a.localeCompare(b));
+  }, [phones]);
+
   const filteredPhones = useMemo(() => {
     let list = phones.filter((phone) => {
       const brandMatch = selectedBrands.length === 0 || selectedBrands.includes(phone.brand);
@@ -121,7 +126,7 @@ export function usePhones(phones: Phone[]): {
     clearFilters,
     activeFilterCount,
     goToPage,
-    brandList: BRANDS,
+    brandList,
     priceRanges: PRICE_RANGES,
     sortOptions: SORT_OPTIONS,
     pageSize: PHONES_PAGE_SIZE,

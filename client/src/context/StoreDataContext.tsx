@@ -7,8 +7,6 @@ import React, {
   useState,
 } from 'react';
 import { clientConfig as staticClientConfig } from '../config/client-config';
-import { PHONES } from '../data/phones';
-import { ACCESSORY_ITEMS } from '../data/accessories';
 import type { Accessory, Phone } from '../types';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { mapDbProductToAccessory, mapDbProductToPhone } from '../lib/catalogMappers';
@@ -69,8 +67,8 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
     ...staticClientConfig,
     clientId: CLIENT_ID,
   });
-  const [phones, setPhones] = useState<Phone[]>(PHONES);
-  const [accessories, setAccessories] = useState<Accessory[]>(ACCESSORY_ITEMS);
+  const [phones, setPhones] = useState<Phone[]>([]);
+  const [accessories, setAccessories] = useState<Accessory[]>([]);
   const [siteActive, setSiteActive] = useState(true);
   const [storeReady, setStoreReady] = useState(!isSupabaseConfigured);
   const [catalogLoading, setCatalogLoading] = useState(isSupabaseConfigured);
@@ -132,23 +130,17 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       }
 
       const rows = (productRows ?? []) as DbProduct[];
-      if (rows.length > 0) {
-        const phoneList: Phone[] = [];
-        const accessoryList: Accessory[] = [];
-        for (const row of rows) {
-          if (row.is_accessory) {
-            accessoryList.push(mapDbProductToAccessory(row));
-          } else {
-            phoneList.push(mapDbProductToPhone(row));
-          }
-        }
-        if (phoneList.length > 0) {
-          setPhones(phoneList);
-        }
-        if (accessoryList.length > 0) {
-          setAccessories(accessoryList);
+      const phoneList: Phone[] = [];
+      const accessoryList: Accessory[] = [];
+      for (const row of rows) {
+        if (row.is_accessory) {
+          accessoryList.push(mapDbProductToAccessory(row));
+        } else {
+          phoneList.push(mapDbProductToPhone(row));
         }
       }
+      setPhones(phoneList);
+      setAccessories(accessoryList);
     } catch (err) {
       setCatalogError(err instanceof Error ? err.message : 'Failed to load store.');
     } finally {

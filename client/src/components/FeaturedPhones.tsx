@@ -4,9 +4,14 @@ import { Link } from 'react-router-dom';
 import { PhoneCard } from './PhoneCard';
 import { useStorePhones } from '../context/StoreDataContext';
 
-export function FeaturedPhones() {
+export function FeaturedPhones(): JSX.Element | null {
   const phones = useStorePhones();
   const featured = phones.slice(0, 6);
+
+  if (featured.length === 0) {
+    return null;
+  }
+
   return (
     <section id="phones" className="relative py-24">
       <div className="mx-auto mb-12 max-w-7xl px-4 md:px-8">

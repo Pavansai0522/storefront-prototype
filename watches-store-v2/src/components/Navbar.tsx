@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreLogo } from './StoreLogo';
 import { whatsappHref } from '../config/client-config';
@@ -29,7 +29,6 @@ function isNavLinkActive(href: string, pathname: string): boolean {
 
 export function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -44,84 +43,85 @@ export function Navbar(): JSX.Element {
     <header
       className={`fixed left-0 right-0 top-0 z-40 transition-all duration-300 ${isScrolled ? 'border-b border-brand-border bg-brand-elevated/90 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl' : 'bg-transparent'}`}
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between gap-2 sm:h-20">
-          <div className="min-w-0 flex-1">
-            <StoreLogo variant="navbar" />
-          </div>
+      <Disclosure>
+        {({ open }) => (
+          <>
+            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex h-16 items-center justify-between gap-2 sm:h-20">
+                <div className="min-w-0 flex-1">
+                  <StoreLogo variant="navbar" />
+                </div>
 
-          <nav className="hidden items-center gap-8 md:flex">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                to={link.href}
-                className={`rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-purple ${
-                  isNavLinkActive(link.href, location.pathname)
-                    ? 'text-brand-purple'
-                    : 'text-brand-text/70 hover:text-brand-text'
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
+                <nav className="hidden items-center gap-8 md:flex">
+                  {navLinks.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      className={`rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-purple ${
+                        isNavLinkActive(link.href, location.pathname)
+                          ? 'text-brand-purple'
+                          : 'text-brand-text/70 hover:text-brand-text'
+                      }`}
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </nav>
 
-          <div className="hidden shrink-0 md:flex md:items-center">
-            <a href={whatsappHref()} target="_blank" rel="noopener noreferrer" className={btnWhatsAppNav}>
-              WhatsApp
-            </a>
-          </div>
+                <div className="hidden shrink-0 md:flex md:items-center">
+                  <a
+                    href={whatsappHref()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={btnWhatsAppNav}
+                  >
+                    WhatsApp
+                  </a>
+                </div>
 
-          <button
-            type="button"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-brand-text hover:text-brand-text/80 focus:outline-none focus:ring-2 focus:ring-brand-purple md:hidden"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-            aria-expanded={isMobileMenuOpen}
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-      </div>
-
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden border-b border-brand-border bg-brand-bg md:hidden"
-          >
-            <div className="flex flex-col space-y-4 px-4 py-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.name}
-                  to={link.href}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex min-h-[48px] items-center text-lg font-medium transition-colors ${
-                    isNavLinkActive(link.href, location.pathname)
-                      ? 'text-brand-purple'
-                      : 'text-brand-text/70 hover:text-brand-text'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
-              <div className="border-t border-brand-border pt-4">
-                <a
-                  href={whatsappHref()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className={`${btnWhatsAppNav} w-full px-6 py-3 text-base`}
-                >
-                  WhatsApp Us
-                </a>
+                <div className="flex items-center gap-2 md:hidden">
+                  <a
+                    href={whatsappHref()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`${btnWhatsAppNav} px-3 py-2 text-sm`}
+                  >
+                    WhatsApp
+                  </a>
+                  <DisclosureButton
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-md text-brand-text hover:text-brand-text/80 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    aria-label={open ? 'Close menu' : 'Open menu'}
+                  >
+                    {open ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
+                  </DisclosureButton>
+                </div>
               </div>
             </div>
-          </motion.div>
+
+            <DisclosurePanel
+              transition
+              className="origin-top overflow-hidden border-b border-brand-border bg-brand-bg transition duration-200 ease-out data-[closed]:-translate-y-2 data-[closed]:opacity-0 md:hidden"
+            >
+              <div className="space-y-1 px-4 pb-6 pt-2">
+                {navLinks.map((link) => (
+                  <DisclosureButton
+                    key={link.name}
+                    as={Link}
+                    to={link.href}
+                    className={`flex min-h-[48px] w-full items-center text-lg font-medium transition-colors ${
+                      isNavLinkActive(link.href, location.pathname)
+                        ? 'text-brand-purple'
+                        : 'text-brand-text/70 hover:text-brand-text'
+                    }`}
+                  >
+                    {link.name}
+                  </DisclosureButton>
+                ))}
+              </div>
+            </DisclosurePanel>
+          </>
         )}
-      </AnimatePresence>
+      </Disclosure>
     </header>
   );
 }
