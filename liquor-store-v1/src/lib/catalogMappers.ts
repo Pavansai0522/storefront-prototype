@@ -21,6 +21,14 @@ function toLiquorCategory(value: string): LiquorCategory {
   return 'Other';
 }
 
+/** US liquor catalog stores shelf prices as cents in `price_inr`. */
+function priceFromDbRow(row: DbProduct): number {
+  if (row.price_inr >= 100) {
+    return row.price_inr / 100;
+  }
+  return row.price_inr;
+}
+
 export function mapDbProductToCatalog(row: DbProduct): Product {
   const category = toLiquorCategory(row.subcategory ?? row.category ?? 'Other');
   return {
@@ -28,7 +36,7 @@ export function mapDbProductToCatalog(row: DbProduct): Product {
     name: row.name,
     brand: row.brand,
     category,
-    price: row.price_inr,
+    price: priceFromDbRow(row),
     image: row.image_url ?? '',
     inStock: row.in_stock,
   };

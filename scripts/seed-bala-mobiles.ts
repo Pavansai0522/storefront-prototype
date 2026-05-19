@@ -38,11 +38,10 @@ const BALA_CLIENT_ROW = {
   id: BALA_CLIENT_ID,
   slug: BALA_SLUG,
   template: 'mobile-store-v1',
-  country: 'IN',
   store_name: 'Bala Mobiles',
   status: 'active',
   monthly_fee: 299,
-  live_url: 'http://localhost:5173',
+  live_url: process.env.BALA_LIVE_URL ?? 'https://bala-mobiles.vercel.app',
   whatsapp_number: '+91 98765 43210',
   store_phone: '+91 98765 43210',
   address: 'Shop No. 42, Tech Market Building,\nMG Road, Near Metro Pillar 104,\nNew Delhi, 110001',
@@ -91,7 +90,6 @@ async function seedProducts(): Promise<void> {
   for (const phone of PHONES) {
     const emiNum = Number.parseInt(phone.emi.replace(/\D/g, ''), 10) || 0;
     productRows.push({
-      id: `bala-phone-${phone.id}`,
       client_id: BALA_CLIENT_ID,
       name: phone.name,
       brand: phone.brand,
@@ -111,7 +109,6 @@ async function seedProducts(): Promise<void> {
   for (const item of ACCESSORY_ITEMS) {
     const adminCategory = ADMIN_ACCESSORY_CATEGORY[item.categoryId];
     productRows.push({
-      id: `bala-acc-${item.id}`,
       client_id: BALA_CLIENT_ID,
       name: item.name,
       brand: item.itemCode,
@@ -128,7 +125,7 @@ async function seedProducts(): Promise<void> {
     });
   }
 
-  const { error } = await supabase.from('products').upsert(productRows);
+  const { error } = await supabase.from('products').insert(productRows);
   if (error) {
     throw new Error(error.message);
   }
