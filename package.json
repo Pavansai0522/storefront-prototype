@@ -32,10 +32,12 @@
     "ensure:pr-watches-users": "tsx scripts/ensure-pr-watches-users.ts",
     "set:pr-watches-url": "tsx scripts/set-pr-watches-live-url.ts",
     "seed:bala": "tsx scripts/seed-bala-mobiles.ts",
-    "seed:liquor": "tsx scripts/seed-liquor-store.ts"
+    "seed:liquor": "tsx scripts/seed-liquor-store.ts",
+    "db:migrate": "tsx scripts/apply-sql-migration.ts"
   },
   "devDependencies": {
     "dotenv": "^17.4.2",
+    "pg": "^8.21.0",
     "tsx": "^4.22.0"
   }
 }

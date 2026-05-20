@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   createColumnHelper,
   flexRender,
@@ -8,7 +8,13 @@ import {
 } from '@tanstack/react-table';
 import Select from 'react-select';
 import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2 } from 'lucide-react';
-import { LIQUOR_CATEGORIES, PRODUCT_CATEGORIES, SKELETON_DELAY_MS, WATCHES_SUBCATEGORIES } from '../constants';
+import {
+  LIQUOR_CATEGORIES,
+  LIQUOR_LISTING_OPTIONS,
+  PRODUCT_CATEGORIES,
+  SKELETON_DELAY_MS,
+  WATCHES_SUBCATEGORIES,
+} from '../constants';
 import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
 import {
@@ -19,9 +25,14 @@ import {
   type SortKeyOption,
   type StockFilterOption,
 } from '../hooks';
-import type { Nullable, Product } from '../types';
+import type { FeaturedGroup, Nullable, Product } from '../types';
 import { getClientCurrency, formatClientMoney } from '../utils/clientCurrency';
-import { usesEmiPricing, usesRetailDecimals } from '../constants/countryCurrency';
+import {
+  normalizeRetailDollar,
+  usesEmiPricing,
+  usesRetailDecimals,
+} from '../constants/countryCurrency';
+import { LiquorProductThumb } from '../components/LiquorProductThumb';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { ProductModal, type ProductModalMode } from '../components/ProductModal';
 import { SkeletonTable } from '../components/AdminSkeleton';
@@ -35,6 +46,27 @@ import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
 
+function nextDealSort(products: Product[]): number {
+  const dealRows = products.filter((p) => p.featuredGroup === 'deal');
+  const maxSort = dealRows.reduce((max, p) => Math.max(max, p.featuredSort ?? 0), -1);
+  return maxSort + 1;
+}
+
+function featuredFromWeeklyDeal(
+  weeklyDeal: 'catalog' | 'deals',
+  products: Product[],
+  existing?: Product | null,
+): { featuredGroup: FeaturedGroup | null; featuredSort: number | null } {
+  if (weeklyDeal === 'deals') {
+    const sort =
+      existing?.featuredGroup === 'deal' && existing.featuredSort != null
+        ? existing.featuredSort
+        : nextDealSort(products);
+    return { featuredGroup: 'deal', featuredSort: sort };
+  }
+  return { featuredGroup: null, featuredSort: null };
+}
+
 export function Products(): JSX.Element {
   const { effectiveClientId, isSuperadmin } = useProfile();
   const clientId = effectiveClientId;
@@ -47,7 +79,11 @@ export function Products(): JSX.Element {
   );
   const isLiquor = isLiquorStoreTemplate(client?.template);
   const isWatches = isWatchesStoreTemplate(client?.template);
-  const currencyCode = client ? getClientCurrency(client) : 'INR';
+  const currencyCode = client
+    ? getClientCurrency(client)
+    : isLiquor
+      ? 'USD'
+      : 'INR';
   const showEmi = usesEmiPricing(currencyCode);
   const useRetailPrice = usesRetailDecimals(currencyCode);
   const productCategoryChoices = useMemo(() => {
@@ -88,6 +124,7 @@ export function Products(): JSX.Element {
   const [modalMode, setModalMode] = useState<ProductModalMode>('create');
   const [editing, setEditing] = useState<Nullable<Product>>(null);
   const [deleteTarget, setDeleteTarget] = useState<Nullable<Product>>(null);
+  const [dealToggleId, setDealToggleId] = useState<Nullable<string>>(null);
 
   useEffect(() => {
     if (dataLoading) {
@@ -108,6 +145,33 @@ export function Products(): JSX.Element {
     setEditing(item);
     setModalOpen(true);
   };
+
+  const setProductListing = useCallback(
+    async (product: Product, weeklyDeal: 'catalog' | 'deals'): Promise<void> => {
+      if (!clientId) {
+        showToast('No store selected for this product.', 'error');
+        return;
+      }
+      const { featuredGroup, featuredSort } = featuredFromWeeklyDeal(weeklyDeal, rows, product);
+      setDealToggleId(product.id);
+      try {
+        await saveProduct({
+          ...product,
+          featuredGroup,
+          featuredSort,
+        });
+        showToast(
+          weeklyDeal === 'deals' ? 'Added to Deals page' : 'Removed from Deals page',
+          'success',
+        );
+      } catch (err) {
+        showToast(err instanceof Error ? err.message : 'Update failed', 'error');
+      } finally {
+        setDealToggleId(null);
+      }
+    },
+    [clientId, rows, saveProduct],
+  );
 
   const columns = useMemo(
     () => [
@@ -155,11 +219,15 @@ export function Products(): JSX.Element {
           const p = row.original;
           return (
             <div className="flex min-w-0 items-center gap-3">
-              <img
-                src={p.image ?? ''}
-                alt=""
-                className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
-              />
+              {isLiquor ? (
+                <LiquorProductThumb src={p.image} alt={p.name} />
+              ) : (
+                <img
+                  src={p.image ?? ''}
+                  alt=""
+                  className="h-10 w-10 shrink-0 rounded-lg border border-white/10 object-cover"
+                />
+              )}
               <div className="min-w-0">
                 <p className="break-words font-medium text-white">{p.name}</p>
                 <p className="hidden text-xs text-gray-400 md:block">{p.brand}</p>
@@ -216,6 +284,40 @@ export function Products(): JSX.Element {
           );
         },
       }),
+      ...(isLiquor
+        ? [
+            columnHelper.display({
+              id: 'weeklyDeal',
+              header: 'Deals page',
+              cell: ({ row }) => {
+                const p = row.original;
+                const listing = p.featuredGroup === 'deal' ? 'deals' : 'catalog';
+                const busy = dealToggleId === p.id;
+                return (
+                  <select
+                    className="min-h-[44px] max-w-[220px] rounded-lg border border-white/10 bg-brand-bg px-2 py-2 text-sm text-gray-200 focus:border-brand-saffron focus:outline-none focus:ring-1 focus:ring-brand-saffron disabled:opacity-50"
+                    value={listing}
+                    disabled={busy || !clientId}
+                    aria-label={`Deals listing for ${p.name}`}
+                    onChange={(e) => {
+                      const next = e.target.value as 'catalog' | 'deals';
+                      if (next === listing) {
+                        return;
+                      }
+                      void setProductListing(p, next);
+                    }}
+                  >
+                    {LIQUOR_LISTING_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.value === 'deals' ? 'Deals page' : 'Catalog only'}
+                      </option>
+                    ))}
+                  </select>
+                );
+              },
+            }),
+          ]
+        : []),
       columnHelper.display({
         id: 'actions',
         header: () => <span className="sr-only">Actions</span>,
@@ -244,7 +346,7 @@ export function Products(): JSX.Element {
         },
       }),
     ],
-    [isLiquor, client, showEmi, useRetailPrice],
+    [isLiquor, client, showEmi, useRetailPrice, clientId, dealToggleId, setProductListing],
   );
 
   const table = useReactTable({
@@ -266,6 +368,7 @@ export function Products(): JSX.Element {
     imageFile: File | null;
     inStock: boolean;
     category: string;
+    weeklyDeal: 'catalog' | 'deals';
   }): Promise<void> => {
     if (!clientId) {
       showToast(
@@ -285,32 +388,38 @@ export function Products(): JSX.Element {
     try {
       const productId =
         modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
-      let imageUrl = values.image.trim();
+      let imageUrl: string | null = values.image.trim() || null;
 
       if (values.imageFile) {
         imageUrl = await uploadProductImage(ownerId, productId, values.imageFile);
       }
 
-      if (!imageUrl) {
-        showToast('Add a product image (upload or URL).', 'error');
-        return;
-      }
-
       const subcategory = isWatches ? values.category : null;
       const category = (isWatches ? values.category : values.category) as Product['category'];
+
+      const listingFields = isLiquor
+        ? featuredFromWeeklyDeal(values.weeklyDeal, rows, modalMode === 'edit' ? editing : null)
+        : {
+            featuredGroup: modalMode === 'edit' && editing ? editing.featuredGroup : undefined,
+            featuredSort: modalMode === 'edit' && editing ? editing.featuredSort : undefined,
+          };
+
+      const shelfPrice = useRetailPrice ? normalizeRetailDollar(values.price) : values.price;
 
       const product: Product = {
         id: productId,
         clientId: ownerId,
         name: values.name,
         brand: values.brand,
-        price: values.price,
+        price: shelfPrice,
         emiPrice: values.emiPrice,
         image: imageUrl,
         inStock: values.inStock,
         category,
         subcategory,
         isAccessory: false,
+        featuredGroup: listingFields.featuredGroup ?? undefined,
+        featuredSort: listingFields.featuredSort ?? undefined,
       };
 
       await saveProduct(product);
@@ -375,6 +484,12 @@ export function Products(): JSX.Element {
                 : isSuperadmin
                   ? 'Select a store from Clients to manage its catalog.'
                   : 'Products'}
+              {isLiquor && client ? (
+                <>
+                  {' '}
+                  Set <span className="text-white">Deals page</span> in the dropdown when adding or editing a product.
+                </>
+              ) : null}
             </p>
           </div>
           <button
@@ -560,6 +675,7 @@ export function Products(): JSX.Element {
           mode={modalMode}
           currencyCode={currencyCode}
           initial={editing}
+          showWeeklyDealField={isLiquor}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
           saving={saving}

@@ -74,7 +74,7 @@ export function AdminShell(): JSX.Element {
   const sidebarRole = isSuperadmin && !isImpersonating ? 'superadmin' : 'admin';
 
   return (
-    <div className="flex min-h-screen bg-brand-bg">
+    <div className="flex min-h-full min-w-0 flex-1 bg-brand-bg">
       <Sidebar
         role={sidebarRole}
         isOpen={isOpen}
@@ -92,7 +92,7 @@ export function AdminShell(): JSX.Element {
         />
       ) : null}
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         {isImpersonating && impersonatedStoreName ? (
           <div className="flex flex-col gap-2 border-b border-brand-saffron/40 bg-brand-saffron/20 px-4 py-2 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 items-center gap-2">
@@ -145,7 +145,7 @@ export function AdminShell(): JSX.Element {
           </button>
         </header>
 
-        <main className="flex-1 overflow-x-hidden p-4 md:p-8">
+        <main className="min-w-0 flex-1 p-4 md:p-8">
           <RequirePasswordChange />
         </main>
       </div>

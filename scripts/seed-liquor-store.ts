@@ -5,6 +5,7 @@
  */
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
+import { dollarsToCents } from '../packages/admin-ui/src/constants/countryCurrency';
 import { allProducts } from '../liquor-store-v1/src/data/products';
 import { clientConfig } from '../liquor-store-v1/src/config/client-config';
 
@@ -31,6 +32,7 @@ const supabase = createClient(url, serviceKey, {
 const LIQUOR_CLIENT_ROW = {
   id: LIQUOR_CLIENT_ID,
   slug: LIQUOR_SLUG,
+  country: 'US',
   template: 'liquor-store-v1',
   store_name: clientConfig.storeName,
   status: 'active',
@@ -81,20 +83,22 @@ async function seedProducts(): Promise<void> {
   const productRows: Record<string, unknown>[] = [];
   let sort = 0;
 
+  let dealSort = 0;
   for (const p of allProducts) {
+    const isDeal = p.badge === 'DEAL';
     productRows.push({
       client_id: LIQUOR_CLIENT_ID,
       name: p.name,
       brand: p.brand,
-      price_inr: Math.round(p.price * 100),
+      price_inr: dollarsToCents(p.price),
       emi_price_inr: null,
       image_url: p.image,
       in_stock: p.inStock !== false,
       category: p.category,
       subcategory: p.category,
       is_accessory: false,
-      featured_group: null,
-      featured_sort: null,
+      featured_group: isDeal ? 'deal' : null,
+      featured_sort: isDeal ? dealSort++ : null,
       sort_order: sort++,
     });
   }

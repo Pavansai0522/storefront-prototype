@@ -4,17 +4,21 @@ import {
   type CurrencyCode,
   usesRetailDecimals,
 } from '../constants/countryCurrency';
+import { isLiquorStoreTemplate } from '../constants/templates';
 import type { Client } from '../types';
 import { formatMoney } from './formatCurrency';
 
 export function getClientCurrency(
   client: Pick<Client, 'country' | 'template'>,
 ): CurrencyCode {
+  if (isLiquorStoreTemplate(client.template)) {
+    return 'USD';
+  }
   return currencyForCountry(client.country, client.template);
 }
 
 export function formatClientMoney(
-  client: Pick<Client, 'country'>,
+  client: Pick<Client, 'country' | 'template'>,
   amount: number,
   options?: { retail?: boolean },
 ): string {

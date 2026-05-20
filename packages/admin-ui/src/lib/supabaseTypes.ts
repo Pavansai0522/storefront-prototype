@@ -53,7 +53,7 @@ export type DbProduct = {
   category: string;
   subcategory: string | null;
   is_accessory: boolean;
-  featured_group: 'watch' | 'toy' | 'accessory' | null;
+  featured_group: 'watch' | 'toy' | 'accessory' | 'deal' | null;
   featured_sort: number | null;
   sort_order: number;
 };

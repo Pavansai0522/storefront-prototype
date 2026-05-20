@@ -44,7 +44,7 @@ export function AdminLogin(): JSX.Element {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-bg px-4">
+    <div className="flex min-h-full items-center justify-center px-4 py-8">
       <PageTransition>
         <div className="admin-card mx-auto w-full max-w-sm p-8 shadow-2xl shadow-black/50">
           <div className="mb-8 text-center">

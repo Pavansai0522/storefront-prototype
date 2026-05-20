@@ -30,11 +30,11 @@ export function ConfirmModal({
   return (
     <Dialog open={open} onClose={onCancel} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-black/60 transition-opacity duration-200 data-[closed]:opacity-0" />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="flex min-h-full items-center justify-center">
+      <div className="admin-scroll-rail fixed inset-0 z-50 overflow-y-auto p-4 md:p-8">
+        <div className="flex min-h-full items-center justify-center py-8">
           <DialogPanel
             transition
-            className="relative mx-4 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-brand-card p-6 shadow-2xl transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+            className="relative mx-auto w-full max-w-lg rounded-xl bg-brand-card p-6 shadow-2xl transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
           >
             <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
               <DialogTitle

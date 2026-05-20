@@ -1,5 +1,10 @@
-import type { CountryCode } from '../constants/countryCurrency';
-import { defaultCountryForTemplate } from '../constants/countryCurrency';
+import type { CountryCode, CurrencyCode } from '../constants/countryCurrency';
+import {
+  catalogPriceFromDb,
+  catalogPriceToDb,
+  defaultCountryForTemplate,
+} from '../constants/countryCurrency';
+import { isLiquorStoreTemplate } from '../constants/templates';
 import type { Client, PaymentHistory, Product } from '../types';
 import type { ClientBilling, ClientNote } from '../types/client.types';
 import type { DbClient, DbProduct } from './supabaseTypes';
@@ -19,6 +24,9 @@ function parseBilling(raw: Record<string, unknown>): ClientBilling {
 }
 
 function parseCountry(row: DbClient): CountryCode {
+  if (isLiquorStoreTemplate(row.template)) {
+    return 'US';
+  }
   const raw = row.country;
   if (raw === 'IN' || raw === 'US' || raw === 'GB' || raw === 'AE') {
     return raw;
@@ -61,10 +69,11 @@ export function dbClientToClient(row: DbClient): Client {
 }
 
 export function clientToDbClient(client: Client): DbClient {
+  const country = isLiquorStoreTemplate(client.template) ? 'US' : client.country;
   return {
     id: client.id,
     slug: client.slug,
-    country: client.country,
+    country,
     template: client.template,
     store_name: client.storeName,
     status: client.status,
@@ -95,7 +104,7 @@ export function clientToDbClient(client: Client): DbClient {
   };
 }
 
-export function dbProductToProduct(row: DbProduct): Product {
+export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR'): Product {
   const subcategory = row.subcategory ?? null;
   const categoryValue = subcategory || row.category || 'Other';
   return {
@@ -103,8 +112,8 @@ export function dbProductToProduct(row: DbProduct): Product {
     clientId: row.client_id,
     name: row.name,
     brand: row.brand,
-    price: row.price_inr,
-    emiPrice: row.emi_price_inr ?? 0,
+    price: catalogPriceFromDb(row.price_inr, currency),
+    emiPrice: catalogPriceFromDb(row.emi_price_inr ?? 0, currency),
     image: row.image_url,
     inStock: row.in_stock,
     category: categoryValue as Product['category'],
@@ -117,6 +126,7 @@ export function dbProductToProduct(row: DbProduct): Product {
 
 export function productToDbInsert(
   product: Omit<Product, 'id'> & { id?: string },
+  currency: CurrencyCode = 'INR',
 ): Record<string, unknown> {
   const subcategory = product.subcategory ?? null;
   return {
@@ -124,8 +134,8 @@ export function productToDbInsert(
     client_id: product.clientId,
     name: product.name,
     brand: product.brand,
-    price_inr: product.price,
-    emi_price_inr: product.emiPrice,
+    price_inr: catalogPriceToDb(product.price, currency),
+    emi_price_inr: catalogPriceToDb(product.emiPrice, currency),
     image_url: product.image,
     in_stock: product.inStock,
     category: subcategory ?? product.category,
@@ -137,12 +147,15 @@ export function productToDbInsert(
   };
 }
 
-export function productToDbUpdate(product: Partial<Product>): Record<string, unknown> {
+export function productToDbUpdate(
+  product: Partial<Product>,
+  currency: CurrencyCode = 'INR',
+): Record<string, unknown> {
   const patch: Record<string, unknown> = {};
   if (product.name != null) patch.name = product.name;
   if (product.brand != null) patch.brand = product.brand;
-  if (product.price != null) patch.price_inr = product.price;
-  if (product.emiPrice != null) patch.emi_price_inr = product.emiPrice;
+  if (product.price != null) patch.price_inr = catalogPriceToDb(product.price, currency);
+  if (product.emiPrice != null) patch.emi_price_inr = catalogPriceToDb(product.emiPrice, currency);
   if (product.image !== undefined) patch.image_url = product.image;
   if (product.inStock != null) patch.in_stock = product.inStock;
   if (product.category != null || product.subcategory != null) {

@@ -18,7 +18,7 @@ export type ProductCategory =
   | 'Earphone'
   | 'Cable';
 
-export type FeaturedGroup = 'watch' | 'toy' | 'accessory';
+export type FeaturedGroup = 'watch' | 'toy' | 'accessory' | 'deal';
 
 export interface Product {
   id: ID;

@@ -7,8 +7,6 @@ import { PageTransition } from '../components/PageTransition';
 import { RequireStoreBanner } from '../components/RequireStoreBanner';
 import { useAuthContext } from '../context/AuthContext';
 import { isLiquorStoreTemplate } from '../constants/templates';
-import { currencySymbol } from '../constants/countryCurrency';
-import { getClientCurrency } from '../utils/clientCurrency';
 import { findClientById } from '../utils/clientLookup';
 import { joinStoreTimings, parseStoreTimings } from '../utils/storeTimings';
 
@@ -21,9 +19,6 @@ type StoreInfoForm = {
   instagram: string;
   facebook: string;
   ageVerificationEnabled: boolean;
-  deliveryAvailable: boolean;
-  deliveryRadiusMiles: number;
-  minimumOrderAmountUsd: number;
 };
 
 export function StoreInfo(): JSX.Element {
@@ -33,9 +28,8 @@ export function StoreInfo(): JSX.Element {
 
   const client = useMemo(() => findClientById(clients, clientId), [clients, clientId]);
   const isLiquor = isLiquorStoreTemplate(client?.template);
-  const minOrderCurrency = client ? currencySymbol(getClientCurrency(client)) : 'USD';
 
-  const { register, handleSubmit, reset, watch } = useForm<StoreInfoForm>({
+  const { register, handleSubmit, reset } = useForm<StoreInfoForm>({
     defaultValues: {
       whatsapp: '',
       storePhone: '',
@@ -45,14 +39,9 @@ export function StoreInfo(): JSX.Element {
       instagram: '',
       facebook: '',
       ageVerificationEnabled: false,
-      deliveryAvailable: false,
-      deliveryRadiusMiles: 0,
-      minimumOrderAmountUsd: 0,
     },
     mode: 'onSubmit',
   });
-
-  const deliveryOn = watch('deliveryAvailable');
 
   useEffect(() => {
     if (!client) {
@@ -68,9 +57,6 @@ export function StoreInfo(): JSX.Element {
       instagram: client.instagram,
       facebook: client.facebook,
       ageVerificationEnabled: client.ageVerificationEnabled,
-      deliveryAvailable: client.deliveryAvailable,
-      deliveryRadiusMiles: client.deliveryRadiusMiles,
-      minimumOrderAmountUsd: client.minimumOrderAmountUsd,
     });
   }, [client, reset]);
 
@@ -106,9 +92,6 @@ export function StoreInfo(): JSX.Element {
       instagram: data.instagram.trim(),
       facebook: data.facebook.trim(),
       ageVerificationEnabled: isLiquor ? data.ageVerificationEnabled : client.ageVerificationEnabled,
-      deliveryAvailable: isLiquor ? data.deliveryAvailable : client.deliveryAvailable,
-      deliveryRadiusMiles: isLiquor ? data.deliveryRadiusMiles : client.deliveryRadiusMiles,
-      minimumOrderAmountUsd: isLiquor ? data.minimumOrderAmountUsd : client.minimumOrderAmountUsd,
     });
   };
 
@@ -186,38 +169,6 @@ export function StoreInfo(): JSX.Element {
                 <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-white/10 bg-brand-bg/40 px-4 py-3 text-sm text-white">
                   <input type="checkbox" className="h-4 w-4 rounded border-white/20 accent-brand-saffron" {...register('ageVerificationEnabled')} />
                   <span>Require age verification on the storefront</span>
-                </label>
-              </div>
-
-              <div className="md:col-span-2 space-y-3 rounded-xl border border-white/10 bg-brand-bg/40 p-4">
-                <p className="text-xs font-semibold uppercase tracking-wide text-brand-saffron">Delivery</p>
-                <label className="flex cursor-pointer items-center gap-3 text-sm text-white">
-                  <input type="checkbox" className="h-4 w-4 rounded border-white/20 accent-brand-saffron" {...register('deliveryAvailable')} />
-                  <span>Delivery available</span>
-                </label>
-                <label className="block text-sm">
-                  <span className="admin-label">Delivery radius (miles)</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={1}
-                    disabled={!deliveryOn}
-                    className="admin-input disabled:opacity-50"
-                    {...register('deliveryRadiusMiles', { valueAsNumber: true, min: 0 })}
-                  />
-                </label>
-                <label className="block text-sm">
-                  <span className="admin-label">Minimum order amount ({minOrderCurrency})</span>
-                  <input
-                    type="number"
-                    min={0}
-                    step={0.01}
-                    className="admin-input"
-                    {...register('minimumOrderAmountUsd', { valueAsNumber: true, min: 0 })}
-                  />
-                  <span className="mt-1 block text-xs text-gray-500">
-                    Shown in {minOrderCurrency} on the storefront.
-                  </span>
                 </label>
               </div>
             </>

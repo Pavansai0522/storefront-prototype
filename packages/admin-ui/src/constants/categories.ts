@@ -20,6 +20,14 @@ export const LIQUOR_CATEGORIES = [
 
 export type LiquorCategory = (typeof LIQUOR_CATEGORIES)[number]['value'];
 
+/** Where a liquor product appears on the storefront (category still controls Spirits / Wine / Beer). */
+export const LIQUOR_LISTING_OPTIONS = [
+  { value: 'catalog', label: 'Catalog only (Shop, Spirits, Wine, Beer)' },
+  { value: 'deals', label: 'Weekly specials — Deals page' },
+] as const;
+
+export type LiquorListingOption = (typeof LIQUOR_LISTING_OPTIONS)[number]['value'];
+
 export const ACCESSORY_CATEGORIES = [
   { value: 'Case', label: 'Case' },
   { value: 'Charger', label: 'Charger' },

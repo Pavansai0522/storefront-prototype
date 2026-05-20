@@ -517,14 +517,6 @@ export function ClientDetail(): JSX.Element {
                       {client.ageVerificationEnabled ? 'Enabled' : 'Disabled'}
                     </dd>
                   </div>
-                  <div className="flex flex-col gap-1 sm:flex-row sm:justify-between sm:gap-4">
-                    <dt className="shrink-0 text-gray-400">Delivery</dt>
-                    <dd className="min-w-0 sm:max-w-[60%] sm:text-right text-white">
-                      {client.deliveryAvailable
-                        ? `Yes · ${client.deliveryRadiusMiles} mi · min ${formatClientMoney(client, client.minimumOrderAmountUsd, { retail: true })}`
-                        : 'No'}
-                    </dd>
-                  </div>
                 </>
               ) : null}
             </dl>

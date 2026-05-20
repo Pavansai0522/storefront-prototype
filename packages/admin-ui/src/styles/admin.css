@@ -5,10 +5,16 @@
 @import 'tailwindcss/utilities';
 
 @layer base {
+  html:has(.admin-ui-root),
+  body:has(.admin-ui-root) {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .admin-ui-root {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    @apply min-h-screen bg-brand-bg font-sans text-brand-text antialiased;
+    @apply admin-scroll-rail h-screen min-h-0 overflow-x-hidden overflow-y-auto bg-brand-bg font-sans text-brand-text antialiased;
   }
 
   .admin-ui-root input,

@@ -2,9 +2,16 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { Dialog, DialogBackdrop, DialogPanel, DialogTitle } from '@headlessui/react';
 import Select from 'react-select';
-import { ImageOff, X } from 'lucide-react';
+import { ImageOff, Wine, X } from 'lucide-react';
 import type { CurrencyCode } from '../constants/countryCurrency';
-import { currencySymbol, usesEmiPricing, usesRetailDecimals } from '../constants/countryCurrency';
+import {
+  currencySymbol,
+  formatDollarInput,
+  normalizeRetailDollar,
+  parseDollarInput,
+  usesEmiPricing,
+  usesRetailDecimals,
+} from '../constants/countryCurrency';
 import type { Nullable, Product } from '../types';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 
@@ -19,6 +26,8 @@ export type ProductModalValues = {
   imageFile: File | null;
   inStock: boolean;
   category: string;
+  /** Liquor stores: include on /deals when `deals`. */
+  weeklyDeal: 'catalog' | 'deals';
 };
 
 const defaultValues: ProductModalValues = {
@@ -30,6 +39,7 @@ const defaultValues: ProductModalValues = {
   imageFile: null,
   inStock: true,
   category: '',
+  weeklyDeal: 'catalog',
 };
 
 type ProductModalProps = {
@@ -41,6 +51,8 @@ type ProductModalProps = {
   currencyCode?: CurrencyCode;
   initial?: Nullable<Product>;
   allowImageUpload?: boolean;
+  /** Liquor template: show Deals page listing dropdown. */
+  showWeeklyDealField?: boolean;
   saving?: boolean;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void | Promise<void>;
@@ -48,6 +60,12 @@ type ProductModalProps = {
 
 type CategoryOption = { value: string; label: string };
 type StockOption = { value: 'in' | 'out'; label: string };
+type WeeklyDealOption = { value: 'catalog' | 'deals'; label: string };
+
+const WEEKLY_DEAL_MODAL_OPTIONS: WeeklyDealOption[] = [
+  { value: 'catalog', label: 'Catalog only (Shop, Spirits, Wine, Beer)' },
+  { value: 'deals', label: 'Weekly specials — Deals page' },
+];
 
 const STOCK_MODAL_OPTIONS: StockOption[] = [
   { value: 'in', label: 'In stock' },
@@ -62,14 +80,17 @@ export function ProductModal({
   currencyCode = 'INR',
   initial,
   allowImageUpload = false,
+  showWeeklyDealField = false,
   saving = false,
   onClose,
   onSave,
 }: ProductModalProps): JSX.Element {
   const showEmi = usesEmiPricing(currencyCode);
-  const priceStep = usesRetailDecimals(currencyCode) ? 0.01 : 1;
+  const retailPrice = usesRetailDecimals(currencyCode);
+  const priceStep = retailPrice ? 0.01 : 1;
   const priceLabel = `Price (${currencySymbol(currencyCode)})`;
-  const { register, control, handleSubmit, reset, watch, setValue, formState } = useForm<ProductModalValues>({
+  const { register, control, handleSubmit, reset, watch, setValue, setError, formState } =
+    useForm<ProductModalValues>({
     defaultValues,
     mode: 'onSubmit',
   });
@@ -78,6 +99,7 @@ export function ProductModal({
   const imageFile = watch('imageFile');
   const [imageBroken, setImageBroken] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [priceText, setPriceText] = useState('');
 
   useEffect(() => {
     setImageBroken(false);
@@ -92,24 +114,29 @@ export function ProductModal({
       return;
     }
     if (mode === 'edit' && initial) {
+      const price = retailPrice ? normalizeRetailDollar(initial.price) : initial.price;
       reset({
         name: initial.name,
         brand: initial.brand,
-        price: initial.price,
+        price,
         emiPrice: showEmi ? initial.emiPrice : 0,
         image: initial.image ?? '',
         imageFile: null,
         inStock: initial.inStock,
         category: initial.subcategory ?? initial.category,
+        weeklyDeal: initial.featuredGroup === 'deal' ? 'deals' : 'catalog',
       });
+      setPriceText(retailPrice ? formatDollarInput(price) : '');
     } else {
       reset({
         ...defaultValues,
         emiPrice: showEmi ? defaultValues.emiPrice : 0,
         category: categoryChoices[0]?.value ?? '',
+        weeklyDeal: 'catalog',
       });
+      setPriceText('');
     }
-  }, [open, mode, initial, categoryChoices, reset, showEmi]);
+  }, [open, mode, initial, categoryChoices, reset, showEmi, retailPrice]);
 
   useEffect(() => {
     if (!imageFile) {
@@ -124,11 +151,24 @@ export function ProductModal({
   const previewSrc = filePreview ?? image;
 
   const onSubmit = async (values: ProductModalValues): Promise<void> => {
-    const payload = showEmi ? values : { ...values, emiPrice: 0 };
-    if (!payload.imageFile && !payload.image.trim()) {
+    if (retailPrice && !priceText.trim()) {
+      setError('price', { type: 'required', message: 'Price is required' });
       return;
     }
+    const price = retailPrice ? parseDollarInput(priceText) : values.price;
+    if (retailPrice && price < 0) {
+      setError('price', { type: 'min', message: 'Price must be 0 or greater' });
+      return;
+    }
+    const payload = showEmi ? { ...values, price, emiPrice: values.emiPrice } : { ...values, price, emiPrice: 0 };
     await onSave(payload);
+  };
+
+  const commitPriceText = (): void => {
+    if (!retailPrice) {
+      return;
+    }
+    setValue('price', parseDollarInput(priceText), { shouldValidate: true });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -139,11 +179,11 @@ export function ProductModal({
   return (
     <Dialog open={open} onClose={onClose} className="relative z-50">
       <DialogBackdrop className="fixed inset-0 bg-black/60 transition-opacity duration-200 data-[closed]:opacity-0" />
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        <div className="flex min-h-full items-center justify-center">
+      <div className="admin-scroll-rail fixed inset-0 z-50 overflow-y-auto p-4 md:p-8">
+        <div className="flex min-h-full items-center justify-center py-8">
           <DialogPanel
             transition
-            className="relative mx-4 w-full max-w-lg max-h-[90vh] overflow-y-auto rounded-xl bg-brand-card p-6 shadow-2xl shadow-black/60 transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
+            className="relative mx-auto w-full max-w-lg rounded-xl bg-brand-card p-6 shadow-2xl shadow-black/60 transition duration-200 ease-out data-[closed]:scale-95 data-[closed]:opacity-0"
           >
             <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-4">
               <DialogTitle
@@ -175,18 +215,33 @@ export function ProductModal({
               <div className={`grid grid-cols-1 gap-4 ${showEmi ? 'md:grid-cols-2' : ''}`}>
                 <label className="block text-sm">
                   <span className="admin-label">{priceLabel}</span>
-                  <input
-                    required
-                    type="number"
-                    min={0}
-                    step={priceStep}
-                    className="admin-input"
-                    {...register('price', {
-                      required: true,
-                      valueAsNumber: true,
-                      min: { value: 0, message: 'Price must be 0 or greater' },
-                    })}
-                  />
+                  {retailPrice ? (
+                    <input
+                      required
+                      type="text"
+                      inputMode="decimal"
+                      autoComplete="off"
+                      placeholder="29.99"
+                      className="admin-input"
+                      value={priceText}
+                      onChange={(e) => setPriceText(e.target.value)}
+                      onBlur={commitPriceText}
+                    />
+                  ) : (
+                    <input
+                      required
+                      type="number"
+                      min={0}
+                      step={priceStep}
+                      inputMode="numeric"
+                      className="admin-input"
+                      {...register('price', {
+                        required: true,
+                        valueAsNumber: true,
+                        min: { value: 0, message: 'Price must be 0 or greater' },
+                      })}
+                    />
+                  )}
                   {formState.errors.price ? (
                     <p className="mt-1 text-xs text-red-300">{formState.errors.price.message}</p>
                   ) : null}
@@ -213,7 +268,7 @@ export function ProductModal({
                 ) : null}
               </div>
               <label className="block text-sm">
-                <span className="admin-label">Product image</span>
+                <span className="admin-label">Product image (optional)</span>
                 {allowImageUpload ? (
                   <input
                     type="file"
@@ -222,35 +277,24 @@ export function ProductModal({
                     onChange={handleFileChange}
                   />
                 ) : null}
-                <input
-                  type="url"
-                  placeholder="Or paste image URL"
-                  className="admin-input mt-2"
-                  {...register('image', {
-                    validate: (v) =>
-                      imageFile != null || (typeof v === 'string' && v.trim().length > 0) || 'Image required',
-                  })}
-                />
-                {formState.errors.image ? (
-                  <p className="mt-1 text-xs text-red-300">{String(formState.errors.image.message)}</p>
-                ) : null}
-                {previewSrc ? (
-                  <div className="mt-2 flex h-32 items-center justify-center overflow-hidden rounded-lg bg-white/5">
-                    {!imageBroken ? (
-                      <img
-                        src={previewSrc}
-                        alt="Preview"
-                        className="h-full object-contain"
-                        onError={() => setImageBroken(true)}
-                      />
-                    ) : (
-                      <div className="flex flex-col items-center gap-2 text-white/40">
-                        <ImageOff className="h-8 w-8 shrink-0" aria-hidden />
-                        <span className="text-sm">Image not found</span>
-                      </div>
-                    )}
-                  </div>
-                ) : null}
+                <input type="hidden" {...register('image')} />
+                <div className="mt-2 flex h-32 items-center justify-center overflow-hidden rounded-lg bg-white/5">
+                  {previewSrc && !imageBroken ? (
+                    <img
+                      src={previewSrc}
+                      alt="Preview"
+                      className="h-full object-contain"
+                      onError={() => setImageBroken(true)}
+                    />
+                  ) : showWeeklyDealField ? (
+                    <Wine className="h-16 w-16 shrink-0 text-brand-saffron/50" aria-hidden />
+                  ) : previewSrc && imageBroken ? (
+                    <div className="flex flex-col items-center gap-2 text-white/40">
+                      <ImageOff className="h-8 w-8 shrink-0" aria-hidden />
+                      <span className="text-sm">Image not found</span>
+                    </div>
+                  ) : null}
+                </div>
               </label>
               <label className="block text-sm">
                 <span className="admin-label">Category</span>
@@ -278,6 +322,37 @@ export function ProductModal({
                   />
                 </div>
               </label>
+              {showWeeklyDealField ? (
+                <label className="block text-sm">
+                  <span className="admin-label">Deals page</span>
+                  <p className="mb-2 text-xs text-gray-400">
+                    Category above still controls Spirits, Wine, and Beer. Choose Deals page to also show this
+                    item under Weekly specials.
+                  </p>
+                  <div className="mt-1">
+                    <Controller
+                      name="weeklyDeal"
+                      control={control}
+                      render={({ field }) => (
+                        <Select<WeeklyDealOption, false>
+                          instanceId="product-modal-weekly-deal"
+                          inputId="product-modal-weekly-deal"
+                          options={WEEKLY_DEAL_MODAL_OPTIONS}
+                          value={WEEKLY_DEAL_MODAL_OPTIONS.find((o) => o.value === field.value) ?? null}
+                          onChange={(opt) => {
+                            field.onChange(opt?.value ?? 'catalog');
+                          }}
+                          onBlur={field.onBlur}
+                          styles={adminSelectStyles}
+                          isSearchable={false}
+                          menuPortalTarget={document.body}
+                          menuPosition="fixed"
+                        />
+                      )}
+                    />
+                  </div>
+                </label>
+              ) : null}
               <label className="block text-sm">
                 <span className="admin-label">Stock</span>
                 <div className="mt-1">
