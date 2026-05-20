@@ -8,6 +8,10 @@
   * {
     @apply border-border outline-ring;
   }
+  html,
+  body {
+    @apply overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground antialiased;
   }

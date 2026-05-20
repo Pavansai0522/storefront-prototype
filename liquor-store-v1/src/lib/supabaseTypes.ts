@@ -26,4 +26,6 @@ export type DbProduct = {
   category: string;
   subcategory: string | null;
   sort_order: number;
+  featured_group: 'watch' | 'toy' | 'accessory' | 'deal' | null;
+  featured_sort: number | null;
 };

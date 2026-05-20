@@ -1,6 +1,7 @@
 import React from 'react';
-import { Zap, Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram, Twitter } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { StoreBrandLogo } from './StoreBrandLogo';
 import {
   STORE_ADDRESS_LINE1,
   STORE_ADDRESS_LINE2,
@@ -8,100 +9,70 @@ import {
   STORE_PHONE_DISPLAY,
   STORE_PHONE_TEL,
 } from '../config/store';
+
+const footerLinkClass =
+  'inline-block py-2 text-muted transition-colors hover:text-gold';
+
+const socialLinkClass =
+  'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:border-gold hover:text-gold';
+
 export function Footer() {
   return (
-    <footer className="bg-footer pt-20 pb-8 border-t border-border mt-auto">
+    <footer className="mt-auto border-t border-border bg-footer pb-8 pt-16 md:pt-20">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-16">
-          {/* Brand */}
+        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12 md:mb-16">
           <div className="space-y-6">
-            <Link
-              to="/"
-              className="flex items-center gap-2 text-2xl font-display font-bold tracking-wider">
-              
-              <Zap className="w-6 h-6 text-gold" fill="currentColor" />
-              <span>
-                UNITED <span className="text-gold">LIQUORS</span>
-              </span>
+            <Link to="/" className="inline-flex max-w-full min-w-0">
+              <StoreBrandLogo textClassName="text-xl font-display font-bold tracking-wider md:text-2xl" />
             </Link>
-            <p className="text-muted max-w-xs">
+            <p className="max-w-xs text-muted">
               Your Premier Spirits Destination. Curating the finest selection of
               beverages for our community since 2010.
             </p>
-            <div className="flex gap-4">
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted hover:text-gold hover:border-gold transition-colors">
-                
-                <Facebook className="w-5 h-5" />
+            <div className="flex gap-3">
+              <a href="#" className={socialLinkClass} aria-label="Facebook">
+                <Facebook className="h-5 w-5" />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted hover:text-gold hover:border-gold transition-colors">
-                
-                <Instagram className="w-5 h-5" />
+              <a href="#" className={socialLinkClass} aria-label="Instagram">
+                <Instagram className="h-5 w-5" />
               </a>
-              <a
-                href="#"
-                className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center text-muted hover:text-gold hover:border-gold transition-colors">
-                
-                <Twitter className="w-5 h-5" />
+              <a href="#" className={socialLinkClass} aria-label="Twitter">
+                <Twitter className="h-5 w-5" />
               </a>
             </div>
           </div>
 
-          {/* Quick Links */}
           <div className="md:flex md:justify-center">
             <div>
-              <h4 className="text-lg font-bold mb-6 text-foreground">
-                Quick Links
-              </h4>
-              <ul className="space-y-4">
+              <h4 className="mb-4 text-lg font-bold text-foreground md:mb-6">Quick Links</h4>
+              <ul className="space-y-1">
                 <li>
-                  <Link
-                    to="/"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/" className={footerLinkClass}>
                     Home
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/shop"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/shop" className={footerLinkClass}>
                     Shop
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/spirits"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/spirits" className={footerLinkClass}>
                     Spirits
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/wine"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/wine" className={footerLinkClass}>
                     Wine
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/beer"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/beer" className={footerLinkClass}>
                     Beer
                   </Link>
                 </li>
                 <li>
-                  <Link
-                    to="/#visit-us"
-                    className="text-muted hover:text-gold transition-colors">
-                    
+                  <Link to="/#visit-us" className={footerLinkClass}>
                     Visit Us
                   </Link>
                 </li>
@@ -109,12 +80,9 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Contact */}
           <div>
-            <h4 className="text-lg font-bold mb-6 text-foreground">
-              Contact Us
-            </h4>
-            <ul className="space-y-4 text-muted">
+            <h4 className="mb-4 text-lg font-bold text-foreground md:mb-6">Contact Us</h4>
+            <ul className="space-y-3 text-muted">
               <li>
                 {STORE_ADDRESS_LINE1}
                 <br />
@@ -126,18 +94,15 @@ export function Footer() {
                 </li>
               ))}
               <li>
-                <a
-                  href={STORE_PHONE_TEL}
-                  className="hover:text-gold transition-colors">
-                  
+                <a href={STORE_PHONE_TEL} className={`${footerLinkClass} !py-1`}>
                   {STORE_PHONE_DISPLAY}
                 </a>
               </li>
               <li>
                 <a
                   href="mailto:info@unitedliquors.com"
-                  className="hover:text-gold transition-colors">
-                  
+                  className={`${footerLinkClass} break-all !py-1`}
+                >
                   info@unitedliquors.com
                 </a>
               </li>
@@ -145,14 +110,11 @@ export function Footer() {
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="pt-8 border-t border-gold/20 flex flex-col md:flex-row justify-between items-center gap-4 text-sm text-muted/60">
+        <div className="flex flex-col items-center justify-between gap-4 border-t border-gold/20 pt-8 text-center text-sm text-muted/60 md:flex-row md:text-left">
           <p>© 2026 United Liquors. All Rights Reserved.</p>
-          <p className="font-medium text-gold/60">
-            Must be 21+ to purchase alcohol.
-          </p>
+          <p className="font-medium text-gold/60">Must be 21+ to purchase alcohol.</p>
         </div>
       </div>
-    </footer>);
-
+    </footer>
+  );
 }

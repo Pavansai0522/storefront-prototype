@@ -8,6 +8,7 @@ import { Shop } from './pages/Shop';
 import { Spirits } from './pages/Spirits';
 import { Wine } from './pages/Wine';
 import { Beer } from './pages/Beer';
+import { Deals } from './pages/Deals';
 import { StoreDataProvider } from './context/StoreDataContext';
 import { StoreGate } from './components/StoreGate';
 
@@ -75,6 +76,7 @@ function StorefrontShell(): JSX.Element {
               <Route path="/spirits" element={<Spirits />} />
               <Route path="/wine" element={<Wine />} />
               <Route path="/beer" element={<Beer />} />
+              <Route path="/deals" element={<Deals />} />
             </Routes>
           </div>
           <Footer />

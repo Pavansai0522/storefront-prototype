@@ -8,7 +8,7 @@ export const allProducts: Product[] = [
   brand: 'Tennessee Whiskey',
   category: 'Whisky',
   price: 29.99,
-  badge: 'BESTSELLER',
+  badge: 'DEAL',
   image:
   'https://images.unsplash.com/photo-1527281400683-1aae777175f8?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
 },
@@ -148,7 +148,7 @@ export const allProducts: Product[] = [
   brand: 'Napa Valley Red Wine',
   category: 'Wine',
   price: 89.99,
-  badge: 'PREMIUM',
+  badge: 'DEAL',
   image:
   'https://images.unsplash.com/photo-1584916201218-f4242ceb4809?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80'
 },

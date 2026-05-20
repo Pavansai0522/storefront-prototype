@@ -10,12 +10,13 @@ import type { Product } from '../components/ProductCatalog';
 import { clientConfig as staticClientConfig, type LiquorStoreConfig } from '../config/client-config';
 import { allProducts as staticProducts } from '../data/products';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { mapDbProductToCatalog } from '../lib/catalogMappers';
+import { dealProductsFromRows, mapDbProductToCatalog } from '../lib/catalogMappers';
 import type { DbClientPublic, DbProduct } from '../lib/supabaseTypes';
 
 type StoreDataContextValue = {
   clientConfig: LiquorStoreConfig;
   products: Product[];
+  dealProducts: Product[];
   siteActive: boolean;
   storeReady: boolean;
   catalogLoading: boolean;
@@ -60,7 +61,12 @@ function mergeClientConfig(row: DbClientPublic): LiquorStoreConfig {
 
 export function StoreDataProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [clientConfig, setClientConfig] = useState<LiquorStoreConfig>(staticClientConfig);
+  const staticDeals = useMemo(
+    () => staticProducts.filter((p) => p.badge === 'DEAL'),
+    [],
+  );
   const [products, setProducts] = useState<Product[]>(staticProducts);
+  const [dealProducts, setDealProducts] = useState<Product[]>(staticDeals);
   const [siteActive, setSiteActive] = useState(true);
   const [storeReady, setStoreReady] = useState(!isSupabaseConfigured);
   const [catalogLoading, setCatalogLoading] = useState(isSupabaseConfigured);
@@ -112,7 +118,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       const { data: productRows, error: productsError } = await supabase
         .from('products')
         .select(
-          'id, client_id, name, brand, price_inr, image_url, in_stock, category, subcategory, sort_order',
+          'id, client_id, name, brand, price_inr, image_url, in_stock, category, subcategory, sort_order, featured_group, featured_sort',
         )
         .eq('client_id', clientRow.id)
         .order('sort_order', { ascending: true });
@@ -121,10 +127,12 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
         throw new Error(productsError.message);
       }
 
-      const mapped = (productRows as DbProduct[]).map(mapDbProductToCatalog);
+      const rows = productRows as DbProduct[];
+      const mapped = rows.map(mapDbProductToCatalog);
       if (mapped.length > 0) {
         setProducts(mapped);
       }
+      setDealProducts(dealProductsFromRows(rows));
     } catch (err) {
       setCatalogError(err instanceof Error ? err.message : 'Failed to load store.');
     } finally {
@@ -141,13 +149,14 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
     (): StoreDataContextValue => ({
       clientConfig,
       products,
+      dealProducts,
       siteActive,
       storeReady,
       catalogLoading,
       catalogError,
       reloadCatalog: loadRemote,
     }),
-    [clientConfig, products, siteActive, storeReady, catalogLoading, catalogError, loadRemote],
+    [clientConfig, products, dealProducts, siteActive, storeReady, catalogLoading, catalogError, loadRemote],
   );
 
   return <StoreDataContext.Provider value={value}>{children}</StoreDataContext.Provider>;

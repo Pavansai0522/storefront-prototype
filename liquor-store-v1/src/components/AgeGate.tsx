@@ -1,62 +1,70 @@
 import React, { useEffect, useState } from 'react';
-import { Zap } from 'lucide-react';
+import { StoreBrandLogo } from './StoreBrandLogo';
+
 interface AgeGateProps {
   onVerify: () => void;
 }
+
 export function AgeGate({ onVerify }: AgeGateProps) {
   const [isUnderAge, setIsUnderAge] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+
   useEffect(() => {
-    // Small delay to allow for smooth entry animation if needed
     setIsVisible(true);
   }, []);
-  if (!isVisible) return null;
+
+  if (!isVisible) {
+    return null;
+  }
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background p-4 animate-in fade-in duration-500">
-      <div className="max-w-md w-full text-center space-y-8">
-        <div className="flex items-center justify-center gap-2 text-3xl font-display font-bold tracking-wider">
-          <Zap className="w-8 h-8 text-gold" fill="currentColor" />
-          <span>
-            UNITED <span className="text-gold">LIQUORS</span>
-          </span>
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-background p-4 animate-in fade-in duration-500">
+      <div className="my-auto w-full max-w-md space-y-6 py-4 text-center sm:space-y-8">
+        <div className="flex justify-center px-2">
+          <StoreBrandLogo
+            iconClassName="h-7 w-7 text-gold sm:h-8 sm:w-8"
+            textClassName="text-2xl font-display font-bold tracking-wide sm:text-3xl sm:tracking-wider"
+          />
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-4xl font-display font-bold">
+        <div className="space-y-3 sm:space-y-4">
+          <h1 className="font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             Welcome to United Liquors
           </h1>
-          <p className="text-muted text-lg">
+          <p className="text-base text-muted sm:text-lg">
             You must be 21 or older to enter this site
           </p>
         </div>
 
-        {isUnderAge ?
-        <div className="p-6 border border-gold/30 bg-card rounded-lg animate-in slide-in-from-bottom-4 duration-300">
-            <p className="text-red-400 font-medium">
-              We're sorry, but you must be 21 or older to visit our site.
+        {isUnderAge ? (
+          <div className="animate-in slide-in-from-bottom-4 rounded-lg border border-gold/30 bg-card p-5 duration-300 sm:p-6">
+            <p className="font-medium text-red-400">
+              We&apos;re sorry, but you must be 21 or older to visit our site.
             </p>
-          </div> :
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          </div>
+        ) : (
+          <div className="flex flex-col justify-center gap-3 pt-2 sm:flex-row sm:gap-4 sm:pt-4">
             <button
-            onClick={onVerify}
-            className="px-8 py-3 bg-gold hover:bg-gold-hover text-background font-bold rounded transition-colors duration-300 min-h-[44px]">
-            
+              type="button"
+              onClick={onVerify}
+              className="min-h-[44px] w-full rounded bg-gold px-8 py-3 font-bold text-background transition-colors duration-300 hover:bg-gold-hover sm:w-auto"
+            >
               I Am 21+
             </button>
             <button
-            onClick={() => setIsUnderAge(true)}
-            className="px-8 py-3 border border-gold text-gold hover:bg-gold/10 font-bold rounded transition-colors duration-300 min-h-[44px]">
-            
+              type="button"
+              onClick={() => setIsUnderAge(true)}
+              className="min-h-[44px] w-full rounded border border-gold px-8 py-3 font-bold text-gold transition-colors duration-300 hover:bg-gold/10 sm:w-auto"
+            >
               I Am Under 21
             </button>
           </div>
-        }
+        )}
 
-        <p className="text-xs text-muted/60 pt-8">
+        <p className="px-2 pt-4 text-xs text-muted/60 sm:pt-8">
           By entering you agree to our Terms. Please drink responsibly.
         </p>
       </div>
-    </div>);
-
+    </div>
+  );
 }

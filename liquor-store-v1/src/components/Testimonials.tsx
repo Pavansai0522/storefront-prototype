@@ -15,30 +15,30 @@ const testimonials = [
 },
 {
   id: 3,
-  text: 'Same day delivery is a game changer! Ordered for a last-minute party and everything arrived perfectly chilled.',
+  text: 'Stopped in for weekly specials and left with everything for our party. Great selection and fair prices.',
   author: 'James T.',
   rating: 5
 }];
 
 export function Testimonials() {
   return (
-    <section className="py-24 bg-card border-t border-border relative overflow-hidden">
+    <section className="relative overflow-hidden border-t border-border bg-card py-16 md:py-24">
       {/* Decorative background */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-3xl h-64 bg-gold/5 blur-[100px] rounded-full pointer-events-none"></div>
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-display font-bold mb-4">
+        <div className="mb-10 text-center md:mb-16">
+          <h2 className="mb-4 font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             WHAT OUR CUSTOMERS SAY
           </h2>
           <div className="w-24 h-1 bg-gold mx-auto rounded-full"></div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid gap-6 md:grid-cols-3 md:gap-8">
           {testimonials.map((testimonial) =>
           <div
             key={testimonial.id}
-            className="bg-background p-8 rounded-2xl border border-border relative group hover:border-gold/50 transition-colors duration-300">
+            className="relative rounded-2xl border border-border bg-background p-6 transition-colors duration-300 group hover:border-gold/50 sm:p-8">
             
               <Quote className="absolute top-6 right-6 w-12 h-12 text-gold/10 group-hover:text-gold/20 transition-colors" />
 
@@ -48,7 +48,7 @@ export function Testimonials() {
               )}
               </div>
 
-              <p className="text-lg text-muted mb-8 leading-relaxed relative z-10">
+              <p className="relative z-10 mb-6 text-base leading-relaxed text-muted sm:mb-8 sm:text-lg">
                 "{testimonial.text}"
               </p>
 
