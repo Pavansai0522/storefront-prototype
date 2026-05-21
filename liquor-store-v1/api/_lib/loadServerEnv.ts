@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const liquorRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const liquorRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const repoRoot = path.resolve(liquorRoot, '..');
 
 let loaded = false;

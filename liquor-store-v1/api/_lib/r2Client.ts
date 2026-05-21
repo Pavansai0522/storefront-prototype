@@ -49,7 +49,6 @@ function getR2S3Client(config: R2Config): S3Client {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,
       },
-      // Required for AWS SDK v3.729+ with Cloudflare R2 (avoids checksum 500 errors)
       requestChecksumCalculation: 'WHEN_REQUIRED',
       responseChecksumValidation: 'WHEN_REQUIRED',
     });

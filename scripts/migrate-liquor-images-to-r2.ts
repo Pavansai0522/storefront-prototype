@@ -13,7 +13,7 @@ import {
   publicUrlForPath,
   putProductImage,
   storagePathForProduct,
-} from '../liquor-store-v1/server/r2Client';
+} from '../liquor-store-v1/api/_lib/r2Client';
 
 const LIQUOR_CLIENT_ID = process.env.VITE_CLIENT_ID ?? 'client-liquor-1';
 

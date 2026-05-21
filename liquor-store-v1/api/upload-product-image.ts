@@ -1,8 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { loadServerEnv } from '../server/loadServerEnv';
-import { handleUploadProductImage } from '../server/uploadProductImageHttp';
-
-loadServerEnv();
+import { loadServerEnv } from './_lib/loadServerEnv';
+import { handleUploadProductImage } from './_lib/uploadProductImageHttp';
 
 export const config = {
   api: {
@@ -11,5 +9,13 @@ export const config = {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
-  await handleUploadProductImage(req, res);
+  try {
+    loadServerEnv();
+    await handleUploadProductImage(req, res);
+  } catch (err) {
+    if (!res.headersSent) {
+      const message = err instanceof Error ? err.message : 'Function failed to start.';
+      res.status(500).json({ error: message });
+    }
+  }
 }

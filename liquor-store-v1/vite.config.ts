@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
-import { createUploadMiddleware } from './server/uploadProductImageHttp';
+import { createUploadMiddleware } from './api/_lib/uploadProductImageHttp';
 
 function r2UploadDevApi(): Plugin {
   return {
