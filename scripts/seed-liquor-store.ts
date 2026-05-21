@@ -1,12 +1,12 @@
 /**
- * Seed United Liquors client, catalog, and store admin.
+ * Seed United Liquors client and store admin.
+ * Clears any sample catalog rows on each run (production: add SKUs in admin).
+ *
  * Run from repo root: npm run seed:liquor
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
  */
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
-import { dollarsToCents } from '../packages/admin-ui/src/constants/countryCurrency';
-import { allProducts } from '../liquor-store-v1/src/data/products';
 import { clientConfig } from '../liquor-store-v1/src/config/client-config';
 
 const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
@@ -60,7 +60,7 @@ const LIQUOR_CLIENT_ROW = {
   },
   instagram: clientConfig.social.instagram ?? '',
   facebook: clientConfig.social.facebook ?? '',
-  timings: clientConfig.timings.weekdays,
+  timings: `Mon–Sat ${clientConfig.timings.weekdays} · Sun ${clientConfig.timings.sunday}`,
   age_verification_enabled: clientConfig.ageGate,
   delivery_available: clientConfig.delivery.available,
   delivery_radius_miles: clientConfig.delivery.radiusMiles,
@@ -77,37 +77,12 @@ async function seedClient(): Promise<void> {
   console.log(`Upserted client ${LIQUOR_CLIENT_ID} (${LIQUOR_SLUG})`);
 }
 
-async function seedProducts(): Promise<void> {
-  await supabase.from('products').delete().eq('client_id', LIQUOR_CLIENT_ID);
-
-  const productRows: Record<string, unknown>[] = [];
-  let sort = 0;
-
-  let dealSort = 0;
-  for (const p of allProducts) {
-    const isDeal = p.badge === 'DEAL';
-    productRows.push({
-      client_id: LIQUOR_CLIENT_ID,
-      name: p.name,
-      brand: p.brand,
-      price_inr: dollarsToCents(p.price),
-      emi_price_inr: null,
-      image_url: p.image,
-      in_stock: p.inStock !== false,
-      category: p.category,
-      subcategory: p.category,
-      is_accessory: false,
-      featured_group: isDeal ? 'deal' : null,
-      featured_sort: isDeal ? dealSort++ : null,
-      sort_order: sort++,
-    });
-  }
-
-  const { error } = await supabase.from('products').insert(productRows);
+async function clearProducts(): Promise<void> {
+  const { error } = await supabase.from('products').delete().eq('client_id', LIQUOR_CLIENT_ID);
   if (error) {
     throw new Error(error.message);
   }
-  console.log(`Seeded ${productRows.length} products for ${LIQUOR_CLIENT_ID}`);
+  console.log(`Cleared products for ${LIQUOR_CLIENT_ID}`);
 }
 
 async function seedStoreAdmin(): Promise<void> {
@@ -154,10 +129,10 @@ async function seedStoreAdmin(): Promise<void> {
 
 async function main(): Promise<void> {
   await seedClient();
-  await seedProducts();
+  await clearProducts();
   await seedStoreAdmin();
-  console.log('\nUnited Liquors ready.');
-  console.log('  Storefront: /admin on your liquor Vercel URL');
+  console.log('\nUnited Liquors ready (empty catalog — add products in /admin).');
+  console.log('  Storefront: your liquor Vercel URL');
   console.log(`  Store admin: ${STORE_ADMIN_EMAIL} / ${STORE_ADMIN_PASSWORD}`);
   console.log('  Superadmin: your VITE_SUPERADMIN_EMAIL on any storefront /admin');
 }

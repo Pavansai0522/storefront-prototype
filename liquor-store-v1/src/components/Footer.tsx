@@ -1,51 +1,94 @@
 import React from 'react';
-import { Facebook, Instagram, Twitter } from 'lucide-react';
+import { Facebook, Instagram } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useStoreData } from '../context/StoreDataContext';
 import { StoreBrandLogo } from './StoreBrandLogo';
+import { clientConfig } from '../config/client-config';
 import {
   STORE_ADDRESS_LINE1,
   STORE_ADDRESS_LINE2,
-  STORE_HOURS,
   STORE_PHONE_DISPLAY,
   STORE_PHONE_TEL,
 } from '../config/store';
 
+function socialHref(handle: string | null | undefined, network: 'instagram' | 'facebook'): string | null {
+  if (!handle?.trim()) {
+    return null;
+  }
+  const raw = handle.trim().replace(/^@/, '');
+  if (raw.startsWith('http://') || raw.startsWith('https://')) {
+    return raw;
+  }
+  if (network === 'instagram') {
+    return `https://instagram.com/${raw}`;
+  }
+  return raw.includes('.') ? `https://${raw}` : `https://facebook.com/${raw}`;
+}
+
 const footerLinkClass =
-  'inline-block py-2 text-muted transition-colors hover:text-gold';
+  'inline-block py-1 text-sm text-muted transition-colors hover:text-gold';
+
+const footerHeadingClass =
+  'mb-3 text-center text-sm font-bold uppercase tracking-wide text-foreground md:mb-4 md:text-base md:normal-case';
 
 const socialLinkClass =
-  'flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:border-gold hover:text-gold';
+  'flex h-11 w-11 min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border bg-card text-muted transition-colors hover:border-gold hover:text-gold';
 
-export function Footer() {
+export function Footer(): JSX.Element {
+  const { clientConfig: store } = useStoreData();
+  const email = store.email || clientConfig.email;
+  const instagramUrl = socialHref(store.social.instagram, 'instagram');
+  const facebookUrl = socialHref(store.social.facebook, 'facebook');
+
   return (
-    <footer className="mt-auto border-t border-border bg-footer pb-8 pt-16 md:pt-20">
-      <div className="container mx-auto px-4">
-        <div className="mb-12 grid grid-cols-1 gap-10 md:grid-cols-3 md:gap-12 md:mb-16">
-          <div className="space-y-6">
-            <Link to="/" className="inline-flex max-w-full min-w-0">
-              <StoreBrandLogo textClassName="text-xl font-display font-bold tracking-wider md:text-2xl" />
+    <footer className="mt-auto border-t border-border bg-footer pt-12 pb-6 pb-safe md:pt-16 md:pb-8">
+      <div className="container mx-auto">
+        <div className="mb-8 grid grid-cols-1 gap-8 sm:grid-cols-2 md:mb-12 md:grid-cols-3 md:gap-x-10 md:gap-y-8 lg:gap-12">
+          {/* Brand */}
+          <div className="flex flex-col items-center gap-3 text-center sm:col-span-2 md:col-span-1 md:items-center md:gap-4">
+            <Link to="/" className="inline-flex justify-center">
+              <StoreBrandLogo
+                className="justify-center"
+                textClassName="text-lg font-display font-bold tracking-wider md:text-2xl"
+                iconClassName="h-5 w-5 text-gold md:h-6 md:w-6"
+              />
             </Link>
-            <p className="max-w-xs text-muted">
-              Your Premier Spirits Destination. Curating the finest selection of
-              beverages for our community since 2010.
+            <p className="max-w-xs text-sm leading-relaxed text-muted">
+              {store.tagline || clientConfig.tagline}
             </p>
-            <div className="flex gap-3">
-              <a href="#" className={socialLinkClass} aria-label="Facebook">
-                <Facebook className="h-5 w-5" />
-              </a>
-              <a href="#" className={socialLinkClass} aria-label="Instagram">
-                <Instagram className="h-5 w-5" />
-              </a>
-              <a href="#" className={socialLinkClass} aria-label="Twitter">
-                <Twitter className="h-5 w-5" />
-              </a>
-            </div>
+            {instagramUrl || facebookUrl ? (
+              <div className="flex justify-center gap-2 md:gap-3">
+                {facebookUrl ? (
+                  <a
+                    href={facebookUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={socialLinkClass}
+                    aria-label="Facebook"
+                  >
+                    <Facebook className="h-4 w-4 md:h-5 md:w-5" />
+                  </a>
+                ) : null}
+                {instagramUrl ? (
+                  <a
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={socialLinkClass}
+                    aria-label="Instagram"
+                  >
+                    <Instagram className="h-4 w-4 md:h-5 md:w-5" />
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
           </div>
 
-          <div className="md:flex md:justify-center">
+          {/* Quick Links */}
+          <div className="min-w-0 text-center md:flex md:justify-center">
             <div>
-              <h4 className="mb-4 text-lg font-bold text-foreground md:mb-6">Quick Links</h4>
-              <ul className="space-y-1">
+              <h4 className={footerHeadingClass}>Quick Links</h4>
+              <ul className="space-y-0.5 md:hidden">
                 <li>
                   <Link to="/" className={footerLinkClass}>
                     Home
@@ -54,11 +97,6 @@ export function Footer() {
                 <li>
                   <Link to="/shop" className={footerLinkClass}>
                     Shop
-                  </Link>
-                </li>
-                <li>
-                  <Link to="/spirits" className={footerLinkClass}>
-                    Spirits
                   </Link>
                 </li>
                 <li>
@@ -71,48 +109,56 @@ export function Footer() {
                     Beer
                   </Link>
                 </li>
-                <li>
-                  <Link to="/#visit-us" className={footerLinkClass}>
-                    Visit Us
+              </ul>
+              <ul className="hidden space-y-2 md:block">
+                <li className="flex justify-center gap-5">
+                  <Link to="/" className={footerLinkClass}>
+                    Home
+                  </Link>
+                  <Link to="/shop" className={footerLinkClass}>
+                    Shop
+                  </Link>
+                </li>
+                <li className="flex justify-center gap-5">
+                  <Link to="/wine" className={footerLinkClass}>
+                    Wine
+                  </Link>
+                  <Link to="/beer" className={footerLinkClass}>
+                    Beer
                   </Link>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div>
-            <h4 className="mb-4 text-lg font-bold text-foreground md:mb-6">Contact Us</h4>
-            <ul className="space-y-3 text-muted">
+          {/* Contact Us */}
+          <div className="min-w-0 text-center md:text-center">
+            <h4 className={footerHeadingClass}>Contact Us</h4>
+            <ul className="space-y-2 text-sm leading-snug text-muted">
               <li>
                 {STORE_ADDRESS_LINE1}
                 <br />
                 {STORE_ADDRESS_LINE2}
               </li>
-              {STORE_HOURS.map((row) => (
-                <li key={row.label}>
-                  {row.label}: {row.time}
-                </li>
-              ))}
               <li>
-                <a href={STORE_PHONE_TEL} className={`${footerLinkClass} !py-1`}>
+                <a href={STORE_PHONE_TEL} className={`${footerLinkClass} !py-0`}>
                   {STORE_PHONE_DISPLAY}
                 </a>
               </li>
               <li>
-                <a
-                  href="mailto:info@unitedliquors.com"
-                  className={`${footerLinkClass} break-all !py-1`}
-                >
-                  info@unitedliquors.com
+                <a href={`mailto:${email}`} className={`${footerLinkClass} break-all !py-0`}>
+                  {email}
                 </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="flex flex-col items-center justify-between gap-4 border-t border-gold/20 pt-8 text-center text-sm text-muted/60 md:flex-row md:text-left">
-          <p>© 2026 United Liquors. All Rights Reserved.</p>
-          <p className="font-medium text-gold/60">Must be 21+ to purchase alcohol.</p>
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-gold/20 pt-6 text-center text-xs text-muted/60 sm:text-sm md:flex-row md:gap-4 md:pt-8 md:text-left">
+          <p className="max-w-full px-1">© {new Date().getFullYear()} {store.storeName}. All Rights Reserved.</p>
+          <p className="max-w-xs font-medium text-gold/60 md:max-w-none">
+            Must be 21+ to purchase alcohol.
+          </p>
         </div>
       </div>
     </footer>

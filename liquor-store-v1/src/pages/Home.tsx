@@ -5,8 +5,8 @@ import { FeaturedProducts } from '../components/FeaturedProducts';
 import { WhyChooseUs } from '../components/WhyChooseUs';
 import { DealsBanner } from '../components/DealsBanner';
 import { VisitUs } from '../components/VisitUs';
-import { Testimonials } from '../components/Testimonials';
-export function Home() {
+
+export function Home(): JSX.Element {
   return (
     <main>
       <Hero />
@@ -15,7 +15,6 @@ export function Home() {
       <WhyChooseUs />
       <DealsBanner />
       <VisitUs />
-      <Testimonials />
-    </main>);
-
+    </main>
+  );
 }

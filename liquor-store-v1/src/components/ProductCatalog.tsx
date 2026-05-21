@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, ChevronLeft } from 'lucide-react';
 import { ProductImage } from './ProductImage';
 import { StockPill } from './StockPill';
 import { liquorCategoryLabel } from '../constants/liquorCategories';
+import { STORE_PHONE_TEL } from '../config/store';
 import type { LiquorCategory } from '../types/product.types';
 export interface Product {
   id: string | number;
@@ -78,8 +79,8 @@ export function ProductCatalog({
     return result;
   }, [products, searchQuery, selectedCategory, sortBy]);
   return (
-    <div className="min-h-screen bg-background py-16 sm:py-20 md:py-24">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-background py-12 sm:py-20 md:py-24">
+      <div className="container mx-auto">
         <div className="mb-8 sm:mb-12">
           <Link
             to="/"
@@ -87,7 +88,7 @@ export function ProductCatalog({
             <ChevronLeft className="h-5 w-5 shrink-0" aria-hidden />
             <span>Back to home</span>
           </Link>
-          <h1 className="mb-4 font-display text-3xl font-bold sm:text-4xl md:text-5xl">
+          <h1 className="mb-4 font-display text-2xl font-bold sm:text-4xl md:text-5xl">
             {title}
           </h1>
           {description ? (
@@ -106,7 +107,7 @@ export function ProductCatalog({
               placeholder="Search products..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="min-h-[44px] w-full rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-foreground outline-none transition-all focus:border-gold focus:ring-1 focus:ring-gold" />
+              className="min-h-[44px] w-full touch-manipulation rounded-lg border border-border bg-background py-3 pl-10 pr-4 text-base text-foreground outline-none transition-all focus:border-gold focus:ring-1 focus:ring-gold" />
             
           </div>
 
@@ -114,7 +115,7 @@ export function ProductCatalog({
             {/* Mobile Filter Toggle */}
             <button
               type="button"
-              className="flex min-h-[44px] items-center justify-center gap-2 rounded-lg border border-border px-4 py-3 text-foreground sm:hidden"
+              className="flex min-h-[44px] touch-manipulation items-center justify-center gap-2 rounded-lg border border-border px-4 py-3 text-base text-foreground sm:hidden"
               onClick={() => setIsFilterOpen(!isFilterOpen)}>
               
               <SlidersHorizontal className="w-5 h-5" />
@@ -128,7 +129,7 @@ export function ProductCatalog({
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className="min-h-[44px] w-full cursor-pointer appearance-none rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
+                className="min-h-[44px] w-full touch-manipulation cursor-pointer appearance-none rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C9A84C'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -149,7 +150,7 @@ export function ProductCatalog({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="min-h-[44px] w-full cursor-pointer appearance-none rounded-lg border border-border bg-background px-4 py-3 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
+                className="min-h-[44px] w-full touch-manipulation cursor-pointer appearance-none rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold sm:w-auto"
                 style={{
                   backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%23C9A84C'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E")`,
                   backgroundRepeat: 'no-repeat',
@@ -175,7 +176,7 @@ export function ProductCatalog({
 
         {/* Product Grid */}
         {filteredAndSortedProducts.length > 0 ?
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
             {filteredAndSortedProducts.map((product) => {
               const inStock = product.inStock !== false;
               return (
@@ -211,9 +212,12 @@ export function ProductCatalog({
                       <StockPill inStock={inStock} />
                     </div>
 
-                    <button className="mt-4 w-full py-3 border border-gold text-gold hover:bg-gold hover:text-background font-bold rounded transition-colors duration-300 min-h-[44px]">
+                    <a
+                      href={STORE_PHONE_TEL}
+                      className="mt-4 flex min-h-[44px] w-full touch-manipulation items-center justify-center rounded border border-gold py-3 text-center font-bold text-gold transition-colors duration-300 hover:bg-gold hover:text-background"
+                    >
                       Call to Order
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -221,18 +225,27 @@ export function ProductCatalog({
             })}
           </div> :
 
-        <div className="text-center py-24 bg-card rounded-xl border border-border">
+        <div className="rounded-xl border border-border bg-card px-4 py-12 text-center sm:py-24 sm:px-6">
             <h3 className="text-2xl font-display font-bold mb-2">
               {emptyTitle}
             </h3>
             <p className="text-muted">{emptyDescription}</p>
             {emptyActionHref ? (
-              <Link
-                to={emptyActionHref}
-                className="mt-6 inline-flex px-6 py-2 bg-gold text-background font-bold rounded hover:bg-gold-hover transition-colors min-h-[44px] items-center"
-              >
-                {emptyActionLabel}
-              </Link>
+              emptyActionHref.startsWith('tel:') ? (
+                <a
+                  href={emptyActionHref}
+                  className="mt-6 inline-flex min-h-[44px] items-center rounded bg-gold px-6 py-2 font-bold text-background transition-colors hover:bg-gold-hover"
+                >
+                  {emptyActionLabel}
+                </a>
+              ) : (
+                <Link
+                  to={emptyActionHref}
+                  className="mt-6 inline-flex min-h-[44px] items-center rounded bg-gold px-6 py-2 font-bold text-background transition-colors hover:bg-gold-hover"
+                >
+                  {emptyActionLabel}
+                </Link>
+              )
             ) : (
               <button
                 onClick={() => {

@@ -5,7 +5,7 @@ const features = [
   {
     icon: Trophy,
     title: 'Largest Selection',
-    description: '5,000+ products in store',
+    description: 'Spirits, wine, and beer in one place',
   },
   {
     icon: Tag,
@@ -27,7 +27,7 @@ const features = [
 export function WhyChooseUs() {
   return (
     <section className="border-y border-border bg-card py-12 md:py-20">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-4 md:gap-6 lg:gap-8">
           {features.map((feature, index) => (
             <div

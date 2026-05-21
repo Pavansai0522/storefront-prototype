@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 const categories = [
   { name: 'Whisky & Bourbon', icon: '🥃', path: '/spirits' },
   { name: 'Scotch', icon: '🥃', path: '/spirits' },
-  { name: 'Rare Bottles', icon: '💎', path: '/spirits' },
+  { name: 'Rare Bottles', icon: '💎', path: '/#rare-bottles' },
   { name: 'Wine & Champagne', icon: '🍷', path: '/wine' },
   { name: 'Vodka & Gin', icon: '🍸', path: '/spirits' },
   { name: 'Beer & Craft', icon: '🍺', path: '/beer' },
@@ -16,7 +16,7 @@ const categories = [
 export function CategoryShowcase() {
   return (
     <section id="shop" className="bg-background py-16 md:py-24">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto">
         <div className="mb-10 text-center md:mb-16">
           <h2 className="mb-4 font-display text-2xl font-bold sm:text-3xl md:text-4xl">
             SHOP BY CATEGORY

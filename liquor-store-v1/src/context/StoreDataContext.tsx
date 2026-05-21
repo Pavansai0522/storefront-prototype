@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 import type { Product } from '../components/ProductCatalog';
 import { clientConfig as staticClientConfig, type LiquorStoreConfig } from '../config/client-config';
-import { allProducts as staticProducts } from '../data/products';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { dealProductsFromRows, mapDbProductToCatalog } from '../lib/catalogMappers';
 import type { DbClientPublic, DbProduct } from '../lib/supabaseTypes';
@@ -61,19 +60,18 @@ function mergeClientConfig(row: DbClientPublic): LiquorStoreConfig {
 
 export function StoreDataProvider({ children }: { children: React.ReactNode }): JSX.Element {
   const [clientConfig, setClientConfig] = useState<LiquorStoreConfig>(staticClientConfig);
-  const staticDeals = useMemo(
-    () => staticProducts.filter((p) => p.badge === 'DEAL'),
-    [],
-  );
-  const [products, setProducts] = useState<Product[]>(staticProducts);
-  const [dealProducts, setDealProducts] = useState<Product[]>(staticDeals);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [dealProducts, setDealProducts] = useState<Product[]>([]);
   const [siteActive, setSiteActive] = useState(true);
-  const [storeReady, setStoreReady] = useState(!isSupabaseConfigured);
-  const [catalogLoading, setCatalogLoading] = useState(isSupabaseConfigured);
+  const [storeReady, setStoreReady] = useState(false);
+  const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogError, setCatalogError] = useState<string | null>(null);
 
   const loadRemote = useCallback(async (): Promise<void> => {
     if (!isSupabaseConfigured) {
+      setProducts([]);
+      setDealProducts([]);
+      setCatalogError('Store database is not configured.');
       setStoreReady(true);
       setCatalogLoading(false);
       return;
@@ -128,10 +126,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       }
 
       const rows = productRows as DbProduct[];
-      const mapped = rows.map(mapDbProductToCatalog);
-      if (mapped.length > 0) {
-        setProducts(mapped);
-      }
+      setProducts(rows.map(mapDbProductToCatalog));
       setDealProducts(dealProductsFromRows(rows));
     } catch (err) {
       setCatalogError(err instanceof Error ? err.message : 'Failed to load store.');

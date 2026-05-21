@@ -69,7 +69,7 @@ function StorefrontShell(): JSX.Element {
           className={`flex flex-grow flex-col transition-opacity duration-1000 ${isAgeVerified ? 'opacity-100' : 'h-screen overflow-hidden opacity-0'}`}
         >
           <Navbar />
-          <div className="flex-grow pt-20">
+          <div className="flex-grow pt-nav">
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/shop" element={<Shop />} />

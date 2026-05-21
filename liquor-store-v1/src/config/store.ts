@@ -28,8 +28,6 @@ export const STORE_ADDRESS_LINE2 = `${clientConfig.city}, ${clientConfig.state} 
 export const STORE_MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${mapsQuery}`;
 
 export const STORE_HOURS: ReadonlyArray<{ label: string; time: string }> = [
-  { label: 'Mon–Thu', time: clientConfig.timings.weekdays },
-  { label: 'Fri', time: clientConfig.timings.friday },
-  { label: 'Sat', time: clientConfig.timings.saturday },
+  { label: 'Mon–Sat', time: clientConfig.timings.weekdays },
   { label: 'Sun', time: clientConfig.timings.sunday },
 ];

@@ -12,7 +12,16 @@ export function StoreGate({ children }: StoreGateProps): JSX.Element {
   const { siteActive, storeReady, catalogError, reloadCatalog } = useStoreData();
 
   if (!isSupabaseConfigured) {
-    return <>{children}</>;
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16 pb-safe text-center">
+        <div className="mx-auto max-w-md rounded-2xl border border-gold-border bg-card p-8">
+          <h1 className="font-display text-2xl text-white">Store unavailable</h1>
+          <p className="mt-3 text-sm text-muted">
+            Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.
+          </p>
+        </div>
+      </div>
+    );
   }
 
   if (!storeReady) {
@@ -25,7 +34,7 @@ export function StoreGate({ children }: StoreGateProps): JSX.Element {
 
   if (catalogError) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16 text-center">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-16 pb-safe text-center">
         <div className="mx-auto max-w-md rounded-2xl border border-gold-border bg-card p-8">
           <h1 className="font-display text-2xl text-white">Could not load store</h1>
           <p className="mt-3 text-sm text-muted">{catalogError}</p>

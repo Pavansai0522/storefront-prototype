@@ -1,10 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { useStoreData } from '../context/StoreDataContext';
 
-export function DealsBanner() {
+export function DealsBanner(): JSX.Element | null {
+  const { dealProducts, catalogLoading, storeReady } = useStoreData();
+
+  if (storeReady && !catalogLoading && dealProducts.length === 0) {
+    return null;
+  }
   return (
-    <section className="relative w-full overflow-hidden bg-gradient-to-r from-gold-hover via-gold to-gold-hover px-4 py-10 sm:py-12">
+    <section className="relative w-full overflow-hidden bg-gradient-to-r from-gold-hover via-gold to-gold-hover py-10 sm:py-12">
       <div
         className="absolute inset-0 opacity-10"
         style={{
@@ -19,13 +25,13 @@ export function DealsBanner() {
             🎉 WEEKLY SPECIALS
           </h2>
           <p className="text-base font-medium opacity-90 sm:text-lg">
-            Up to 30% off select wines every Friday!
+            Browse this week&apos;s featured deals in-store and online.
           </p>
         </div>
 
         <Link
           to="/deals"
-          className="group flex min-h-[44px] w-full max-w-xs items-center justify-center gap-2 rounded bg-background px-8 py-4 font-bold text-foreground shadow-xl transition-colors duration-300 hover:bg-card sm:w-auto md:max-w-none"
+          className="group flex min-h-[44px] w-full max-w-md touch-manipulation items-center justify-center gap-2 rounded bg-background px-8 py-4 text-base font-bold text-foreground shadow-xl transition-colors duration-300 hover:bg-card sm:w-auto md:max-w-none"
         >
           See Deals
           <ArrowRight className="h-5 w-5 shrink-0 transition-transform group-hover:translate-x-1" />
