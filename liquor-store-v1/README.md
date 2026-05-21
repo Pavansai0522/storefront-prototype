@@ -30,6 +30,12 @@ Uploads hit `/api/upload-product-image` via the Vite dev middleware.
 
 5. Redeploy the liquor project.
 
+If upload returns **500**, open the failed request in DevTools → **Response** and read the `error` field. Common fixes:
+
+- Missing `R2_*` or `SUPABASE_URL` / `SUPABASE_ANON_KEY` on Vercel (server env, not only `VITE_*`)
+- `VITE_PRODUCT_IMAGE_UPLOAD_URL` must be `/api/upload-product-image`
+- `R2_PUBLIC_BASE_URL` must be the **pub-….r2.dev** URL, not `….cloudflarestorage.com`
+
 ## Migrate existing Supabase Storage images
 
 After R2 is configured:

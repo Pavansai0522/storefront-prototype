@@ -35,6 +35,7 @@ jobs:
           VITE_CLIENT_SLUG: united-liquors
           VITE_CLIENT_ID: client-liquor-1
           VITE_SUPERADMIN_EMAIL: ${{ secrets.VITE_SUPERADMIN_EMAIL }}
+          VITE_PRODUCT_IMAGE_UPLOAD_URL: /api/upload-product-image
 
       - name: Deploy to Vercel
         uses: amondnet/vercel-action@v25

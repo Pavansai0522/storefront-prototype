@@ -17,10 +17,14 @@ export function loadR2Config(): R2Config {
   const bucketName = process.env.R2_BUCKET_NAME?.trim();
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL?.trim().replace(/\/$/, '');
 
-  if (!accountId || !accessKeyId || !secretAccessKey || !bucketName || !publicBaseUrl) {
-    throw new Error(
-      'R2 is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME, and R2_PUBLIC_BASE_URL.',
-    );
+  const missing: string[] = [];
+  if (!accountId) missing.push('R2_ACCOUNT_ID');
+  if (!accessKeyId) missing.push('R2_ACCESS_KEY_ID');
+  if (!secretAccessKey) missing.push('R2_SECRET_ACCESS_KEY');
+  if (!bucketName) missing.push('R2_BUCKET_NAME');
+  if (!publicBaseUrl) missing.push('R2_PUBLIC_BASE_URL');
+  if (missing.length > 0) {
+    throw new Error(`R2 is not configured on the server. Missing: ${missing.join(', ')}`);
   }
 
   return { accountId, accessKeyId, secretAccessKey, bucketName, publicBaseUrl };
@@ -45,6 +49,9 @@ function getR2S3Client(config: R2Config): S3Client {
         accessKeyId: config.accessKeyId,
         secretAccessKey: config.secretAccessKey,
       },
+      // Required for AWS SDK v3.729+ with Cloudflare R2 (avoids checksum 500 errors)
+      requestChecksumCalculation: 'WHEN_REQUIRED',
+      responseChecksumValidation: 'WHEN_REQUIRED',
     });
   }
   return cachedClient;

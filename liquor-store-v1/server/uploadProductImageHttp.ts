@@ -4,7 +4,33 @@ import { putProductImage } from './r2Client';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-function readBody(req: IncomingMessage): Promise<Buffer> {
+type RequestWithBody = IncomingMessage & { body?: unknown };
+
+function readBodyFromBuffer(body: unknown): Buffer | null {
+  if (Buffer.isBuffer(body)) {
+    return body;
+  }
+  if (typeof body === 'string') {
+    return Buffer.from(body, 'binary');
+  }
+  if (body instanceof ArrayBuffer) {
+    return Buffer.from(body);
+  }
+  if (body instanceof Uint8Array) {
+    return Buffer.from(body);
+  }
+  return null;
+}
+
+function readBody(req: RequestWithBody): Promise<Buffer> {
+  const buffered = readBodyFromBuffer(req.body);
+  if (buffered) {
+    if (buffered.length > MAX_BYTES) {
+      return Promise.reject(new Error('Image is too large (max 5 MB).'));
+    }
+    return Promise.resolve(buffered);
+  }
+
   return new Promise((resolve, reject) => {
     const chunks: Buffer[] = [];
     let total = 0;
@@ -31,7 +57,7 @@ function sendJson(res: ServerResponse, status: number, body: Record<string, stri
 }
 
 export async function handleUploadProductImage(
-  req: IncomingMessage,
+  req: RequestWithBody,
   res: ServerResponse,
 ): Promise<void> {
   if (req.method === 'OPTIONS') {
