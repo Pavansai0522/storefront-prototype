@@ -150,16 +150,28 @@ async function getUploadAccessToken(): Promise<string> {
   return token;
 }
 
+const DEFAULT_PRODUCT_IMAGE_UPLOAD_PATH = '/api/upload-product-image';
+
+/** R2 S3 API / public bucket URLs are server-only; uploads go through our API route. */
+function isMisconfiguredR2UploadUrl(value: string): boolean {
+  const lower = value.toLowerCase();
+  return (
+    lower.includes('r2.cloudflarestorage.com') ||
+    (lower.includes('.r2.dev') && !lower.includes('/api/'))
+  );
+}
+
 function resolveProductImageUploadUrl(): string | null {
   const configured = import.meta.env.VITE_PRODUCT_IMAGE_UPLOAD_URL as string | undefined;
   if (!configured?.trim()) {
     return null;
   }
-  const trimmed = configured.trim();
-  if (trimmed.includes('r2.cloudflarestorage.com')) {
-    throw new Error(
-      'VITE_PRODUCT_IMAGE_UPLOAD_URL must be /api/upload-product-image, not the R2 S3 endpoint. Set R2_PUBLIC_BASE_URL for the public image URL.',
+  let trimmed = configured.trim();
+  if (isMisconfiguredR2UploadUrl(trimmed)) {
+    console.warn(
+      '[upload] VITE_PRODUCT_IMAGE_UPLOAD_URL must be /api/upload-product-image. R2 URLs belong in R2_PUBLIC_BASE_URL (server env). Using default upload path.',
     );
+    trimmed = DEFAULT_PRODUCT_IMAGE_UPLOAD_PATH;
   }
   if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
     return trimmed;
