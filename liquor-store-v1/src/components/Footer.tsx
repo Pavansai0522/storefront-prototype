@@ -50,7 +50,6 @@ export function Footer(): JSX.Element {
               <StoreBrandLogo
                 className="justify-center"
                 textClassName="text-lg font-display font-bold tracking-wider md:text-2xl"
-                iconClassName="h-5 w-5 text-gold md:h-6 md:w-6"
               />
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-muted">

@@ -1,5 +1,4 @@
 
-
 export default {content: [
   './index.html',
   './src/**/*.{js,ts,jsx,tsx}',
@@ -16,15 +15,15 @@ export default {content: [
     },
     extend: {
       colors: {
-        'brand-bg': '#07070D',
-        'brand-elevated': '#0E0E16',
-        'brand-card': '#13131F',
-        'brand-surface': '#1A1A2A',
-        'brand-purple': '#8B5CF6',
-        'brand-purple-dim': '#6D4AE6',
-        'brand-accent': '#38BDF8',
-        'brand-text': '#F4F4FA',
-        'brand-muted': '#9494B8',
+        'brand-bg': '#000000',
+        'brand-elevated': '#0A0A0A',
+        'brand-card': '#141414',
+        'brand-surface': '#1C1C1C',
+        'brand-purple': '#CBA860',
+        'brand-purple-dim': '#7B5527',
+        'brand-accent': '#B8B7B7',
+        'brand-text': '#FFFFFF',
+        'brand-muted': '#8A8A88',
         'brand-border': 'rgba(255, 255, 255, 0.1)',
         brand: {
           bg: '#0A0A0A',
@@ -78,12 +77,12 @@ export default {content: [
         sans: ['Inter', 'sans-serif']
       },
       boxShadow: {
-        'glow-purple': '0 8px 32px rgba(139, 92, 246, 0.28)',
-        'glow-accent': '0 8px 28px rgba(56, 189, 248, 0.2)',
+        'glow-purple': '0 8px 32px rgba(203, 168, 96, 0.32)',
+        'glow-accent': '0 8px 28px rgba(184, 183, 183, 0.22)',
       },
       backgroundImage: {
         'brand-mesh':
-          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.18), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(56, 189, 248, 0.08), transparent)',
+          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 168, 96, 0.16), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(184, 183, 183, 0.08), transparent)',
       },
     }
   }

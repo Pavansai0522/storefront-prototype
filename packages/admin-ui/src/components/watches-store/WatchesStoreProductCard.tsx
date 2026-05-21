@@ -25,7 +25,7 @@ export function WatchesStoreProductCard({
 
   return (
     <div className="min-w-[280px] w-[280px] shrink-0 snap-center transition-transform duration-300 hover:-translate-y-1 md:min-w-[320px] md:w-[320px]">
-      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141414] shadow-none transition-all duration-300 hover:border-[#6C3FE8]/30 hover:shadow-lg hover:shadow-[#6C3FE8]/10">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl border border-white/[0.08] bg-[#141414] shadow-none transition-all duration-300 hover:border-[#CBA860]/30 hover:shadow-lg hover:shadow-[#CBA860]/10">
         <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-[#141414] p-6 group">
           <img
             src={image}
@@ -45,7 +45,7 @@ export function WatchesStoreProductCard({
           <div className="mb-6 flex items-end justify-between">
             <div>
               <p
-                className={`text-xl font-bold ${type === 'watch' ? 'text-white' : 'text-[#6C3FE8]'}`}
+                className={`text-xl font-bold ${type === 'watch' ? 'text-white' : 'text-[#CBA860]'}`}
               >
                 {price}
               </p>
@@ -77,7 +77,7 @@ export function WatchesStoreProductCard({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-1 items-center justify-center rounded-xl bg-[#6C3FE8] py-3 font-medium text-white transition-colors hover:bg-[#6C3FE8]/90 focus:outline-none focus:ring-2 focus:ring-[#6C3FE8]"
+                  className="flex flex-1 items-center justify-center rounded-xl bg-[#CBA860] py-3 font-medium text-black transition-colors hover:bg-[#FCDD82] focus:outline-none focus:ring-2 focus:ring-[#CBA860]"
                 >
                   Buy Now
                 </a>
@@ -85,7 +85,7 @@ export function WatchesStoreProductCard({
                   href={whatsappUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex flex-1 items-center justify-center rounded-xl border border-white/[0.08] bg-transparent py-3 font-medium text-white transition-colors hover:border-[#6C3FE8]/50 focus:outline-none focus:ring-2 focus:ring-white"
+                  className="flex flex-1 items-center justify-center rounded-xl border border-white/[0.08] bg-transparent py-3 font-medium text-white transition-colors hover:border-[#CBA860]/50 focus:outline-none focus:ring-2 focus:ring-white"
                 >
                   Enquire
                 </a>

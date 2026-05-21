@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { STORE_LOGO_PRIMARY, STORE_LOGO_SECONDARY } from '../config/storeBranding';
-import { StoreLogoMark } from './StoreLogoMark';
+import { STORE_LOGO_ALT } from '../config/storeBranding';
 
 type StoreLogoProps = {
   variant?: 'navbar' | 'footer' | 'hero' | 'mark-only';
@@ -9,46 +8,31 @@ type StoreLogoProps = {
   className?: string;
 };
 
+const LOGO_HEIGHT: Record<NonNullable<StoreLogoProps['variant']>, string> = {
+  /** Fills nav row (`h-16` / `sm:h-20`) without growing the bar */
+  navbar: 'h-16 w-auto object-contain object-left sm:h-[4.5rem]',
+  footer: 'h-14 w-auto sm:h-16',
+  hero: 'h-28 w-auto sm:h-36 md:h-44',
+  'mark-only': 'h-11 w-auto',
+};
+
 export function StoreLogo({
   variant = 'navbar',
   linked = true,
   className = '',
 }: StoreLogoProps): JSX.Element {
-  const content =
-    variant === 'hero' ? (
-      <div className={`flex flex-col items-center gap-2 px-2 text-center sm:gap-3 ${className}`}>
-        <StoreLogoMark size={48} className="drop-shadow-[0_0_28px_rgba(108,63,232,0.55)]" />
-        <div className="max-w-[min(100%,280px)]">
-          <p className="bg-gradient-to-r from-white via-violet-200 to-brand-purple bg-clip-text font-bebas text-4xl leading-none tracking-[0.1em] text-transparent sm:text-5xl md:text-6xl">
-            {STORE_LOGO_PRIMARY}
-          </p>
-          <p className="mt-1 font-bebas text-base tracking-[0.3em] text-brand-purple sm:text-xl md:text-2xl">
-            WATCHES
-          </p>
-          <p className="font-bebas text-[10px] tracking-[0.4em] text-brand-muted sm:text-sm">
-            & MOBILES
-          </p>
-        </div>
-      </div>
-    ) : variant === 'mark-only' ? (
-      <StoreLogoMark size={44} className={className} />
-    ) : (
-      <div className={`group flex min-w-0 items-center gap-2 sm:gap-3 ${className}`}>
-        <StoreLogoMark size={36} className="shrink-0 sm:hidden" />
-        <StoreLogoMark
-          size={variant === 'footer' ? 48 : 44}
-          className="hidden shrink-0 sm:block"
-        />
-        <div className="flex min-w-0 flex-col leading-none">
-          <span className="bg-gradient-to-r from-white to-violet-300 bg-clip-text font-bebas text-2xl tracking-[0.06em] text-transparent sm:text-[1.85rem]">
-            {STORE_LOGO_PRIMARY}
-          </span>
-          <span className="mt-0.5 hidden truncate font-bebas text-[0.62rem] tracking-[0.28em] text-brand-purple sm:block sm:text-xs sm:tracking-[0.32em]">
-            {STORE_LOGO_SECONDARY}
-          </span>
-        </div>
-      </div>
-    );
+  const glowClass =
+    variant === 'hero'
+      ? 'drop-shadow-[0_0_32px_rgba(252,221,130,0.35)]'
+      : 'drop-shadow-[0_0_18px_rgba(203,168,96,0.28)]';
+
+  const content = (
+    <img
+      src="/prlogo2.png"
+      alt={STORE_LOGO_ALT}
+      className={`${LOGO_HEIGHT[variant]} max-w-full ${glowClass} ${className}`}
+    />
+  );
 
   if (!linked) {
     return content;
@@ -57,8 +41,8 @@ export function StoreLogo({
   return (
     <Link
       to="/"
-      className="min-w-0 shrink rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
-      aria-label="PR Watches and Mobiles — Home"
+      className="inline-flex min-w-0 shrink rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-brand-purple focus-visible:ring-offset-2 focus-visible:ring-offset-brand-bg"
+      aria-label={STORE_LOGO_ALT}
     >
       {content}
     </Link>

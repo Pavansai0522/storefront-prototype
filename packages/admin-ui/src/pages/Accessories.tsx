@@ -29,6 +29,7 @@ import { PageTransition } from '../components/PageTransition';
 import { RequireStoreBanner } from '../components/RequireStoreBanner';
 import { useProfile } from '../hooks/useProfile';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
+import { uploadProductImage } from '../services/catalogService';
 import { findClientById } from '../utils/clientLookup';
 import { useAdminRoutes } from '../context/AdminConfigContext';
 import { showToast } from '../utils/showToast';
@@ -242,6 +243,7 @@ export function Accessories(): JSX.Element {
     price: number;
     emiPrice: number;
     image: string;
+    imageFile: File | null;
     inStock: boolean;
     category: string;
   }): Promise<void> => {
@@ -251,6 +253,10 @@ export function Accessories(): JSX.Element {
     }
     const ownerId = clientId ?? editing?.clientId ?? rows[0]?.clientId ?? 'client-1';
     const productId = modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
+    let imageUrl: string | null = values.image.trim() || null;
+    if (values.imageFile) {
+      imageUrl = await uploadProductImage(ownerId, productId, values.imageFile);
+    }
     const product: Product = {
       id: productId,
       clientId: ownerId,
@@ -258,7 +264,7 @@ export function Accessories(): JSX.Element {
       brand: values.brand,
       price: values.price,
       emiPrice: values.emiPrice,
-      image: values.image,
+      image: imageUrl,
       inStock: values.inStock,
       category: values.category as Product['category'],
       isAccessory: true,
@@ -506,6 +512,7 @@ export function Accessories(): JSX.Element {
           categoryChoices={[...ACCESSORY_CATEGORIES]}
           mode={modalMode}
           initial={editing}
+          allowImageUpload
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
         />

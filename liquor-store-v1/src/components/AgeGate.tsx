@@ -30,7 +30,6 @@ export function AgeGate({ onVerify }: AgeGateProps): JSX.Element | null {
       <div className="my-auto w-full max-w-md space-y-6 py-4 text-center sm:max-w-lg sm:space-y-8">
         <div className="flex justify-center px-2">
           <StoreBrandLogo
-            iconClassName="h-7 w-7 text-gold sm:h-8 sm:w-8"
             textClassName="text-2xl font-display font-bold tracking-wide sm:text-3xl sm:tracking-wider"
           />
         </div>

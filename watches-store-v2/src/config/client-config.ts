@@ -1,4 +1,5 @@
 import { buildWhatsAppUrl } from '../utils/whatsapp';
+import { brandColors } from './brandColors';
 import {
   STORE_LOGO_PRIMARY,
   STORE_LOGO_SECONDARY,
@@ -70,11 +71,11 @@ export const clientConfig = {
   },
   theme: {
     colors: {
-      bg: '#07070D',
-      card: '#13131F',
-      accent: '#8B5CF6',
-      text: '#FFFFFF',
-      accentHover: '#5a32c4',
+      bg: brandColors.bg,
+      card: brandColors.card,
+      accent: brandColors.gold,
+      text: brandColors.text,
+      accentHover: brandColors.goldDim,
     },
     fonts: {
       display: ['"Bebas Neue"', 'sans-serif'],

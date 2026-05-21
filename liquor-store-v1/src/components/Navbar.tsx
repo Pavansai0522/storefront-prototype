@@ -63,7 +63,6 @@ export function Navbar() {
             <StoreBrandLogo
               compact
               textClassName="truncate text-sm font-display font-bold tracking-wide sm:text-lg md:text-2xl md:tracking-wider"
-              iconClassName="h-5 w-5 text-gold sm:h-6 sm:w-6"
             />
           </Link>
 

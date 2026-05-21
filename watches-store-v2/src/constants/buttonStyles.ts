@@ -9,7 +9,7 @@ export const btnShop = [
   'text-base font-bold tracking-wide text-white',
   'shadow-glow-purple',
   'transition-all duration-200',
-  'hover:bg-brand-purple-dim hover:shadow-[0_0_36px_rgba(139,92,246,0.45)]',
+  'hover:bg-brand-purple-dim hover:shadow-[0_0_36px_rgba(203,168,96,0.45)]',
   'active:scale-[0.98]',
   focusRing,
   'focus-visible:ring-brand-purple',
