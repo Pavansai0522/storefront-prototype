@@ -138,11 +138,81 @@ export async function deleteProducts(ids: string[]): Promise<void> {
   }
 }
 
+async function getUploadAccessToken(): Promise<string> {
+  const { data, error } = await supabase.auth.getSession();
+  if (error) {
+    throw new Error(error.message);
+  }
+  const token = data.session?.access_token;
+  if (!token) {
+    throw new Error('You must be logged in to upload images.');
+  }
+  return token;
+}
+
+function resolveProductImageUploadUrl(): string | null {
+  const configured = import.meta.env.VITE_PRODUCT_IMAGE_UPLOAD_URL as string | undefined;
+  if (!configured?.trim()) {
+    return null;
+  }
+  const trimmed = configured.trim();
+  if (trimmed.includes('r2.cloudflarestorage.com')) {
+    throw new Error(
+      'VITE_PRODUCT_IMAGE_UPLOAD_URL must be /api/upload-product-image, not the R2 S3 endpoint. Set R2_PUBLIC_BASE_URL for the public image URL.',
+    );
+  }
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed;
+  }
+  const origin = import.meta.env.VITE_STOREFRONT_ORIGIN as string | undefined;
+  const base = origin?.trim().replace(/\/$/, '') ?? '';
+  return `${base}${trimmed.startsWith('/') ? trimmed : `/${trimmed}`}`;
+}
+
+async function uploadProductImageViaR2Api(
+  clientId: string,
+  productId: string,
+  file: File,
+): Promise<string> {
+  const uploadUrl = resolveProductImageUploadUrl();
+  if (!uploadUrl) {
+    throw new Error('VITE_PRODUCT_IMAGE_UPLOAD_URL is not configured.');
+  }
+
+  const { compressImageFile } = await import('../lib/imageUpload');
+  const blob = await compressImageFile(file);
+  const token = await getUploadAccessToken();
+
+  const response = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'image/jpeg',
+      'X-Client-Id': clientId,
+      'X-Product-Id': productId,
+    },
+    body: blob,
+  });
+
+  const payload = (await response.json().catch(() => null)) as { url?: string; error?: string } | null;
+  if (!response.ok) {
+    throw new Error(payload?.error ?? `Image upload failed (${response.status}).`);
+  }
+  if (!payload?.url) {
+    throw new Error('Upload succeeded but no image URL was returned.');
+  }
+  return payload.url;
+}
+
 export async function uploadProductImage(
   clientId: string,
   productId: string,
   file: File,
 ): Promise<string> {
+  if (resolveProductImageUploadUrl()) {
+    return uploadProductImageViaR2Api(clientId, productId, file);
+  }
+
   const { compressImageFile, storagePathForProduct } = await import('../lib/imageUpload');
   const blob = await compressImageFile(file);
   const path = storagePathForProduct(clientId, productId);

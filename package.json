@@ -33,6 +33,7 @@
     "set:pr-watches-url": "tsx scripts/set-pr-watches-live-url.ts",
     "seed:bala": "tsx scripts/seed-bala-mobiles.ts",
     "seed:liquor": "tsx scripts/seed-liquor-store.ts",
+    "migrate:liquor-images": "tsx scripts/migrate-liquor-images-to-r2.ts",
     "db:migrate": "tsx scripts/apply-sql-migration.ts"
   },
   "devDependencies": {
