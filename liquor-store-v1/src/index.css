@@ -4,6 +4,15 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 @custom-variant dark (&:is(.dark *));
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px));
+  scrollbar-gutter: stable;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
 @layer base {
   * {
     @apply border-border outline-ring;
@@ -16,7 +25,34 @@
     @apply bg-background text-foreground antialiased;
     -webkit-text-size-adjust: 100%;
   }
+
+  /* Page scrollbar — matches tailwind gold / background tokens */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: #c9a84c #0a0a0a;
+  }
+  html::-webkit-scrollbar {
+    width: 10px;
+  }
+  html::-webkit-scrollbar-track {
+    background: #0a0a0a;
+  }
+  html::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #e8d49a 0%, #c9a84c 45%, #8b6f2e 100%);
+    border-radius: 9999px;
+    border: 2px solid #0a0a0a;
+  }
+  html::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #e8d49a 0%, #d4b568 50%, #c9a84c 100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
 }
+
 @layer utilities {
   .pt-nav {
     padding-top: calc(5rem + env(safe-area-inset-top, 0px));
@@ -33,12 +69,34 @@
   .overscroll-x-contain {
     overscroll-behavior-x: contain;
   }
-}
-/* Hide scrollbar for horizontal scrolling areas but keep functionality */
-.scrollbar-hide::-webkit-scrollbar {
+
+  /* Hide scrollbar for horizontal carousels */
+  .scrollbar-hide::-webkit-scrollbar {
     display: none;
-}
-.scrollbar-hide {
+  }
+  .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Horizontal rails — gold thumb, transparent track */
+  .scroll-rail {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    overscroll-behavior-y: auto;
+    touch-action: manipulation;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(201, 168, 76, 0.55) transparent;
+  }
+  .scroll-rail::-webkit-scrollbar {
+    height: 6px;
+  }
+  .scroll-rail::-webkit-scrollbar-track {
+    background: transparent;
+    margin-inline: 1rem;
+  }
+  .scroll-rail::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #8b6f2e, #c9a84c, #d4b568);
+    border-radius: 9999px;
+  }
 }
