@@ -41,7 +41,7 @@ export function CategoryShowcase(): JSX.Element {
           <div className="mx-auto h-1 w-24 rounded-full bg-gold" />
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 md:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4 lg:gap-6 xl:gap-8">
           {categories.map((category, index) => {
             const Icon = category.icon;
             return (

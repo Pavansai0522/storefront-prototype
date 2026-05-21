@@ -75,10 +75,9 @@ export function FeaturedProducts(): JSX.Element | null {
         {catalogLoading ? (
           <p className="text-center text-sm text-muted">Loading rare bottles…</p>
         ) : (
-          <div className="-mx-4 sm:mx-0">
           <div
             ref={scrollRef}
-            className="scrollbar-hide overscroll-x-contain flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 sm:gap-6 sm:px-0 sm:pb-8"
+            className="scroll-rail scrollbar-hide overscroll-x-contain -mx-4 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-6 sm:-mx-0 sm:gap-6 sm:px-0 sm:pb-8"
           >
             {rareBottles.map((product) => {
               const inStock = product.inStock !== false;
@@ -86,7 +85,7 @@ export function FeaturedProducts(): JSX.Element | null {
                 <div
                   key={product.id}
                   data-product-card
-                  className="group w-[min(85vw,280px)] shrink-0 snap-start overflow-hidden rounded-xl border border-border bg-card transition-colors duration-300 hover:border-gold sm:w-[min(78vw,320px)] md:w-[320px]"
+                  className="group w-[min(17.5rem,calc(100vw-2rem))] shrink-0 snap-start overflow-hidden rounded-xl border border-border bg-card transition-colors duration-300 hover:border-gold sm:w-[280px] md:w-[300px] lg:w-[320px] last:mr-4 sm:last:mr-0"
                 >
                   <div className="relative flex h-56 items-center justify-center bg-background/50 p-4 sm:h-64 sm:p-6">
                     {product.badge ? (
@@ -122,7 +121,6 @@ export function FeaturedProducts(): JSX.Element | null {
                 </div>
               );
             })}
-          </div>
           </div>
         )}
 

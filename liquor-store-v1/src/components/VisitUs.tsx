@@ -61,7 +61,7 @@ export function VisitUs(): JSX.Element {
                 </p>
               </VisitInfoItem>
 
-              <div className="grid gap-6 border-t border-border/50 pt-6 md:grid-cols-2 md:gap-8 md:pt-6">
+              <div className="grid gap-6 border-t border-border/50 pt-6 sm:grid-cols-2 sm:gap-8 md:pt-6">
                 <div className="border-b border-border/50 pb-6 md:border-b-0 md:pb-0">
                   <VisitInfoItem icon={Clock} title="Hours">
                     <ul className="space-y-2">

@@ -51,10 +51,10 @@ export function Navbar() {
   return (
     <>
       <nav
-        className={`fixed left-0 right-0 top-0 z-[100] min-h-nav transition-all duration-300 max-md:bg-background/95 max-md:backdrop-blur-md ${
+        className={`fixed left-0 right-0 top-0 z-[100] min-h-nav transition-all duration-300 max-lg:bg-background/95 max-lg:backdrop-blur-md ${
           isScrolled
-            ? 'border-b border-border bg-background/95 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md md:bg-background/95'
-            : 'md:bg-transparent'
+            ? 'border-b border-border bg-background/95 shadow-[0_4px_30px_rgba(0,0,0,0.5)] backdrop-blur-md lg:bg-background/95'
+            : 'lg:bg-transparent'
         }`}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
@@ -66,12 +66,12 @@ export function Navbar() {
             />
           </Link>
 
-          <div className="hidden items-center gap-8 md:flex">
+          <div className="hidden items-center gap-6 xl:gap-8 lg:flex">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 to={link.path}
-                className={`text-base font-medium transition-colors ${
+                className={`whitespace-nowrap text-sm font-medium transition-colors lg:text-[0.9375rem] xl:text-base ${
                   location.pathname === link.path ? 'text-gold' : 'text-muted hover:text-gold'
                 }`}
               >
@@ -86,7 +86,7 @@ export function Navbar() {
             </Link>
           </div>
 
-          <div className="hidden md:block">
+          <div className="hidden shrink-0 lg:block">
             <a
               href={STORE_PHONE_TEL}
               className="flex min-h-[44px] items-center gap-2 rounded border border-gold bg-gold/10 px-6 py-2.5 font-semibold text-gold transition-all duration-300 hover:bg-gold hover:text-background"
@@ -98,7 +98,7 @@ export function Navbar() {
 
           <button
             type="button"
-            className="relative z-[102] flex min-h-[44px] min-w-[44px] shrink-0 touch-manipulation items-center justify-center p-2 text-foreground md:hidden"
+            className="relative z-[102] flex min-h-[44px] min-w-[44px] shrink-0 touch-manipulation items-center justify-center p-2 text-foreground lg:hidden"
             onClick={toggleMobileMenu}
             aria-expanded={isMobileMenuOpen}
             aria-label="Toggle menu"
@@ -109,7 +109,7 @@ export function Navbar() {
       </nav>
 
       {isMobileMenuOpen ? (
-        <div className="fixed inset-0 z-[90] md:hidden">
+        <div className="fixed inset-0 z-[90] lg:hidden">
           <button
             type="button"
             className="absolute inset-0 bg-black/60"

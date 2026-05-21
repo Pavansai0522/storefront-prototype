@@ -7,7 +7,7 @@ export function Hero(): JSX.Element {
   return (
     <section
       id="home"
-      className="relative flex min-h-0 items-center overflow-hidden bg-background py-12 sm:py-16 md:min-h-screen md:py-0 md:pt-20"
+      className="relative flex min-h-0 items-center overflow-hidden bg-background py-12 sm:py-16 md:min-h-[calc(100dvh-5rem-env(safe-area-inset-top,0px))] md:py-0"
     >
       <div className="container relative z-10 mx-auto grid min-w-0 items-center gap-8 md:grid-cols-2 md:gap-12">
         <div className="min-w-0 max-w-2xl space-y-6 animate-in slide-in-from-left-8 duration-700 fade-in sm:space-y-8">

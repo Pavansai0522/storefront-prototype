@@ -45,7 +45,7 @@ export const clientConfig: LiquorStoreConfig = {
   storeName: 'United Liquors',
   tagline: 'Spirits, wine, and beer in New Lenox, IL',
   phone: '(815) 463-9490',
-  email: 'info@unitedliquors.com',
+  email: 'unitedliquor148@yahoo.com',
   address: '148 W Illinois Hwy',
   city: 'New Lenox',
   state: 'IL',
@@ -62,8 +62,8 @@ export const clientConfig: LiquorStoreConfig = {
     minimumOrder: 50,
   },
   social: {
-    instagram: '@unitedliquors',
-    facebook: 'unitedliquors',
+    instagram: null,
+    facebook: null,
     twitter: null,
   },
   colors: {

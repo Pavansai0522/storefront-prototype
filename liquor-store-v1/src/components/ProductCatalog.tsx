@@ -98,7 +98,7 @@ export function ProductCatalog({
         </div>
 
         {/* Controls Bar */}
-        <div className="mb-8 flex flex-col items-stretch gap-4 rounded-xl border border-border bg-card p-4 md:flex-row md:items-center md:justify-between">
+        <div className="mb-8 flex flex-col items-stretch gap-4 rounded-xl border border-border bg-card p-4 md:flex-row md:flex-wrap md:items-center md:gap-4 lg:flex-nowrap lg:justify-between">
           {/* Search */}
           <div className="relative w-full md:w-96">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted" />
@@ -176,7 +176,7 @@ export function ProductCatalog({
 
         {/* Product Grid */}
         {filteredAndSortedProducts.length > 0 ?
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 md:grid-cols-3 md:gap-6 xl:grid-cols-4">
             {filteredAndSortedProducts.map((product) => {
               const inStock = product.inStock !== false;
               return (

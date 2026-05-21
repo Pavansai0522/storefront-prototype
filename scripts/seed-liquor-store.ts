@@ -5,7 +5,7 @@
  * Run from repo root: npm run seed:liquor
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
  */
-import 'dotenv/config';
+import './load-env';
 import { createClient } from '@supabase/supabase-js';
 import { clientConfig } from '../liquor-store-v1/src/config/client-config';
 
@@ -21,7 +21,15 @@ const STORE_ADMIN_PASSWORD =
   process.env.LIQUOR_STORE_ADMIN_PASSWORD ?? 'Welcome#2026';
 
 if (!url || !serviceKey) {
-  console.error('Set SUPABASE_URL and SUPABASE_SECRET_KEY in root .env');
+  const missing: string[] = [];
+  if (!url) {
+    missing.push('SUPABASE_URL or VITE_SUPABASE_URL');
+  }
+  if (!serviceKey) {
+    missing.push('SUPABASE_SERVICE_ROLE_KEY or SUPABASE_SECRET_KEY (service role — not the anon key)');
+  }
+  console.error(`Missing in root .env or supabase/.env: ${missing.join(', ')}`);
+  console.error('Supabase Dashboard → Project Settings → API → service_role (secret)');
   process.exit(1);
 }
 
@@ -58,8 +66,8 @@ const LIQUOR_CLIENT_ROW = {
     lastPaid: null,
     paymentHistory: [],
   },
-  instagram: clientConfig.social.instagram ?? '',
-  facebook: clientConfig.social.facebook ?? '',
+  instagram: '',
+  facebook: '',
   timings: `Mon–Sat ${clientConfig.timings.weekdays} · Sun ${clientConfig.timings.sunday}`,
   age_verification_enabled: clientConfig.ageGate,
   delivery_available: clientConfig.delivery.available,

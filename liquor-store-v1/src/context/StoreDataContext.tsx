@@ -51,8 +51,8 @@ function mergeClientConfig(row: DbClientPublic): LiquorStoreConfig {
     },
     social: {
       ...staticClientConfig.social,
-      instagram: row.instagram || staticClientConfig.social.instagram,
-      facebook: row.facebook || staticClientConfig.social.facebook,
+      instagram: row.instagram?.trim() || staticClientConfig.social.instagram,
+      facebook: row.facebook?.trim() || staticClientConfig.social.facebook,
     },
     ageGate: row.age_verification_enabled ?? staticClientConfig.ageGate,
   };

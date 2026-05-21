@@ -8,7 +8,6 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(5rem + env(safe-area-inset-top, 0px));
-  scrollbar-gutter: stable;
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
