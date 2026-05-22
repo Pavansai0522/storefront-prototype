@@ -17,13 +17,13 @@ export function loadR2Config(): R2Config {
   const bucketName = process.env.R2_BUCKET_NAME?.trim();
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL?.trim().replace(/\/$/, '');
 
-  const missing: string[] = [];
-  if (!accountId) missing.push('R2_ACCOUNT_ID');
-  if (!accessKeyId) missing.push('R2_ACCESS_KEY_ID');
-  if (!secretAccessKey) missing.push('R2_SECRET_ACCESS_KEY');
-  if (!bucketName) missing.push('R2_BUCKET_NAME');
-  if (!publicBaseUrl) missing.push('R2_PUBLIC_BASE_URL');
-  if (missing.length > 0) {
+  if (!accountId || !accessKeyId || !secretAccessKey || !bucketName || !publicBaseUrl) {
+    const missing: string[] = [];
+    if (!accountId) missing.push('R2_ACCOUNT_ID');
+    if (!accessKeyId) missing.push('R2_ACCESS_KEY_ID');
+    if (!secretAccessKey) missing.push('R2_SECRET_ACCESS_KEY');
+    if (!bucketName) missing.push('R2_BUCKET_NAME');
+    if (!publicBaseUrl) missing.push('R2_PUBLIC_BASE_URL');
     throw new Error(`R2 is not configured on the server. Missing: ${missing.join(', ')}`);
   }
 
