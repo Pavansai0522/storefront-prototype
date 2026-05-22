@@ -1,19 +1,29 @@
-import { config } from 'dotenv';
+import { createRequire } from 'node:module';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const liquorRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const repoRoot = path.resolve(liquorRoot, '..');
 
 let loaded = false;
 
-/** Load .env files for Vite dev middleware and local API testing. No-op on Vercel (env injected). */
+/** Load .env files for local dev only. On Vercel, env vars are injected — skip dotenv. */
 export function loadServerEnv(): void {
   if (loaded) {
     return;
   }
-  config({ path: path.join(repoRoot, '.env') });
-  config({ path: path.join(liquorRoot, '.env') });
-  config({ path: path.join(repoRoot, 'supabase', '.env') });
   loaded = true;
+
+  if (process.env.VERCEL) {
+    return;
+  }
+
+  try {
+    const require = createRequire(path.join(process.cwd(), 'package.json'));
+    const dotenv = require('dotenv') as {
+      config: (options: { path: string }) => void;
+    };
+    const cwd = process.cwd();
+    dotenv.config({ path: path.join(cwd, '.env') });
+    dotenv.config({ path: path.join(cwd, '..', '.env') });
+    dotenv.config({ path: path.join(cwd, '..', 'supabase', '.env') });
+  } catch {
+    // dotenv is optional; local dev can rely on shell env instead
+  }
 }

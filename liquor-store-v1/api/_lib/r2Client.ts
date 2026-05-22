@@ -1,4 +1,4 @@
-import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
+import type { S3Client } from '@aws-sdk/client-s3';
 import { loadServerEnv } from './loadServerEnv';
 
 export type R2Config = {
@@ -40,8 +40,9 @@ export function publicUrlForPath(config: R2Config, objectKey: string): string {
 
 let cachedClient: S3Client | null = null;
 
-function getR2S3Client(config: R2Config): S3Client {
+async function getR2S3Client(config: R2Config): Promise<S3Client> {
   if (!cachedClient) {
+    const { S3Client } = await import('@aws-sdk/client-s3');
     cachedClient = new S3Client({
       region: 'auto',
       endpoint: `https://${config.accountId}.r2.cloudflarestorage.com`,
@@ -63,9 +64,10 @@ export async function putProductImage(
 ): Promise<string> {
   const config = loadR2Config();
   const key = storagePathForProduct(clientId, productId);
-  const client = getR2S3Client(config);
+  const client = await getR2S3Client(config);
 
   try {
+    const { PutObjectCommand } = await import('@aws-sdk/client-s3');
     await client.send(
       new PutObjectCommand({
         Bucket: config.bucketName,

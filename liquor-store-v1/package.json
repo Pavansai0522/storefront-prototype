@@ -4,6 +4,9 @@
   "private": true,
   "description": "Vite + React storefront for liquor-store-v1 (US). Supabase catalog + embedded /admin.",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
