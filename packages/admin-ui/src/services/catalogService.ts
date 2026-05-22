@@ -139,6 +139,7 @@ export async function deleteProducts(ids: string[]): Promise<void> {
 }
 
 async function getUploadAccessToken(): Promise<string> {
+  await supabase.auth.refreshSession();
   const { data, error } = await supabase.auth.getSession();
   if (error) {
     throw new Error(error.message);

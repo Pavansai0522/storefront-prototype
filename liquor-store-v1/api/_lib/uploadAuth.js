@@ -33,13 +33,19 @@ async function authorizeProductImageUpload(authorizationHeader, clientId) {
   }
 
   const supabase = supabaseAuthClient(token);
+  // Must pass JWT explicitly — persistSession is false, so getUser() alone has no session.
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabase.auth.getUser(token);
 
   if (userError || !user) {
-    return { ok: false, status: 401, message: 'Invalid or expired session.' };
+    const detail = userError?.message ? ` ${userError.message}` : '';
+    return {
+      ok: false,
+      status: 401,
+      message: `Invalid or expired session.${detail} Try logging out and back in.`,
+    };
   }
 
   const { data: profile, error: profileError } = await supabase
