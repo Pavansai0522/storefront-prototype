@@ -6,6 +6,9 @@
   "functions": {
     "api/upload-product-image.ts": {
       "maxDuration": 30
+    },
+    "api/upload-status.ts": {
+      "maxDuration": 10
     }
   },
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]

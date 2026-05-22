@@ -65,15 +65,27 @@ export async function putProductImage(
   const key = storagePathForProduct(clientId, productId);
   const client = getR2S3Client(config);
 
-  await client.send(
-    new PutObjectCommand({
-      Bucket: config.bucketName,
-      Key: key,
-      Body: body,
-      ContentType: 'image/jpeg',
-      CacheControl: 'public, max-age=31536000, immutable',
-    }),
-  );
+  try {
+    await client.send(
+      new PutObjectCommand({
+        Bucket: config.bucketName,
+        Key: key,
+        Body: body,
+        ContentType: 'image/jpeg',
+        CacheControl: 'public, max-age=31536000, immutable',
+      }),
+    );
+  } catch (err) {
+    const detail =
+      err instanceof Error
+        ? err.message
+        : typeof err === 'object' && err !== null && 'message' in err
+          ? String((err as { message: unknown }).message)
+          : 'Unknown R2 error';
+    throw new Error(
+      `R2 upload failed (${config.bucketName}/${key}): ${detail}. Check token permissions and that Access Key ID + Secret are from the same API token.`,
+    );
+  }
 
   return publicUrlForPath(config, key);
 }
