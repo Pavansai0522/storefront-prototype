@@ -1,11 +1,10 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { sendJson } from './_lib/sendJson';
+const { sendJson } = require('./_lib/sendJson');
 
-function envPresent(name: string): boolean {
+function envPresent(name) {
   return Boolean(process.env[name]?.trim());
 }
 
-export default function handler(_req: IncomingMessage, res: ServerResponse): void {
+module.exports = function handler(_req, res) {
   try {
     const supabaseUrl = envPresent('SUPABASE_URL') || envPresent('VITE_SUPABASE_URL');
     const supabaseAnon =
@@ -17,7 +16,7 @@ export default function handler(_req: IncomingMessage, res: ServerResponse): voi
       'R2_SECRET_ACCESS_KEY',
       'R2_BUCKET_NAME',
       'R2_PUBLIC_BASE_URL',
-    ] as const;
+    ];
 
     const missingR2 = r2Keys.filter((key) => !envPresent(key));
 
@@ -34,12 +33,12 @@ export default function handler(_req: IncomingMessage, res: ServerResponse): voi
       uploadPath: '/api/upload-product-image',
       hint:
         missingR2.length > 0
-          ? 'Add missing R2_* variables in Vercel → Settings → Environment Variables, then redeploy.'
-          : 'Env looks complete. If upload still fails, check PUT response body for the error field.',
+          ? 'Add missing R2_* in Vercel → Environment Variables → Production, then redeploy.'
+          : 'Env looks complete. If upload fails, read PUT response JSON error field.',
     });
   } catch (err) {
     sendJson(res, 500, {
       error: err instanceof Error ? err.message : 'upload-status failed',
     });
   }
-}
+};

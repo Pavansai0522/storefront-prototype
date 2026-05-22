@@ -4,13 +4,13 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": {
-    "api/upload-product-image.ts": {
+    "api/upload-product-image.js": {
       "maxDuration": 30
     },
-    "api/upload-status.ts": {
+    "api/upload-status.js": {
       "maxDuration": 10
     },
-    "api/health.ts": {
+    "api/health.js": {
       "maxDuration": 5
     }
   },

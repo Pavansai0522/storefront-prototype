@@ -1,29 +1,18 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
-import { authorizeProductImageUpload } from './uploadAuth';
-import { putProductImage } from './r2Client';
-import { sendJson } from './sendJson';
+const { authorizeProductImageUpload } = require('./uploadAuth');
+const { putProductImage } = require('./r2Client');
+const { sendJson } = require('./sendJson');
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
-type RequestWithBody = IncomingMessage & { body?: unknown };
-
-function readBodyFromBuffer(body: unknown): Buffer | null {
-  if (Buffer.isBuffer(body)) {
-    return body;
-  }
-  if (typeof body === 'string') {
-    return Buffer.from(body, 'binary');
-  }
-  if (body instanceof ArrayBuffer) {
-    return Buffer.from(body);
-  }
-  if (body instanceof Uint8Array) {
-    return Buffer.from(body);
-  }
+function readBodyFromBuffer(body) {
+  if (Buffer.isBuffer(body)) return body;
+  if (typeof body === 'string') return Buffer.from(body, 'binary');
+  if (body instanceof ArrayBuffer) return Buffer.from(body);
+  if (body instanceof Uint8Array) return Buffer.from(body);
   return null;
 }
 
-function readBody(req: RequestWithBody): Promise<Buffer> {
+function readBody(req) {
   const buffered = readBodyFromBuffer(req.body);
   if (buffered) {
     if (buffered.length > MAX_BYTES) {
@@ -33,10 +22,10 @@ function readBody(req: RequestWithBody): Promise<Buffer> {
   }
 
   return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
+    const chunks = [];
     let total = 0;
 
-    req.on('data', (chunk: Buffer) => {
+    req.on('data', (chunk) => {
       total += chunk.length;
       if (total > MAX_BYTES) {
         reject(new Error('Image is too large (max 5 MB).'));
@@ -51,10 +40,7 @@ function readBody(req: RequestWithBody): Promise<Buffer> {
   });
 }
 
-export async function handleUploadProductImage(
-  req: RequestWithBody,
-  res: ServerResponse,
-): Promise<void> {
+async function handleUploadProductImage(req, res) {
   if (req.method === 'OPTIONS') {
     res.statusCode = 204;
     res.setHeader('Access-Control-Allow-Methods', 'PUT, OPTIONS');
@@ -97,17 +83,14 @@ export async function handleUploadProductImage(
   }
 }
 
-export function createUploadMiddleware(): (
-  req: IncomingMessage,
-  res: ServerResponse,
-  next: () => void,
-) => void {
+function createUploadMiddleware() {
   return (req, res, next) => {
     if (!req.url?.startsWith('/api/upload-product-image')) {
       next();
       return;
     }
-
     void handleUploadProductImage(req, res);
   };
 }
+
+module.exports = { handleUploadProductImage, createUploadMiddleware };

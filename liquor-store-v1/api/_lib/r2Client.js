@@ -1,15 +1,6 @@
-import type { S3Client } from '@aws-sdk/client-s3';
-import { loadServerEnv } from './loadServerEnv';
+const { loadServerEnv } = require('./loadServerEnv');
 
-export type R2Config = {
-  accountId: string;
-  accessKeyId: string;
-  secretAccessKey: string;
-  bucketName: string;
-  publicBaseUrl: string;
-};
-
-export function loadR2Config(): R2Config {
+function loadR2Config() {
   loadServerEnv();
   const accountId = process.env.R2_ACCOUNT_ID?.trim();
   const accessKeyId = process.env.R2_ACCESS_KEY_ID?.trim();
@@ -18,7 +9,7 @@ export function loadR2Config(): R2Config {
   const publicBaseUrl = process.env.R2_PUBLIC_BASE_URL?.trim().replace(/\/$/, '');
 
   if (!accountId || !accessKeyId || !secretAccessKey || !bucketName || !publicBaseUrl) {
-    const missing: string[] = [];
+    const missing = [];
     if (!accountId) missing.push('R2_ACCOUNT_ID');
     if (!accessKeyId) missing.push('R2_ACCESS_KEY_ID');
     if (!secretAccessKey) missing.push('R2_SECRET_ACCESS_KEY');
@@ -30,17 +21,17 @@ export function loadR2Config(): R2Config {
   return { accountId, accessKeyId, secretAccessKey, bucketName, publicBaseUrl };
 }
 
-export function storagePathForProduct(clientId: string, productId: string): string {
+function storagePathForProduct(clientId, productId) {
   return `${clientId}/${productId}.jpg`;
 }
 
-export function publicUrlForPath(config: R2Config, objectKey: string): string {
+function publicUrlForPath(config, objectKey) {
   return `${config.publicBaseUrl}/${objectKey}`;
 }
 
-let cachedClient: S3Client | null = null;
+let cachedClient = null;
 
-async function getR2S3Client(config: R2Config): Promise<S3Client> {
+async function getR2S3Client(config) {
   if (!cachedClient) {
     const { S3Client } = await import('@aws-sdk/client-s3');
     cachedClient = new S3Client({
@@ -57,11 +48,7 @@ async function getR2S3Client(config: R2Config): Promise<S3Client> {
   return cachedClient;
 }
 
-export async function putProductImage(
-  clientId: string,
-  productId: string,
-  body: Buffer,
-): Promise<string> {
+async function putProductImage(clientId, productId, body) {
   const config = loadR2Config();
   const key = storagePathForProduct(clientId, productId);
   const client = await getR2S3Client(config);
@@ -78,16 +65,13 @@ export async function putProductImage(
       }),
     );
   } catch (err) {
-    const detail =
-      err instanceof Error
-        ? err.message
-        : typeof err === 'object' && err !== null && 'message' in err
-          ? String((err as { message: unknown }).message)
-          : 'Unknown R2 error';
+    const detail = err instanceof Error ? err.message : 'Unknown R2 error';
     throw new Error(
-      `R2 upload failed (${config.bucketName}/${key}): ${detail}. Check token permissions and that Access Key ID + Secret are from the same API token.`,
+      `R2 upload failed (${config.bucketName}/${key}): ${detail}. Check token permissions and matching Access Key + Secret pair.`,
     );
   }
 
   return publicUrlForPath(config, key);
 }
+
+module.exports = { putProductImage };

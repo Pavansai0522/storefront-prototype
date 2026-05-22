@@ -1,33 +1,24 @@
-import { createClient } from '@supabase/supabase-js';
-import { loadServerEnv } from './loadServerEnv';
+const { createClient } = require('@supabase/supabase-js');
+const { loadServerEnv } = require('./loadServerEnv');
 
-export type UploadAuthResult =
-  | { ok: true; userId: string }
-  | { ok: false; status: number; message: string };
-
-function supabaseAuthClient(accessToken: string) {
+function supabaseAuthClient(accessToken) {
   loadServerEnv();
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
   const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
   if (!url || !anonKey) {
     throw new Error(
-      'Supabase URL and anon key are required for upload auth. Set SUPABASE_URL and SUPABASE_ANON_KEY (or VITE_SUPABASE_*) on Vercel and in liquor-store-v1/.env.',
+      'Supabase URL and anon key are required. Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel.',
     );
   }
   return createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { Authorization: `Bearer ${accessToken}` },
     },
   });
 }
 
-export async function authorizeProductImageUpload(
-  authorizationHeader: string | undefined,
-  clientId: string,
-): Promise<UploadAuthResult> {
+async function authorizeProductImageUpload(authorizationHeader, clientId) {
   if (!authorizationHeader?.startsWith('Bearer ')) {
     return { ok: false, status: 401, message: 'Missing authorization token.' };
   }
@@ -62,8 +53,8 @@ export async function authorizeProductImageUpload(
     return { ok: false, status: 403, message: `Profile not found${detail}.` };
   }
 
-  const role = profile.role as string;
-  const profileClientId = profile.client_id as string | null;
+  const role = profile.role;
+  const profileClientId = profile.client_id;
 
   if (role === 'superadmin') {
     return { ok: true, userId: user.id };
@@ -79,3 +70,5 @@ export async function authorizeProductImageUpload(
     message: `Not authorized for store ${clientId}. Profile is tied to ${profileClientId ?? 'no store'}.`,
   };
 }
+
+module.exports = { authorizeProductImageUpload };
