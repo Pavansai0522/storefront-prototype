@@ -1,20 +1,12 @@
-import { loadServerEnv } from './_lib/loadServerEnv';
+import type { IncomingMessage, ServerResponse } from 'node:http';
+import { sendJson } from './_lib/sendJson';
 
 function envPresent(name: string): boolean {
   return Boolean(process.env[name]?.trim());
 }
 
-type VercelRes = {
-  status: (code: number) => { json: (body: unknown) => void };
-};
-
-export default function handler(
-  _req: unknown,
-  res: VercelRes,
-): void {
+export default function handler(_req: IncomingMessage, res: ServerResponse): void {
   try {
-    loadServerEnv();
-
     const supabaseUrl = envPresent('SUPABASE_URL') || envPresent('VITE_SUPABASE_URL');
     const supabaseAnon =
       envPresent('SUPABASE_ANON_KEY') || envPresent('VITE_SUPABASE_ANON_KEY');
@@ -29,7 +21,7 @@ export default function handler(
 
     const missingR2 = r2Keys.filter((key) => !envPresent(key));
 
-    res.status(200).json({
+    sendJson(res, 200, {
       ok: missingR2.length === 0 && supabaseUrl && supabaseAnon,
       vercelEnv: process.env.VERCEL_ENV ?? null,
       supabase: { url: supabaseUrl, anonKey: supabaseAnon },
@@ -40,9 +32,13 @@ export default function handler(
         publicBaseUrl: process.env.R2_PUBLIC_BASE_URL?.trim() ?? null,
       },
       uploadPath: '/api/upload-product-image',
+      hint:
+        missingR2.length > 0
+          ? 'Add missing R2_* variables in Vercel → Settings → Environment Variables, then redeploy.'
+          : 'Env looks complete. If upload still fails, check PUT response body for the error field.',
     });
   } catch (err) {
-    res.status(500).json({
+    sendJson(res, 500, {
       error: err instanceof Error ? err.message : 'upload-status failed',
     });
   }

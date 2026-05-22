@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import path from 'node:path';
+import { join } from 'node:path';
 
 let loaded = false;
 
@@ -15,14 +15,14 @@ export function loadServerEnv(): void {
   }
 
   try {
-    const require = createRequire(path.join(process.cwd(), 'package.json'));
+    const require = createRequire(join(process.cwd(), 'package.json'));
     const dotenv = require('dotenv') as {
       config: (options: { path: string }) => void;
     };
     const cwd = process.cwd();
-    dotenv.config({ path: path.join(cwd, '.env') });
-    dotenv.config({ path: path.join(cwd, '..', '.env') });
-    dotenv.config({ path: path.join(cwd, '..', 'supabase', '.env') });
+    dotenv.config({ path: join(cwd, '.env') });
+    dotenv.config({ path: join(cwd, '..', '.env') });
+    dotenv.config({ path: join(cwd, '..', 'supabase', '.env') });
   } catch {
     // dotenv is optional; local dev can rely on shell env instead
   }

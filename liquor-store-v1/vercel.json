@@ -4,11 +4,17 @@
   "outputDirectory": "dist",
   "framework": "vite",
   "functions": {
+    "api/**/*.ts": {
+      "runtime": "nodejs20.x"
+    },
     "api/upload-product-image.ts": {
       "maxDuration": 30
     },
     "api/upload-status.ts": {
       "maxDuration": 10
+    },
+    "api/health.ts": {
+      "maxDuration": 5
     }
   },
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]

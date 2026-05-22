@@ -1,6 +1,7 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { authorizeProductImageUpload } from './uploadAuth';
 import { putProductImage } from './r2Client';
+import { sendJson } from './sendJson';
 
 const MAX_BYTES = 5 * 1024 * 1024;
 
@@ -48,12 +49,6 @@ function readBody(req: RequestWithBody): Promise<Buffer> {
     req.on('end', () => resolve(Buffer.concat(chunks)));
     req.on('error', reject);
   });
-}
-
-function sendJson(res: ServerResponse, status: number, body: Record<string, string>): void {
-  res.statusCode = status;
-  res.setHeader('Content-Type', 'application/json');
-  res.end(JSON.stringify(body));
 }
 
 export async function handleUploadProductImage(
