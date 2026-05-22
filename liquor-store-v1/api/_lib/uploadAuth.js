@@ -1,13 +1,18 @@
 const { createClient } = require('@supabase/supabase-js');
 const { loadServerEnv } = require('./loadServerEnv');
+const { resolveSupabaseEnv } = require('./supabaseEnv');
 
 function supabaseAuthClient(accessToken) {
   loadServerEnv();
-  const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
-  const anonKey = process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY;
+  const { url, anonKey, mismatch } = resolveSupabaseEnv();
   if (!url || !anonKey) {
     throw new Error(
-      'Supabase URL and anon key are required. Set SUPABASE_URL and SUPABASE_ANON_KEY on Vercel.',
+      'Supabase URL and anon key are required. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY on Vercel (Production).',
+    );
+  }
+  if (mismatch) {
+    throw new Error(
+      'SUPABASE_* and VITE_SUPABASE_* differ on the server. Remove wrong SUPABASE_URL / SUPABASE_ANON_KEY or make them identical to VITE_*.',
     );
   }
   return createClient(url, anonKey, {
