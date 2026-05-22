@@ -1,9 +1,26 @@
 import path from 'node:path';
-import { defineConfig } from 'vite';
+import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+function r2UploadDevApi(): Plugin {
+  return {
+    name: 'r2-upload-dev-api',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (!req.url?.startsWith('/api/upload-product-image')) {
+          next();
+          return;
+        }
+        void import('./api/_lib/uploadProductImageHttp.js').then(({ handleUploadProductImage }) =>
+          handleUploadProductImage(req, res),
+        );
+      });
+    },
+  };
+}
+
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), r2UploadDevApi()],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router-dom'],
     alias: {
