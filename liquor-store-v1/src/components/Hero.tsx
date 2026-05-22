@@ -38,14 +38,14 @@ export function Hero(): JSX.Element {
           </div>
         </div>
 
-        <div className="relative h-56 w-full min-w-0 animate-in slide-in-from-right-8 duration-700 fade-in delay-200 sm:h-80 md:h-[500px] lg:h-[700px]">
+        <div className="relative w-full min-w-0 aspect-[4/3] animate-in slide-in-from-right-8 duration-700 fade-in delay-200">
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-gold/20 to-transparent opacity-30 blur-3xl" />
           <div className="absolute inset-0 overflow-hidden rounded-2xl border border-border shadow-2xl">
             <div className="absolute inset-0 z-10 bg-gradient-to-t from-background via-background/20 to-transparent" />
             <img
               src={HERO_IMAGE_URL}
               alt={HERO_IMAGE_ALT}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-cover object-[center_35%]"
             />
           </div>
         </div>

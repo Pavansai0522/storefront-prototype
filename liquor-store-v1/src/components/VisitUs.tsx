@@ -1,7 +1,7 @@
-import React, { type ReactNode } from 'react';
-import { MapPin, Clock, Phone, Mail, type LucideIcon } from 'lucide-react';
-import { LiquorIcon } from './LiquorIcon';
+import React, { useEffect, useState, type ReactNode } from 'react';
+import { MapPin, Clock, Phone, Mail, ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react';
 import { useStoreData } from '../context/StoreDataContext';
+import { STORE_CAROUSEL_ALT, STORE_CAROUSEL_IMAGES, STORE_NAME } from '../config/storeBranding';
 import {
   STORE_ADDRESS_LINE1,
   STORE_ADDRESS_LINE2,
@@ -15,6 +15,79 @@ type VisitInfoItemProps = {
   title: string;
   children: ReactNode;
 };
+
+function StorePhotoCarousel(): JSX.Element {
+  const [current, setCurrent] = useState(0);
+  const count = STORE_CAROUSEL_IMAGES.length;
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % count);
+    }, 4000);
+    return () => clearInterval(t);
+  }, [count]);
+
+  return (
+    <div
+      className="relative min-h-[14rem] w-full overflow-hidden rounded-2xl border border-border md:min-h-0 md:h-full"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Store photos"
+    >
+      {STORE_CAROUSEL_IMAGES.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={`${STORE_CAROUSEL_ALT} ${i + 1} of ${count}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            i === current ? 'opacity-100' : 'opacity-0'
+          }`}
+          loading={i === 0 ? 'eager' : 'lazy'}
+        />
+      ))}
+
+      <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" aria-hidden />
+
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+        {STORE_CAROUSEL_IMAGES.map((_, i) => (
+          <button
+            key={i}
+            type="button"
+            aria-label={`Show store photo ${i + 1}`}
+            aria-current={i === current ? true : undefined}
+            onClick={() => setCurrent(i)}
+            className={`h-2 min-h-[20px] w-2 min-w-[20px] rounded-full transition-all duration-300 ${
+              i === current ? 'scale-110 bg-gold' : 'bg-white/40 hover:bg-white/60'
+            }`}
+          />
+        ))}
+      </div>
+
+      <button
+        type="button"
+        aria-label="Previous store photo"
+        onClick={() => setCurrent((p) => (p - 1 + count) % count)}
+        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors duration-200 hover:bg-black/60"
+      >
+        <ChevronLeft size={18} className="text-white" aria-hidden />
+      </button>
+
+      <button
+        type="button"
+        aria-label="Next store photo"
+        onClick={() => setCurrent((p) => (p + 1) % count)}
+        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 transition-colors duration-200 hover:bg-black/60"
+      >
+        <ChevronRight size={18} className="text-white" aria-hidden />
+      </button>
+
+      <div className="absolute bottom-0 left-0 right-0 z-10 px-4 pb-10 pt-8">
+        <p className="font-display text-lg font-bold text-white">{STORE_NAME}</p>
+        <p className="text-xs text-white/70">New Lenox, IL</p>
+      </div>
+    </div>
+  );
+}
 
 function VisitInfoItem({ icon: Icon, title, children }: VisitInfoItemProps): JSX.Element {
   return (
@@ -101,13 +174,7 @@ export function VisitUs(): JSX.Element {
             </div>
           </div>
 
-          {/* Brand panel — no stock photo; hero image is the only storefront photo */}
-          <div
-            className="relative flex min-h-[14rem] items-center justify-center overflow-hidden rounded-2xl border border-border bg-gradient-to-br from-gold/15 via-card to-background md:min-h-0 md:h-full"
-            aria-hidden
-          >
-            <LiquorIcon className="h-24 w-24 text-gold/35 md:h-32 md:w-32" />
-          </div>
+          <StorePhotoCarousel />
         </div>
       </div>
     </section>
