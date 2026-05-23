@@ -154,6 +154,23 @@ export function normalizeRetailDollar(dollars: number): number {
   return centsToDollars(dollarsToCents(dollars));
 }
 
+/** Display string for whole-unit prices (INR, EMI) — avoids browser number input quirks. */
+export function formatIntegerPriceInput(amount: number): string {
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return '';
+  }
+  return String(Math.round(amount));
+}
+
+/** Parse typed whole-unit price (digits only, e.g. "599", "645"). */
+export function parseIntegerPriceInput(input: string): number {
+  const digits = input.trim().replace(/\D/g, '');
+  if (!digits) {
+    return 0;
+  }
+  return Number.parseInt(digits, 10);
+}
+
 export function currencySymbol(currency: CurrencyCode | null | undefined): string {
   const code = normalizeCurrencyCode(currency);
   const parts = new Intl.NumberFormat(localeForCurrency(code), {

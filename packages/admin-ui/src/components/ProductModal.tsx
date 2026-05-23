@@ -7,8 +7,10 @@ import type { CurrencyCode } from '../constants/countryCurrency';
 import {
   currencySymbol,
   formatDollarInput,
+  formatIntegerPriceInput,
   normalizeRetailDollar,
   parseDollarInput,
+  parseIntegerPriceInput,
   usesEmiPricing,
   usesRetailDecimals,
 } from '../constants/countryCurrency';
@@ -87,7 +89,6 @@ export function ProductModal({
 }: ProductModalProps): JSX.Element {
   const showEmi = usesEmiPricing(currencyCode);
   const retailPrice = usesRetailDecimals(currencyCode);
-  const priceStep = retailPrice ? 0.01 : 1;
   const priceLabel = `Price (${currencySymbol(currencyCode)})`;
   const { register, control, handleSubmit, reset, watch, setValue, setError, formState } =
     useForm<ProductModalValues>({
@@ -100,6 +101,7 @@ export function ProductModal({
   const [imageBroken, setImageBroken] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
   const [priceText, setPriceText] = useState('');
+  const [emiPriceText, setEmiPriceText] = useState('');
 
   useEffect(() => {
     setImageBroken(false);
@@ -126,7 +128,10 @@ export function ProductModal({
         category: initial.subcategory ?? initial.category,
         weeklyDeal: initial.featuredGroup === 'deal' ? 'deals' : 'catalog',
       });
-      setPriceText(retailPrice ? formatDollarInput(price) : '');
+      setPriceText(
+        retailPrice ? formatDollarInput(price) : formatIntegerPriceInput(price),
+      );
+      setEmiPriceText(showEmi ? formatIntegerPriceInput(initial.emiPrice) : '');
     } else {
       reset({
         ...defaultValues,
@@ -135,6 +140,7 @@ export function ProductModal({
         weeklyDeal: 'catalog',
       });
       setPriceText('');
+      setEmiPriceText('');
     }
   }, [open, mode, initial, categoryChoices, reset, showEmi, retailPrice]);
 
@@ -151,24 +157,41 @@ export function ProductModal({
   const previewSrc = filePreview ?? image;
 
   const onSubmit = async (values: ProductModalValues): Promise<void> => {
-    if (retailPrice && !priceText.trim()) {
+    if (!priceText.trim()) {
       setError('price', { type: 'required', message: 'Price is required' });
       return;
     }
-    const price = retailPrice ? parseDollarInput(priceText) : values.price;
-    if (retailPrice && price < 0) {
-      setError('price', { type: 'min', message: 'Price must be 0 or greater' });
+    const price = retailPrice ? parseDollarInput(priceText) : parseIntegerPriceInput(priceText);
+    if (retailPrice ? price < 0 : price <= 0) {
+      setError('price', {
+        type: 'min',
+        message: retailPrice ? 'Price must be 0 or greater' : 'Price must be greater than 0',
+      });
       return;
     }
-    const payload = showEmi ? { ...values, price, emiPrice: values.emiPrice } : { ...values, price, emiPrice: 0 };
+    let emiPrice = 0;
+    if (showEmi) {
+      if (!emiPriceText.trim()) {
+        setError('emiPrice', { type: 'required', message: 'EMI price is required' });
+        return;
+      }
+      emiPrice = parseIntegerPriceInput(emiPriceText);
+      if (emiPrice <= 0) {
+        setError('emiPrice', { type: 'min', message: 'EMI must be greater than 0' });
+        return;
+      }
+    }
+    const payload = { ...values, price, emiPrice };
     await onSave(payload);
   };
 
   const commitPriceText = (): void => {
-    if (!retailPrice) {
-      return;
-    }
-    setValue('price', parseDollarInput(priceText), { shouldValidate: true });
+    const parsed = retailPrice ? parseDollarInput(priceText) : parseIntegerPriceInput(priceText);
+    setValue('price', parsed, { shouldValidate: true });
+  };
+
+  const commitEmiPriceText = (): void => {
+    setValue('emiPrice', parseIntegerPriceInput(emiPriceText), { shouldValidate: true });
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -215,33 +238,17 @@ export function ProductModal({
               <div className={`grid grid-cols-1 gap-4 ${showEmi ? 'md:grid-cols-2' : ''}`}>
                 <label className="block text-sm">
                   <span className="admin-label">{priceLabel}</span>
-                  {retailPrice ? (
-                    <input
-                      required
-                      type="text"
-                      inputMode="decimal"
-                      autoComplete="off"
-                      placeholder="29.99"
-                      className="admin-input"
-                      value={priceText}
-                      onChange={(e) => setPriceText(e.target.value)}
-                      onBlur={commitPriceText}
-                    />
-                  ) : (
-                    <input
-                      required
-                      type="number"
-                      min={0}
-                      step={priceStep}
-                      inputMode="numeric"
-                      className="admin-input"
-                      {...register('price', {
-                        required: true,
-                        valueAsNumber: true,
-                        min: { value: 0, message: 'Price must be 0 or greater' },
-                      })}
-                    />
-                  )}
+                  <input
+                    required
+                    type="text"
+                    inputMode={retailPrice ? 'decimal' : 'numeric'}
+                    autoComplete="off"
+                    placeholder={retailPrice ? '29.99' : '599'}
+                    className="admin-input"
+                    value={priceText}
+                    onChange={(e) => setPriceText(e.target.value)}
+                    onBlur={commitPriceText}
+                  />
                   {formState.errors.price ? (
                     <p className="mt-1 text-xs text-red-300">{formState.errors.price.message}</p>
                   ) : null}
@@ -251,15 +258,14 @@ export function ProductModal({
                     <span className="admin-label">EMI price / mo ({currencySymbol(currencyCode)})</span>
                     <input
                       required
-                      type="number"
-                      min={0}
-                      step={1}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete="off"
+                      placeholder="499"
                       className="admin-input"
-                      {...register('emiPrice', {
-                        required: true,
-                        valueAsNumber: true,
-                        min: { value: 0, message: 'EMI must be 0 or greater' },
-                      })}
+                      value={emiPriceText}
+                      onChange={(e) => setEmiPriceText(e.target.value)}
+                      onBlur={commitEmiPriceText}
                     />
                     {formState.errors.emiPrice ? (
                       <p className="mt-1 text-xs text-red-300">{formState.errors.emiPrice.message}</p>
