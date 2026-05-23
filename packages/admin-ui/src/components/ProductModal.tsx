@@ -170,14 +170,10 @@ export function ProductModal({
       return;
     }
     let emiPrice = 0;
-    if (showEmi) {
-      if (!emiPriceText.trim()) {
-        setError('emiPrice', { type: 'required', message: 'EMI price is required' });
-        return;
-      }
+    if (showEmi && emiPriceText.trim()) {
       emiPrice = parseIntegerPriceInput(emiPriceText);
-      if (emiPrice <= 0) {
-        setError('emiPrice', { type: 'min', message: 'EMI must be greater than 0' });
+      if (emiPrice < 0) {
+        setError('emiPrice', { type: 'min', message: 'EMI must be 0 or greater' });
         return;
       }
     }
@@ -255,13 +251,15 @@ export function ProductModal({
                 </label>
                 {showEmi ? (
                   <label className="block text-sm">
-                    <span className="admin-label">EMI price / mo ({currencySymbol(currencyCode)})</span>
+                    <span className="admin-label">
+                      EMI price / mo ({currencySymbol(currencyCode)}){' '}
+                      <span className="font-normal text-gray-400">(optional)</span>
+                    </span>
                     <input
-                      required
                       type="text"
                       inputMode="numeric"
                       autoComplete="off"
-                      placeholder="499"
+                      placeholder="Leave blank if no EMI"
                       className="admin-input"
                       value={emiPriceText}
                       onChange={(e) => setEmiPriceText(e.target.value)}
