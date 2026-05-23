@@ -35,6 +35,7 @@
     "seed:liquor": "tsx scripts/seed-liquor-store.ts",
     "migrate:liquor-images": "tsx scripts/migrate-liquor-images-to-r2.ts",
     "migrate:watches-images": "tsx scripts/migrate-watches-images-to-r2.ts",
+    "migrate:bala-images": "tsx scripts/migrate-bala-images-to-r2.ts",
     "db:migrate": "tsx scripts/apply-sql-migration.ts"
   },
   "devDependencies": {
