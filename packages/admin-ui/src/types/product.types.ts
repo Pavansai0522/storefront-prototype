@@ -5,6 +5,7 @@ export type ProductCategory =
   | 'Tablet'
   | 'Laptop'
   | 'Other'
+  | 'Trending'
   | 'Whisky'
   | 'Scotch'
   | 'Rare Bottles'
@@ -18,7 +19,7 @@ export type ProductCategory =
   | 'Earphone'
   | 'Cable';
 
-export type FeaturedGroup = 'watch' | 'toy' | 'accessory' | 'deal';
+export type FeaturedGroup = 'watch' | 'toy' | 'accessory' | 'deal' | 'trending';
 
 export interface Product {
   id: ID;

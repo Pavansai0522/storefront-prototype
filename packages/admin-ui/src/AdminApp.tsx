@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AdminLogin } from './admin/AdminLogin';
@@ -139,6 +139,13 @@ export function AdminApp({
   enforceClientId,
   storefrontOrigin,
 }: AdminAppProps): JSX.Element {
+  useEffect(() => {
+    document.documentElement.classList.add('admin-route-active');
+    return () => {
+      document.documentElement.classList.remove('admin-route-active');
+    };
+  }, []);
+
   return (
     <AdminConfigProvider
       basePath={basePath}

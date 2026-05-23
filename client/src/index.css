@@ -9,6 +9,9 @@
 
 /* END TAILWIND IMPORTS — ALL OTHER CSS MUST GO BELOW THIS LINE */
 
+@import './styles/storefront-theme.css';
+@import '../../packages/admin-ui/src/styles/admin-theme-vars.css';
+
 html {
   scroll-behavior: smooth;
 }

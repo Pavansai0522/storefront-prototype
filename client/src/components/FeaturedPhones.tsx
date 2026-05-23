@@ -2,18 +2,42 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { PhoneCard } from './PhoneCard';
-import { useStorePhones } from '../context/StoreDataContext';
+import { CatalogSectionLoading } from './CatalogSectionLoading';
+import { useStoreData, useStorePhones } from '../context/StoreDataContext';
 
 export function FeaturedPhones(): JSX.Element | null {
+  const { catalogLoading } = useStoreData();
   const phones = useStorePhones();
-  const featured = phones.slice(0, 6);
+  const featured = phones.filter((phone) => !phone.isHeroTrending).slice(0, 6);
+
+  if (catalogLoading) {
+    return (
+      <section id="phones" className="relative bg-slate-100 py-24">
+        <CatalogSectionLoading message="Loading phones…" />
+      </section>
+    );
+  }
 
   if (featured.length === 0) {
-    return null;
+    return (
+      <section id="phones" className="relative bg-slate-100 py-24">
+        <div className="mx-auto max-w-7xl px-4 text-center md:px-8">
+          <h2 className="mb-2 font-display text-2xl uppercase tracking-tight text-brand-text md:text-4xl">
+            Trending <span className="text-brand-blue">Smartphones</span>
+          </h2>
+          <p className="mb-6 text-brand-muted">Our catalog is updating. Visit the store or WhatsApp us for today&apos;s stock.</p>
+          <Link
+            to="/phones"
+            className="inline-flex min-h-[44px] items-center font-semibold text-brand-blue hover:text-brand-blueHover">
+            Browse all phones &rarr;
+          </Link>
+        </div>
+      </section>
+    );
   }
 
   return (
-    <section id="phones" className="relative py-24">
+    <section id="phones" className="relative bg-slate-100 py-24">
       <div className="mx-auto mb-12 max-w-7xl px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -22,16 +46,16 @@ export function FeaturedPhones(): JSX.Element | null {
           className="flex flex-col justify-between gap-6 md:flex-row md:items-end"
         >
           <div className="min-w-0">
-            <h2 className="mb-2 break-words font-display text-2xl uppercase tracking-tight text-white md:text-4xl">
-              Trending <span className="text-brand-saffron">Smartphones</span>
+            <h2 className="mb-2 break-words font-display text-2xl uppercase tracking-tight text-brand-text md:text-4xl">
+              Trending <span className="text-brand-blue">Smartphones</span>
             </h2>
-            <p className="text-base text-gray-400 sm:text-lg">
+            <p className="text-base text-brand-muted sm:text-lg">
               Bharosa with Best Price. Grab them before they&apos;re gone!
             </p>
           </div>
           <Link
             to="/phones"
-            className="inline-flex min-h-[44px] shrink-0 items-center gap-2 self-start font-semibold text-brand-saffron transition-colors hover:text-white md:self-auto"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-2 self-start font-semibold text-brand-blue transition-colors hover:text-brand-blueHover md:self-auto"
           >
             View All Models &rarr;
           </Link>

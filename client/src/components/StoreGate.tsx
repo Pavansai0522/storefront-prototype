@@ -18,7 +18,7 @@ export function StoreGate({ children }: StoreGateProps): JSX.Element {
   if (!storeReady) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-brand-bg">
-        <p className="text-sm text-gray-400">Loading store…</p>
+        <p className="text-sm text-brand-muted">Loading store…</p>
       </div>
     );
   }
@@ -27,8 +27,8 @@ export function StoreGate({ children }: StoreGateProps): JSX.Element {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-brand-bg px-4 py-16 text-center">
         <div className="mx-auto max-w-md rounded-2xl border border-red-500/30 bg-brand-card p-8">
-          <h1 className="font-display text-2xl uppercase text-white">Could not load store</h1>
-          <p className="mt-3 text-sm text-gray-400">{catalogError}</p>
+          <h1 className="font-display text-2xl uppercase text-brand-text">Could not load store</h1>
+          <p className="mt-3 text-sm text-brand-muted">{catalogError}</p>
           <button
             type="button"
             onClick={() => void reloadCatalog()}

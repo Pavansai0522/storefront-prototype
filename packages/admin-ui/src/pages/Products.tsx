@@ -15,7 +15,7 @@ import {
   SKELETON_DELAY_MS,
   WATCHES_SUBCATEGORIES,
 } from '../constants';
-import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isMobileStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
 import {
   SORT_KEY_OPTIONS,
@@ -67,6 +67,19 @@ function featuredFromWeeklyDeal(
   return { featuredGroup: null, featuredSort: null };
 }
 
+function featuredFromMobileCategory(
+  category: string,
+  existing?: Product | null,
+): { featuredGroup: FeaturedGroup | null | undefined; featuredSort: number | null | undefined } {
+  if (category === 'Trending') {
+    return { featuredGroup: 'trending', featuredSort: 0 };
+  }
+  if (existing?.featuredGroup === 'trending') {
+    return { featuredGroup: null, featuredSort: null };
+  }
+  return { featuredGroup: undefined, featuredSort: undefined };
+}
+
 export function Products(): JSX.Element {
   const { effectiveClientId, isSuperadmin } = useProfile();
   const clientId = effectiveClientId;
@@ -79,6 +92,7 @@ export function Products(): JSX.Element {
   );
   const isLiquor = isLiquorStoreTemplate(client?.template);
   const isWatches = isWatchesStoreTemplate(client?.template);
+  const isMobile = isMobileStoreTemplate(client?.template);
   const currencyCode = client
     ? getClientCurrency(client)
     : isLiquor
@@ -399,10 +413,28 @@ export function Products(): JSX.Element {
 
       const listingFields = isLiquor
         ? featuredFromWeeklyDeal(values.weeklyDeal, rows, modalMode === 'edit' ? editing : null)
-        : {
-            featuredGroup: modalMode === 'edit' && editing ? editing.featuredGroup : undefined,
-            featuredSort: modalMode === 'edit' && editing ? editing.featuredSort : undefined,
-          };
+        : isMobile
+          ? featuredFromMobileCategory(values.category, modalMode === 'edit' ? editing : null)
+          : {
+              featuredGroup: modalMode === 'edit' && editing ? editing.featuredGroup : undefined,
+              featuredSort: modalMode === 'edit' && editing ? editing.featuredSort : undefined,
+            };
+
+      if (isMobile && values.category === 'Trending') {
+        for (const other of rows) {
+          if (
+            other.id !== productId &&
+            (other.category === 'Trending' || other.featuredGroup === 'trending')
+          ) {
+            await saveProduct({
+              ...other,
+              category: 'Phone',
+              featuredGroup: null,
+              featuredSort: null,
+            });
+          }
+        }
+      }
 
       const shelfPrice = useRetailPrice ? normalizeRetailDollar(values.price) : values.price;
 

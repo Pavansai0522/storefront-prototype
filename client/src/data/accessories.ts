@@ -1,9 +1,9 @@
-import type { Accessory, AccessoryCategoryId } from '../types';
+import type { AccessoryCategoryId } from '../types';
 
-export type { Accessory, AccessoryCategoryId };
+export type { Accessory, AccessoryCategoryId } from '../types';
 
 /** @deprecated Use `Accessory` from `../types` */
-export type AccessoryProduct = Accessory;
+export type AccessoryProduct = import('../types').Accessory;
 
 export interface AccessoryCategoryMeta {
   id: AccessoryCategoryId;

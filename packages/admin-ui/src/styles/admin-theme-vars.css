@@ -1,0 +1,15 @@
+/* Keep in sync with packages/admin-ui/src/config/adminTheme.ts */
+/* html.admin-route-active: modals/select menus portal to body outside .admin-ui-root */
+.admin-ui-root,
+html.admin-route-active {
+  --brand-bg-rgb: 10 10 10;
+  --brand-card-rgb: 26 26 46;
+  --brand-accent-rgb: 255 107 0;
+  --brand-accent-hover-rgb: 255 133 51;
+  --brand-blue-rgb: 255 107 0;
+  --brand-blue-hover-rgb: 255 133 51;
+  --brand-text-rgb: 255 255 255;
+  --brand-muted-rgb: 156 163 175;
+  --brand-border-rgb: 255 255 255;
+  --brand-surface-rgb: 17 17 17;
+}

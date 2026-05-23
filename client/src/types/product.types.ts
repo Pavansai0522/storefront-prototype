@@ -6,6 +6,8 @@ export interface Phone {
   priceValue: number;
   emi: string;
   img: string;
+  /** Homepage hero spotlight — set via admin category "Trending". */
+  isHeroTrending?: boolean;
 }
 
 /** Liquor template catalog values — aligned with admin `LIQUOR_CATEGORIES` and liquor-store-v1. */
