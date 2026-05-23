@@ -38,8 +38,12 @@ export const clientConfig = {
     mapCardTitle: 'Bala Digital Xpress',
     mapCardSubtitle: 'Old Gajuwaka, Visakhapatnam',
     mapsUrl: 'https://maps.app.goo.gl/5NT6NKrx3KnzMBvh9',
-    /** Storefront photos — add URLs via admin public_config.storeCarouselImages */
-    storeCarouselImages: [] as string[],
+    /** Storefront photos — override via admin public_config.storeCarouselImages */
+    storeCarouselImages: [
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1601784551446-20c9a07bde42?auto=format&fit=crop&q=80&w=1000',
+    ],
   },
   social: {
     instagram: 'https://www.instagram.com/bala_digital_xpress?igsh=cGRvNm50MHJiMHA4',

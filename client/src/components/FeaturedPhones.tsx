@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PhoneCard } from './PhoneCard';
 import { CatalogSectionLoading } from './CatalogSectionLoading';
 import { useStoreData, useStorePhones } from '../context/StoreDataContext';
+import { STORE_SECTION_SURFACE } from '../constants/ui';
 
 export function FeaturedPhones(): JSX.Element | null {
   const { catalogLoading } = useStoreData();
@@ -12,7 +13,7 @@ export function FeaturedPhones(): JSX.Element | null {
 
   if (catalogLoading) {
     return (
-      <section id="phones" className="relative bg-slate-100 py-24">
+      <section id="phones" className={`relative ${STORE_SECTION_SURFACE} py-24`}>
         <CatalogSectionLoading message="Loading phones…" />
       </section>
     );
@@ -20,7 +21,7 @@ export function FeaturedPhones(): JSX.Element | null {
 
   if (featured.length === 0) {
     return (
-      <section id="phones" className="relative bg-slate-100 py-24">
+      <section id="phones" className={`relative ${STORE_SECTION_SURFACE} py-24`}>
         <div className="mx-auto max-w-7xl px-4 text-center md:px-8">
           <h2 className="mb-2 font-display text-2xl uppercase tracking-tight text-brand-text md:text-4xl">
             Trending <span className="text-brand-blue">Smartphones</span>
@@ -37,7 +38,7 @@ export function FeaturedPhones(): JSX.Element | null {
   }
 
   return (
-    <section id="phones" className="relative bg-slate-100 py-24">
+    <section id="phones" className={`relative ${STORE_SECTION_SURFACE} py-24`}>
       <div className="mx-auto mb-12 max-w-7xl px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

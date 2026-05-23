@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Facebook, Instagram, MessageCircle, Send, Youtube } from 'lucide-react';
 import { useStoreConfig } from '../context/StoreDataContext';
+import { STORE_SECTION_SURFACE } from '../constants/ui';
 
 const STAT_ICONS = {
   facebook: {
@@ -46,7 +47,7 @@ export function SocialProof(): JSX.Element {
   }));
 
   return (
-    <section className="relative overflow-x-hidden bg-slate-100 py-20">
+    <section className={`relative overflow-x-hidden ${STORE_SECTION_SURFACE} py-20`}>
       <motion.div className="mx-auto max-w-7xl px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24 }}

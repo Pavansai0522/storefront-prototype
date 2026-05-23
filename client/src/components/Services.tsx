@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Smartphone, Battery, Database, ArrowRight } from 'lucide-react';
 import { clientConfig, whatsappHref } from '../config/client-config';
 
-import { STORE_TILE_HOVER, STORE_TILE_SURFACE } from '../constants/ui';
+import { STORE_SECTION_BASE, STORE_TILE_HOVER, STORE_TILE_SURFACE } from '../constants/ui';
 
 const SERVICES = [
   {
@@ -37,7 +37,7 @@ const SERVICES = [
 
 export function Services() {
   return (
-    <section id="services" className="relative overflow-x-hidden bg-slate-100 py-24">
+    <section id="services" className={`relative overflow-x-hidden ${STORE_SECTION_BASE} py-24`}>
       <div className="mx-auto max-w-7xl px-4 md:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

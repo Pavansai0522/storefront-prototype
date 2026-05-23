@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { clientConfig } from '../config/client-config';
 import { Tag, CreditCard, RefreshCw, ShieldCheck } from 'lucide-react';
-import { STORE_TILE_HOVER, STORE_TILE_SURFACE } from '../constants/ui';
+import { STORE_SECTION_BASE, STORE_TILE_HOVER, STORE_TILE_SURFACE } from '../constants/ui';
 
 const FEATURES = [
   {
@@ -29,7 +29,7 @@ const FEATURES = [
 
 export function WhyChooseUs() {
   return (
-    <section className="relative overflow-x-hidden border-y border-slate-200 bg-slate-100 py-24">
+    <section className={`relative overflow-x-hidden border-y border-brand-border ${STORE_SECTION_BASE} py-24`}>
       <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-brand-blue/10 blur-[100px]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-8">
