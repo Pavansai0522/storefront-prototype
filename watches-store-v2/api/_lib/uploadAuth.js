@@ -1,5 +1,5 @@
-const { createClient } = require('@supabase/supabase-js');
 const { loadServerEnv } = require('./loadServerEnv');
+const { createNodeSupabaseClient } = require('./nodeSupabase');
 const { resolveSupabaseEnv } = require('./supabaseEnv');
 
 function supabaseAuthClient(accessToken) {
@@ -15,7 +15,7 @@ function supabaseAuthClient(accessToken) {
       'SUPABASE_* and VITE_SUPABASE_* differ on the server. Remove wrong SUPABASE_URL / SUPABASE_ANON_KEY or make them identical to VITE_*.',
     );
   }
-  return createClient(url, anonKey, {
+  return createNodeSupabaseClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
     global: {
       headers: { Authorization: `Bearer ${accessToken}` },

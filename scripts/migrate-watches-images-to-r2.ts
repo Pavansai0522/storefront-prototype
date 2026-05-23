@@ -7,7 +7,7 @@
  * Requires: supabase/.env or root .env (Supabase service role) + R2_* variables.
  */
 import './load-env';
-import { createClient } from '@supabase/supabase-js';
+import { createNodeSupabase } from './lib/nodeSupabase';
 import {
   loadR2Config,
   publicUrlForPath,
@@ -26,7 +26,7 @@ if (!url || !serviceKey) {
   process.exit(1);
 }
 
-const supabase = createClient(url, serviceKey, {
+const supabase = createNodeSupabase(url, serviceKey, {
   auth: { persistSession: false, autoRefreshToken: false },
 });
 

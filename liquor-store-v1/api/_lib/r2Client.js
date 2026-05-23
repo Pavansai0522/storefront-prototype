@@ -74,9 +74,4 @@ async function putProductImage(clientId, productId, body) {
   return publicUrlForPath(config, key);
 }
 
-module.exports = {
-  putProductImage,
-  loadR2Config,
-  storagePathForProduct,
-  publicUrlForPath,
-};
+module.exports = { putProductImage };
