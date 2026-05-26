@@ -1,6 +1,8 @@
 {
+  "installCommand": "cd .. && npm install",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "ignoreCommand": "bash ../scripts/vercel-should-build.sh client packages/admin-ui",
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
