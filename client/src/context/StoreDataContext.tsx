@@ -11,6 +11,7 @@ import type { Accessory, Phone } from '../types';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { mapDbProductToAccessory, mapDbProductToPhone } from '../lib/catalogMappers';
 import type { DbClientPublic, DbProduct } from '../lib/supabaseTypes';
+import { normalizeSocialUrl, readPublicConfigUrl } from '../utils/socialUrl';
 
 export type StoreClientConfig = typeof staticClientConfig & {
   clientId: string;
@@ -34,16 +35,31 @@ const CLIENT_SLUG =
 const CLIENT_ID =
   (import.meta.env.VITE_CLIENT_ID as string | undefined) ?? 'client-bala-1';
 
+function readPublicConfigStringArray(
+  pub: Record<string, unknown>,
+  key: string,
+  fallback: readonly string[],
+): string[] {
+  const value = pub[key];
+  if (!Array.isArray(value)) {
+    return [...fallback];
+  }
+  return value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+}
+
 function mergeClientConfig(row: DbClientPublic): StoreClientConfig {
   const pub = row.public_config ?? {};
-  const whatsappDigits = row.whatsapp_number.replace(/\D/g, '') || staticClientConfig.contact.whatsappE164;
+  const whatsappSource = row.whatsapp_number || row.store_phone || '';
+  const whatsappDigits =
+    whatsappSource.replace(/\D/g, '') || staticClientConfig.contact.whatsappE164;
   return {
     ...staticClientConfig,
     clientId: row.id,
     contact: {
       ...staticClientConfig.contact,
       whatsappE164: whatsappDigits,
-      phoneDisplay: row.whatsapp_number || staticClientConfig.contact.phoneDisplay,
+      phoneDisplay:
+        row.store_phone || row.whatsapp_number || staticClientConfig.contact.phoneDisplay,
       email:
         (typeof pub.storeEmail === 'string' ? pub.storeEmail : null) ??
         staticClientConfig.contact.email,
@@ -53,6 +69,27 @@ function mergeClientConfig(row: DbClientPublic): StoreClientConfig {
       addressLines: row.address
         ? row.address.split('\n').filter(Boolean)
         : staticClientConfig.location.addressLines,
+      mapsUrl: readPublicConfigUrl(pub, 'mapsUrl', staticClientConfig.location.mapsUrl),
+      storeCarouselImages: readPublicConfigStringArray(
+        pub,
+        'storeCarouselImages',
+        staticClientConfig.location.storeCarouselImages,
+      ),
+    },
+    social: {
+      ...staticClientConfig.social,
+      instagram: normalizeSocialUrl(row.instagram, staticClientConfig.social.instagram),
+      facebook: normalizeSocialUrl(row.facebook, staticClientConfig.social.facebook),
+      youtube: readPublicConfigUrl(pub, 'youtubeUrl', staticClientConfig.social.youtube),
+      whatsappChannel: readPublicConfigUrl(
+        pub,
+        'whatsappChannelUrl',
+        staticClientConfig.social.whatsappChannel,
+      ),
+      telegram: readPublicConfigUrl(pub, 'telegramUrl', staticClientConfig.social.telegram),
+      instagramHandle:
+        (typeof pub.instagramHandle === 'string' ? pub.instagramHandle : null) ??
+        staticClientConfig.social.instagramHandle,
     },
     brand: {
       ...staticClientConfig.brand,
@@ -120,7 +157,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       const { data: productRows, error: productsError } = await supabase
         .from('products')
         .select(
-          'id, client_id, name, brand, price_inr, emi_price_inr, image_url, in_stock, category, subcategory, is_accessory, featured_sort, sort_order',
+          'id, client_id, name, brand, price_inr, emi_price_inr, image_url, in_stock, category, subcategory, is_accessory, featured_group, featured_sort, sort_order',
         )
         .eq('client_id', clientRow.id)
         .order('sort_order', { ascending: true });
@@ -180,6 +217,14 @@ export function useStoreData(): StoreDataContextValue {
 
 export function useStorePhones(): Phone[] {
   return useStoreData().phones;
+}
+
+export function useTrendingPhone(): Phone | null {
+  const phones = useStorePhones();
+  return useMemo(() => {
+    const trending = phones.filter((phone) => phone.isHeroTrending);
+    return trending[0] ?? null;
+  }, [phones]);
 }
 
 export function useStoreAccessories(): Accessory[] {

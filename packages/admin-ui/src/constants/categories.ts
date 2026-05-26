@@ -3,6 +3,7 @@ export const PRODUCT_CATEGORIES = [
   { value: 'Tablet', label: 'Tablet' },
   { value: 'Laptop', label: 'Laptop' },
   { value: 'Other', label: 'Other' },
+  { value: 'Trending', label: 'Trending — Homepage hero' },
 ] as const;
 
 /** Stored `Product.category` values — must match liquor-store-v1 catalog / `Product.category`. */

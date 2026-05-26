@@ -9,6 +9,10 @@ export const TEMPLATES = [
 
 export type TemplateId = (typeof TEMPLATES)[number]['value'];
 
+export function isMobileStoreTemplate(template: string | undefined | null): boolean {
+  return Boolean(template && template.startsWith('mobile-store'));
+}
+
 export function isLiquorStoreTemplate(template: string | undefined | null): boolean {
   return Boolean(template && template.startsWith('liquor-store'));
 }

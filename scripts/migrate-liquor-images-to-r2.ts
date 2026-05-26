@@ -8,12 +8,8 @@
  */
 import './load-env';
 import { createClient } from '@supabase/supabase-js';
-import {
-  loadR2Config,
-  publicUrlForPath,
-  putProductImage,
-  storagePathForProduct,
-} from '../liquor-store-v1/api/_lib/r2Client';
+import { putProductImage } from '../liquor-store-v1/api/_lib/r2Client';
+import { loadR2Config, publicUrlForPath, storagePathForProduct } from './lib/r2MigrateEnv';
 
 const LIQUOR_CLIENT_ID = process.env.VITE_CLIENT_ID ?? 'client-liquor-1';
 

@@ -11,16 +11,16 @@ export function SiteInactive(): JSX.Element {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-brand-bg px-4 py-16 text-center">
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-brand-card p-8">
-        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-saffron/20 ring-1 ring-brand-saffron/40">
-          <Store className="h-7 w-7 text-brand-saffron" aria-hidden />
+      <div className="mx-auto max-w-md rounded-2xl border border-brand-border bg-brand-card p-8">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-blue/15 ring-1 ring-brand-blue/40">
+          <Store className="h-7 w-7 text-brand-blue" aria-hidden />
         </div>
-        <h1 className="font-display text-3xl uppercase text-white">{config.brand.chatName}</h1>
-        <p className="mt-3 text-sm text-gray-400">
+        <h1 className="font-display text-3xl uppercase text-brand-text">{config.brand.chatName}</h1>
+        <p className="mt-3 text-sm text-brand-muted">
           Our online catalog is temporarily unavailable. Visit us in store or message us on WhatsApp.
         </p>
         {config.contact.phoneDisplay ? (
-          <p className="mt-4 text-sm text-white">{config.contact.phoneDisplay}</p>
+          <p className="mt-4 text-sm text-brand-text">{config.contact.phoneDisplay}</p>
         ) : null}
         <a
           href={waUrl}

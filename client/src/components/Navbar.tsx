@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Menu, X, MessageCircle, Zap } from 'lucide-react';
+import { Menu, X, MessageCircle } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { clientConfig, whatsappHref } from '../config/client-config';
+import { whatsappHref } from '../config/client-config';
+import { StoreLogo } from './StoreLogo';
 
 interface NavLink {
   name: string;
@@ -19,24 +20,13 @@ const NAV_LINKS: NavLink[] = [
 
 export function Navbar(): JSX.Element {
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/10 bg-brand-bg/90 backdrop-blur-md">
+    <nav className="fixed top-0 left-0 right-0 z-50 border-b border-brand-border bg-brand-bg/95 shadow-sm backdrop-blur-md">
       <Disclosure>
         {({ open }) => (
           <>
             <div className="mx-auto max-w-7xl px-4 md:px-8">
               <div className="flex h-20 items-center justify-between gap-3">
-                <Link
-                  to="/"
-                  className="flex min-w-0 flex-shrink-0 items-center gap-2"
-                >
-                  <Zap className="h-8 w-8 shrink-0 fill-brand-saffron text-brand-saffron" />
-                  <span className="mt-1 min-w-0 truncate font-display text-2xl tracking-wider text-white sm:text-3xl">
-                    {clientConfig.brand.wordmark.beforeAccent}
-                    <span className="text-brand-saffron">
-                      {clientConfig.brand.wordmark.accent}
-                    </span>
-                  </span>
-                </Link>
+                <StoreLogo variant="navbar" />
 
                 <div className="hidden items-center space-x-8 md:flex">
                   {NAV_LINKS.map((link) =>
@@ -44,7 +34,7 @@ export function Navbar(): JSX.Element {
                       <a
                         key={link.name}
                         href={link.href}
-                        className="font-medium text-gray-300 transition-colors hover:text-brand-saffron"
+                        className="font-medium text-brand-muted transition-colors hover:text-brand-blue"
                       >
                         {link.name}
                       </a>
@@ -52,7 +42,7 @@ export function Navbar(): JSX.Element {
                       <Link
                         key={link.name}
                         to={link.href}
-                        className="font-medium text-gray-300 transition-colors hover:text-brand-saffron"
+                        className="font-medium text-brand-muted transition-colors hover:text-brand-blue"
                       >
                         {link.name}
                       </Link>
@@ -62,7 +52,7 @@ export function Navbar(): JSX.Element {
                     href={whatsappHref()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-brand-saffron/40 bg-brand-saffron/10 px-3 py-2 text-sm font-medium text-brand-saffron shadow-[0_0_8px_rgba(255,107,0,0.12)] transition-all hover:bg-brand-saffron hover:text-white hover:shadow-[0_0_16px_rgba(255,107,0,0.35)]"
+                    className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-brand-blue/40 bg-brand-blue/10 px-3 py-2 text-sm font-medium text-brand-blue shadow-[0_0_8px_rgba(29,78,216,0.12)] transition-all hover:bg-brand-blue hover:text-white hover:shadow-[0_0_16px_rgba(29,78,216,0.35)]"
                   >
                     <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
                     WhatsApp Us
@@ -74,14 +64,14 @@ export function Navbar(): JSX.Element {
                     href={whatsappHref()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-brand-saffron/40 bg-brand-saffron/10 px-3 text-sm font-medium text-brand-saffron shadow-[0_0_8px_rgba(255,107,0,0.12)] transition-all hover:bg-brand-saffron hover:text-white hover:shadow-[0_0_16px_rgba(255,107,0,0.35)]"
+                    className="inline-flex min-h-[44px] min-w-[44px] shrink-0 items-center justify-center gap-1.5 rounded-full border border-brand-blue/40 bg-brand-blue/10 px-3 text-sm font-medium text-brand-blue shadow-[0_0_8px_rgba(29,78,216,0.12)] transition-all hover:bg-brand-blue hover:text-white hover:shadow-[0_0_16px_rgba(29,78,216,0.35)]"
                     aria-label="WhatsApp Us"
                   >
                     <MessageCircle className="h-5 w-5 shrink-0" aria-hidden />
                     <span className="max-w-[5.5rem] truncate sm:max-w-none">WhatsApp</span>
                   </a>
                   <DisclosureButton
-                    className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-300 transition hover:text-white"
+                    className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-brand-muted transition hover:text-brand-text"
                     aria-label={open ? 'Close menu' : 'Open menu'}
                   >
                     {open ? (
@@ -96,7 +86,7 @@ export function Navbar(): JSX.Element {
 
             <DisclosurePanel
               transition
-              className="origin-top overflow-hidden border-b border-white/10 bg-brand-card transition duration-200 ease-out data-[closed]:-translate-y-2 data-[closed]:opacity-0 md:hidden"
+              className="origin-top overflow-hidden border-b border-brand-border bg-brand-card transition duration-200 ease-out data-[closed]:-translate-y-2 data-[closed]:opacity-0 md:hidden"
             >
               <div className="space-y-1 px-4 pb-6 pt-2">
                 {NAV_LINKS.map((link) =>
@@ -105,7 +95,7 @@ export function Navbar(): JSX.Element {
                       key={link.name}
                       as="a"
                       href={link.href}
-                      className="flex min-h-[44px] items-center text-lg font-medium text-gray-300 transition-colors hover:text-brand-saffron"
+                      className="flex min-h-[44px] items-center text-lg font-medium text-brand-muted transition-colors hover:text-brand-blue"
                     >
                       {link.name}
                     </DisclosureButton>
@@ -114,7 +104,7 @@ export function Navbar(): JSX.Element {
                       key={link.name}
                       as={Link}
                       to={link.href}
-                      className="flex min-h-[44px] items-center text-lg font-medium text-gray-300 transition-colors hover:text-brand-saffron"
+                      className="flex min-h-[44px] items-center text-lg font-medium text-brand-muted transition-colors hover:text-brand-blue"
                     >
                       {link.name}
                     </DisclosureButton>

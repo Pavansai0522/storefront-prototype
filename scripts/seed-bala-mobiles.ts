@@ -1,13 +1,11 @@
 /**
- * Seed Bala Mobiles client, catalog, and store admin.
+ * Seed Bala Mobiles client and store admin.
+ * Products are managed in /admin — not seeded from mock files.
  * Run from repo root: npm run seed:bala
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
  */
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
-import { PHONES } from '../client/src/data/phones';
-import { ACCESSORY_ITEMS } from '../client/src/data/accessories';
-import type { AccessoryCategoryId } from '../client/src/types/product.types';
 
 const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const serviceKey =
@@ -16,14 +14,12 @@ const serviceKey =
 const BALA_CLIENT_ID = 'client-bala-1';
 const BALA_SLUG = 'bala-mobiles';
 const STORE_ADMIN_EMAIL = process.env.BALA_STORE_ADMIN_EMAIL ?? 'owner@balamobiles.example';
-const STORE_ADMIN_PASSWORD = process.env.BALA_STORE_ADMIN_PASSWORD ?? 'Welcome#2026';
+const STORE_ADMIN_PASSWORD = process.env.BALA_STORE_ADMIN_PASSWORD;
 
-const ADMIN_ACCESSORY_CATEGORY: Record<AccessoryCategoryId, string> = {
-  audio: 'Earphone',
-  cables: 'Cable',
-  wearables: 'Other',
-  power: 'Case',
-};
+if (!STORE_ADMIN_PASSWORD) {
+  console.error('Set BALA_STORE_ADMIN_PASSWORD in root .env before running seed:bala');
+  process.exit(1);
+}
 
 if (!url || !serviceKey) {
   console.error('Set SUPABASE_URL and SUPABASE_SECRET_KEY in root .env');
@@ -42,10 +38,11 @@ const BALA_CLIENT_ROW = {
   status: 'active',
   monthly_fee: 299,
   live_url: process.env.BALA_LIVE_URL ?? 'https://bala-mobiles.vercel.app',
-  whatsapp_number: '+91 98765 43210',
-  store_phone: '+91 98765 43210',
-  address: 'Shop No. 42, Tech Market Building,\nMG Road, Near Metro Pillar 104,\nNew Delhi, 110001',
-  primary_color: '#FF6B00',
+  whatsapp_number: '+91 93931 15555',
+  store_phone: '+91 93931 15555',
+  address:
+    'Bala Kumar — Sri Srinivasa Communications · Bala Digital Xpress\n9-7-255/13, Beside Malabar Gold Shop\nMain Road, Old Gajuwaka\nVisakhapatnam, Near Srikanya Theater\nPIN: 530026',
+  primary_color: '#E31E24',
   logo_url: '',
   admin_email: STORE_ADMIN_EMAIL,
   admin_temp_password: '',
@@ -62,15 +59,22 @@ const BALA_CLIENT_ROW = {
     lastPaid: null,
     paymentHistory: [],
   },
-  instagram: '@balamobiles',
-  facebook: 'balamobiles',
-  timings: 'Mon–Sat 10:00–21:00 · Sun 11:00–20:00',
+  instagram: 'https://www.instagram.com/bala_digital_xpress?igsh=cGRvNm50MHJiMHA4',
+  facebook: 'https://www.facebook.com/bala.kumar.712161',
+  timings: 'Mon–Sun 10:30–21:30',
   age_verification_enabled: false,
   delivery_available: false,
   delivery_radius_miles: 0,
   minimum_order_amount_usd: 0,
   notes: [],
-  public_config: { storeEmail: 'hello@balamobiles.in' },
+  public_config: {
+    mapsUrl: 'https://maps.app.goo.gl/5NT6NKrx3KnzMBvh9',
+    youtubeUrl: 'https://youtube.com/user/vsvbalakumar',
+    telegramUrl: 'https://t.me/bala2233',
+    whatsappChannelUrl: 'https://whatsapp.com/channel/0029VaA45vC1t90XGjoulr3Q',
+    instagramHandle: '@bala_digital_xpress',
+    storeCarouselImages: [],
+  },
 };
 
 async function seedClient(): Promise<void> {
@@ -81,55 +85,37 @@ async function seedClient(): Promise<void> {
   console.log(`Upserted client ${BALA_CLIENT_ID} (${BALA_SLUG})`);
 }
 
-async function seedProducts(): Promise<void> {
-  await supabase.from('products').delete().eq('client_id', BALA_CLIENT_ID);
-
-  const productRows: Record<string, unknown>[] = [];
-  let sort = 0;
-
-  for (const phone of PHONES) {
-    const emiNum = Number.parseInt(phone.emi.replace(/\D/g, ''), 10) || 0;
-    productRows.push({
-      client_id: BALA_CLIENT_ID,
-      name: phone.name,
-      brand: phone.brand,
-      price_inr: phone.priceValue,
-      emi_price_inr: emiNum > 0 ? emiNum : null,
-      image_url: phone.img,
-      in_stock: true,
-      category: 'Phone',
-      subcategory: null,
-      is_accessory: false,
-      featured_group: null,
-      featured_sort: sort < 6 ? sort : null,
-      sort_order: sort++,
-    });
+async function clearMockCatalog(): Promise<void> {
+  if (process.env.BALA_CLEAR_MOCK_CATALOG !== 'true') {
+    return;
   }
 
-  for (const item of ACCESSORY_ITEMS) {
-    const adminCategory = ADMIN_ACCESSORY_CATEGORY[item.categoryId];
-    productRows.push({
-      client_id: BALA_CLIENT_ID,
-      name: item.name,
-      brand: item.itemCode,
-      price_inr: item.priceValue,
-      emi_price_inr: null,
-      image_url: item.img,
-      in_stock: true,
-      category: adminCategory,
-      subcategory: item.categoryId,
-      is_accessory: true,
-      featured_group: null,
-      featured_sort: null,
-      sort_order: sort++,
-    });
+  const { data: rows, error: fetchError } = await supabase
+    .from('products')
+    .select('id, image_url')
+    .eq('client_id', BALA_CLIENT_ID);
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
   }
 
-  const { error } = await supabase.from('products').insert(productRows);
-  if (error) {
-    throw new Error(error.message);
+  const mockIds = (rows ?? [])
+    .filter((row) => {
+      const imageUrl = row.image_url ?? '';
+      return imageUrl.includes('unsplash.com') || imageUrl.length === 0;
+    })
+    .map((row) => row.id);
+
+  if (mockIds.length === 0) {
+    console.log('No mock catalog rows to remove.');
+    return;
   }
-  console.log(`Seeded ${productRows.length} products (${PHONES.length} phones, ${ACCESSORY_ITEMS.length} accessories)`);
+
+  const { error: deleteError } = await supabase.from('products').delete().in('id', mockIds);
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+  console.log(`Removed ${mockIds.length} mock/placeholder products from catalog.`);
 }
 
 async function seedStoreAdmin(): Promise<void> {
@@ -176,11 +162,16 @@ async function seedStoreAdmin(): Promise<void> {
 
 async function main(): Promise<void> {
   await seedClient();
-  await seedProducts();
+  await clearMockCatalog();
   await seedStoreAdmin();
   console.log('\nBala Mobiles ready.');
-  console.log(`  Storefront: http://localhost:5173/admin`);
-  console.log(`  Store admin: ${STORE_ADMIN_EMAIL}`);
+  console.log('  Storefront: http://localhost:5173');
+  console.log('  Store admin: http://localhost:5173/admin');
+  console.log(`  Admin login: ${STORE_ADMIN_EMAIL}`);
+  console.log('  Add phones & accessories in /admin (no mock catalog is seeded).');
+  if (process.env.BALA_CLEAR_MOCK_CATALOG !== 'true') {
+    console.log('  Tip: set BALA_CLEAR_MOCK_CATALOG=true to delete Unsplash placeholder products.');
+  }
 }
 
 main().catch((err: unknown) => {

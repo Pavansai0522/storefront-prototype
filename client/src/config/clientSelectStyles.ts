@@ -1,28 +1,29 @@
 import type { GroupBase, StylesConfig } from 'react-select';
+import { brandColors } from './brandColors';
 
 export const clientSelectStyles: StylesConfig<unknown, false, GroupBase<unknown>> = {
   control: (base) => ({
     ...base,
-    backgroundColor: '#1A1A2E',
-    borderColor: 'rgba(255,255,255,0.1)',
-    color: '#ffffff',
+    backgroundColor: brandColors.card,
+    borderColor: brandColors.border,
+    color: brandColors.text,
     minHeight: '44px',
     boxShadow: 'none',
-    '&:hover': { borderColor: '#FF6B00' },
+    '&:hover': { borderColor: brandColors.accent },
   }),
   menu: (base) => ({
     ...base,
-    backgroundColor: '#1A1A2E',
-    border: '1px solid rgba(255,255,255,0.1)',
+    backgroundColor: brandColors.card,
+    border: `1px solid ${brandColors.border}`,
   }),
   option: (base, state) => ({
     ...base,
-    backgroundColor: state.isFocused ? '#FF6B00' : 'transparent',
-    color: '#ffffff',
+    backgroundColor: state.isFocused ? brandColors.accent : 'transparent',
+    color: brandColors.text,
     cursor: 'pointer',
   }),
-  singleValue: (base) => ({ ...base, color: '#ffffff' }),
-  placeholder: (base) => ({ ...base, color: 'rgba(255,255,255,0.4)' }),
+  singleValue: (base) => ({ ...base, color: brandColors.text }),
+  placeholder: (base) => ({ ...base, color: brandColors.muted }),
   indicatorSeparator: () => ({ display: 'none' }),
-  dropdownIndicator: (base) => ({ ...base, color: 'rgba(255,255,255,0.4)' }),
+  dropdownIndicator: (base) => ({ ...base, color: brandColors.muted }),
 };

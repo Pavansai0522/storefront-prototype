@@ -10,12 +10,18 @@ export default {
   theme: {
     extend: {
       colors: {
+        /** Storefront `:root` + admin `.admin-ui-root` CSS variables (see theme CSS files). */
         brand: {
-          bg: clientConfig.theme.colors.bg,
-          card: clientConfig.theme.colors.card,
-          saffron: clientConfig.theme.colors.accent,
-          text: clientConfig.theme.colors.text,
-          saffronHover: clientConfig.theme.colors.accentHover,
+          bg: 'rgb(var(--brand-bg-rgb) / <alpha-value>)',
+          card: 'rgb(var(--brand-card-rgb) / <alpha-value>)',
+          saffron: 'rgb(var(--brand-accent-rgb) / <alpha-value>)',
+          saffronHover: 'rgb(var(--brand-accent-hover-rgb) / <alpha-value>)',
+          blue: 'rgb(var(--brand-blue-rgb) / <alpha-value>)',
+          blueHover: 'rgb(var(--brand-blue-hover-rgb) / <alpha-value>)',
+          text: 'rgb(var(--brand-text-rgb) / <alpha-value>)',
+          muted: 'rgb(var(--brand-muted-rgb) / <alpha-value>)',
+          border: 'rgb(var(--brand-border-rgb) / <alpha-value>)',
+          surface: 'rgb(var(--brand-surface-rgb) / <alpha-value>)',
         },
         surface: {
           sidebar: '#111111',
@@ -24,12 +30,12 @@ export default {
       },
       fontFamily: {
         display: clientConfig.theme.fonts.display,
-        sans: clientConfig.theme.fonts.sans
+        sans: clientConfig.theme.fonts.sans,
       },
       animation: {
-        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite'
-      }
-    }
+        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 } satisfies Config;

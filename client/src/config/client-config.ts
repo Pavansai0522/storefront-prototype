@@ -19,36 +19,60 @@ export const clientConfig = {
     }
   },
   contact: {
-    /** WhatsApp number only, country code without + (e.g. 919876543210) */
-    whatsappE164: '919876543210',
-    phoneDisplay: '+91 98765 43210',
-    email: 'hello@balamobiles.in'
+    /** WhatsApp number only, country code without + (e.g. 919393115555) */
+    whatsappE164: '919393115555',
+    phoneDisplay: '+91 93931 15555',
+    email: '',
   },
   location: {
     /** Rendered with line breaks between entries */
     addressLines: [
-      'Shop No. 42, Tech Market Building,',
-      'MG Road, Near Metro Pillar 104,',
-      'New Delhi, 110001'
+      'Bala Kumar — Sri Srinivasa Communications · Bala Digital Xpress',
+      '9-7-255/13, Beside Malabar Gold Shop',
+      'Main Road, Old Gajuwaka',
+      'Visakhapatnam, Near Srikanya Theater',
+      'PIN: 530026'
     ],
     /** Single line for compact mobile footer (no pincode) */
-    footerCompactAddress: 'Shop No. 42, Tech Market, MG Road',
-    mapCardTitle: 'Bala Mobiles',
-    mapCardSubtitle: 'Tech Market, MG Road',
-    /** Store photo carousel (replace with real storefront images when available) */
+    footerCompactAddress: 'Main Road, Old Gajuwaka, Visakhapatnam',
+    mapCardTitle: 'Bala Digital Xpress',
+    mapCardSubtitle: 'Old Gajuwaka, Visakhapatnam',
+    mapsUrl: 'https://maps.app.goo.gl/5NT6NKrx3KnzMBvh9',
+    /** Storefront photos — override via admin public_config.storeCarouselImages */
     storeCarouselImages: [
-      'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
-      'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800',
-      'https://images.unsplash.com/photo-1601598851547-4302969d0614?w=800'
-    ]
+      'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&q=80&w=1000',
+      'https://images.unsplash.com/photo-1601784551446-20c9a07bde42?auto=format&fit=crop&q=80&w=1000',
+    ],
+  },
+  social: {
+    instagram: 'https://www.instagram.com/bala_digital_xpress?igsh=cGRvNm50MHJiMHA4',
+    instagramHandle: '@bala_digital_xpress',
+    youtube: 'https://youtube.com/user/vsvbalakumar',
+    facebook: 'https://www.facebook.com/bala.kumar.712161',
+    whatsappChannel: 'https://whatsapp.com/channel/0029VaA45vC1t90XGjoulr3Q',
+    telegram: 'https://t.me/bala2233',
+  },
+  /** Display-only follower counts — update when marketing numbers change. */
+  socialStats: {
+    facebook: { value: '186K', label: 'Facebook Followers' },
+    instagram: { value: '65K+', label: 'Instagram Followers' },
+    youtube: { value: '5K', label: 'YouTube Subscribers' },
   },
   theme: {
     colors: {
-      bg: '#0A0A0A',
-      card: '#1A1A2E',
-      accent: '#FF6B00',
-      text: '#FFFFFF',
-      accentHover: '#ff8533'
+      bg: '#FFFFFF',
+      card: '#F8FAFC',
+      /** Red — primary CTAs (logo “X” / buy actions) */
+      accent: '#E31E24',
+      accentHover: '#C81A1F',
+      /** Blue — links, headings, icons (logo “BD” gradient) */
+      accentBlue: '#1D4ED8',
+      accentBlueHover: '#1E40AF',
+      text: '#0F172A',
+      muted: '#64748B',
+      border: '#E2E8F0',
+      surface: '#F1F5F9'
     },
     fonts: {
       display: ['"Bebas Neue"', 'sans-serif'],

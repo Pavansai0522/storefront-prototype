@@ -2,7 +2,11 @@
   "name": "client",
   "version": "0.0.1",
   "private": true,
+  "description": "Vite + React storefront for Bala Mobiles. Supabase catalog + embedded /admin.",
   "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "dev": "npx vite",
     "build": "npx vite build",
@@ -10,6 +14,8 @@
     "preview": "npx vite preview"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "dotenv": "^17.4.2",
     "@my-agency/admin-ui": "*",
     "@supabase/supabase-js": "^2.105.4",
     "@emotion/react": "^11.13.3",
@@ -24,6 +30,7 @@
     "react-select": "^5.10.2"
   },
   "devDependencies": {
+    "@vercel/node": "^5.0.0",
     "@types/node": "^20.11.18",
     "@types/react": "^18.3.1",
     "@types/react-dom": "^18.3.1",

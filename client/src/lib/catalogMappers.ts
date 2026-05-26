@@ -35,6 +35,8 @@ function formatInr(value: number): string {
 
 export function mapDbProductToPhone(row: DbProduct): Phone {
   const emi = row.emi_price_inr ?? Math.max(1, Math.round(row.price_inr / 12));
+  const isHeroTrending =
+    row.featured_group === 'trending' || row.category === 'Trending';
   return {
     id: row.id,
     brand: row.brand,
@@ -43,6 +45,7 @@ export function mapDbProductToPhone(row: DbProduct): Phone {
     priceValue: row.price_inr,
     emi: formatInr(emi),
     img: row.image_url ?? '',
+    isHeroTrending,
   };
 }
 

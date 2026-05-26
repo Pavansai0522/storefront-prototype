@@ -4,6 +4,9 @@ import { MessageCircle, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { clientConfig, whatsappHref } from '../config/client-config';
 
+import { STORE_TILE_HOVER, STORE_TILE_SURFACE } from '../constants/ui';
+import { ProductImagePlaceholder } from './ProductImagePlaceholder';
+
 interface PhoneCardProps {
   brand: string;
   name: string;
@@ -14,8 +17,7 @@ interface PhoneCardProps {
   layout?: 'default' | 'featured';
 }
 
-const cardBase =
-  'group flex flex-col rounded-3xl border border-white/5 bg-brand-card p-4 transition-all duration-300 md:hover:border-brand-saffron/50 md:hover:shadow-[0_0_30px_rgba(255,107,0,0.15)] md:hover:-translate-y-2';
+const cardBase = `group flex flex-col rounded-3xl p-4 ${STORE_TILE_SURFACE} ${STORE_TILE_HOVER} md:hover:-translate-y-2`;
 
 export function PhoneCard({
   brand,
@@ -47,28 +49,32 @@ export function PhoneCard({
       className={`${cardBase} ${widthClass}`}
     >
       <div className="relative mb-6 aspect-square w-full overflow-hidden rounded-2xl bg-black/50">
-        <img
-          src={img}
-          alt={name}
-          className="h-full w-full object-contain object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
-        />
+        {img.trim() ? (
+          <img
+            src={img}
+            alt={name}
+            className="h-full w-full object-contain object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
+          />
+        ) : (
+          <ProductImagePlaceholder label={brand} />
+        )}
 
-        <div className="absolute left-3 top-3 rounded-full border border-white/10 bg-black/60 px-3 py-1 backdrop-blur-md">
+        <div className="absolute left-3 top-3 rounded-full border border-brand-border bg-black/60 px-3 py-1 backdrop-blur-md">
           <span className="text-xs font-bold uppercase tracking-wider text-white">{brand}</span>
         </div>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <h3 className="mb-2 truncate text-sm font-bold text-white md:text-base">{name}</h3>
+        <h3 className="mb-2 truncate text-sm font-bold text-brand-text md:text-base">{name}</h3>
 
         <div className="mb-1 flex items-end gap-2">
-          <span className="font-display text-lg tracking-wide text-brand-saffron md:text-xl">
+          <span className="font-display text-lg tracking-wide text-brand-blue md:text-xl">
             ₹{price}
           </span>
         </div>
 
-        <p className="mb-6 text-xs text-gray-400">
-          EMI from <span className="font-semibold text-white">₹{emi}/mo</span>
+        <p className="mb-6 text-xs text-brand-muted">
+          EMI from <span className="font-semibold text-brand-text">₹{emi}/mo</span>
         </p>
 
         <div className="mt-auto flex w-full flex-col gap-2 pt-4 sm:flex-row">
@@ -87,7 +93,7 @@ export function PhoneCard({
             target="_blank"
             rel="noopener noreferrer"
             onClick={handleWhatsappClick}
-            className="flex min-h-[44px] w-full flex-1 items-center justify-center gap-2 rounded-lg border border-white/20 bg-transparent px-3 py-2 text-sm font-semibold text-white/80 transition-colors duration-200 hover:border-brand-saffron hover:text-brand-saffron"
+            className="flex min-h-[44px] w-full flex-1 items-center justify-center gap-2 rounded-lg border border-slate-300 bg-transparent px-3 py-2 text-sm font-semibold text-slate-600 transition-colors duration-200 hover:border-brand-blue hover:text-brand-blue"
           >
             <MessageCircle className="shrink-0" size={15} aria-hidden />
             Enquire

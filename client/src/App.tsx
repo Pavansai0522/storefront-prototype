@@ -30,7 +30,7 @@ function ScrollToTop(): null {
 
 function AdminFallback(): JSX.Element {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+    <div className="admin-ui-root flex min-h-screen items-center justify-center bg-brand-bg">
       <p className="text-sm text-gray-400">Loading admin…</p>
     </div>
   );
@@ -38,6 +38,14 @@ function AdminFallback(): JSX.Element {
 
 function AdminMount(): JSX.Element {
   const clientId = import.meta.env.VITE_CLIENT_ID as string | undefined;
+
+  useEffect(() => {
+    document.documentElement.classList.add('admin-route-active');
+    return () => {
+      document.documentElement.classList.remove('admin-route-active');
+    };
+  }, []);
+
   return (
     <Suspense fallback={<AdminFallback />}>
       <AdminApp

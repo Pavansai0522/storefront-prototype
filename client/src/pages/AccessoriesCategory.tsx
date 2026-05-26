@@ -4,8 +4,6 @@ import { Link, Navigate, useParams } from 'react-router-dom';
 import Select from 'react-select';
 import {
   ArrowLeft,
-  ChevronLeft,
-  ChevronRight,
   SlidersHorizontal,
   X,
   SearchX
@@ -20,9 +18,12 @@ import {
   isAccessoryCategoryId,
   type AccessoryCategoryId,
 } from '../data/accessories';
-import { useStoreAccessories } from '../context/StoreDataContext';
+import { useStoreAccessories, useStoreData } from '../context/StoreDataContext';
+import { CatalogSectionLoading } from '../components/CatalogSectionLoading';
+import { PaginationControls } from '../components/PaginationControls';
 import { clientSelectStyles } from '../config/clientSelectStyles';
 import type { Nullable } from '../types';
+import { STORE_PANEL_SURFACE } from '../constants/ui';
 
 type SortOption = { value: string; label: string };
 
@@ -42,6 +43,7 @@ interface AccessoriesCategoryInnerProps {
 function AccessoriesCategoryInner({
   categoryId
 }: AccessoriesCategoryInnerProps): JSX.Element {
+  const { catalogLoading } = useStoreData();
   const allAccessories = useStoreAccessories();
   const categoryMeta = getAccessoryCategoryMeta(categoryId);
   const categoryItems = useMemo(
@@ -136,14 +138,14 @@ function AccessoriesCategoryInner({
     <div className="space-y-8">
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-2xl text-white tracking-wide uppercase">
+          <h3 className="font-display text-2xl text-brand-text tracking-wide uppercase">
             Type
           </h3>
           {selectedTags.length > 0 && (
             <button
               type="button"
               onClick={() => setSelectedTags([])}
-              className="text-xs text-gray-400 hover:text-brand-saffron">
+              className="text-xs text-brand-muted hover:text-brand-blue">
               Clear
             </button>
           )}
@@ -156,7 +158,7 @@ function AccessoriesCategoryInner({
                 type="button"
                 key={tag}
                 onClick={() => toggleTag(tag)}
-                className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-all ${active ? 'border-brand-saffron bg-brand-saffron text-white shadow-[0_0_15px_rgba(255,107,0,0.4)]' : 'border-white/10 bg-transparent text-gray-300 hover:border-white/30'}`}>
+                className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-all ${active ? 'border-brand-blue bg-brand-blue text-white shadow-[0_0_15px_rgba(29,78,216,0.35)]' : 'border-brand-border bg-transparent text-brand-muted hover:border-slate-400'}`}>
                 {tag}
               </button>
             );
@@ -166,14 +168,14 @@ function AccessoriesCategoryInner({
 
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-2xl text-white tracking-wide uppercase">
+          <h3 className="font-display text-2xl text-brand-text tracking-wide uppercase">
             Price
           </h3>
           {selectedPriceIndex !== null && (
             <button
               type="button"
               onClick={() => setSelectedPriceIndex(null)}
-              className="text-xs text-gray-400 hover:text-brand-saffron">
+              className="text-xs text-brand-muted hover:text-brand-blue">
               Clear
             </button>
           )}
@@ -186,7 +188,7 @@ function AccessoriesCategoryInner({
                 type="button"
                 key={range.label}
                 onClick={() => setSelectedPriceIndex(active ? null : idx)}
-                className={`min-h-[44px] w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${active ? 'border-brand-saffron/50 bg-brand-saffron/10 text-brand-saffron' : 'border-white/10 bg-transparent text-gray-300 hover:border-white/30'}`}>
+                className={`min-h-[44px] w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${active ? 'border-brand-blue/50 bg-brand-blue/10 text-brand-blue' : 'border-brand-border bg-transparent text-brand-muted hover:border-slate-400'}`}>
                 {range.label}
               </button>
             );
@@ -198,7 +200,7 @@ function AccessoriesCategoryInner({
         <button
           type="button"
           onClick={clearFilters}
-          className="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-white/5 text-white hover:bg-white/10 transition-colors">
+          className="w-full px-4 py-3 rounded-xl text-sm font-semibold bg-brand-surface text-brand-text hover:bg-brand-surface transition-colors">
           Clear All Filters
         </button>
       )}
@@ -206,7 +208,7 @@ function AccessoriesCategoryInner({
   );
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-brand-bg text-brand-text selection:bg-brand-saffron selection:text-white">
+    <div className="min-h-screen overflow-x-hidden bg-slate-100 text-brand-text selection:bg-brand-blue selection:text-white">
       <Navbar />
 
       <main className="pb-20 pt-28">
@@ -214,25 +216,25 @@ function AccessoriesCategoryInner({
         <section className="mb-10">
           <Link
             to="/accessories"
-            className="mb-4 inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-gray-400 transition-colors hover:text-brand-saffron">
+            className="mb-4 inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-brand-muted transition-colors hover:text-brand-blue">
             <ArrowLeft className="h-4 w-4 shrink-0" aria-hidden />
             All accessory categories
           </Link>
 
           <div className="flex flex-col justify-between gap-6 lg:flex-row lg:items-end">
             <div className="min-w-0">
-              <h1 className="mb-3 break-words font-display text-2xl uppercase tracking-tight text-white md:text-4xl">
+              <h1 className="mb-3 break-words font-display text-2xl uppercase tracking-tight text-brand-text md:text-4xl">
                 {categoryMeta?.title ?? 'Accessories'}
               </h1>
-              <p className="max-w-2xl break-words text-base text-gray-400 md:text-lg">
+              <p className="max-w-2xl break-words text-base text-brand-muted md:text-lg">
                 {categoryMeta?.description ?? ''} Each tile shows an{' '}
-                <span className="font-semibold text-white">item ref</span> — mention it on WhatsApp so
+                <span className="font-semibold text-brand-text">item ref</span> — mention it on WhatsApp so
                 staff can help you instantly.
               </p>
             </div>
 
             <div className="flex w-full flex-wrap items-center gap-3 shrink-0 lg:w-auto lg:justify-end">
-              <label className="hidden text-sm text-gray-400 sm:block" htmlFor="accessories-sort">
+              <label className="hidden text-sm text-brand-muted sm:block" htmlFor="accessories-sort">
                 Sort by
               </label>
               <div className="min-w-0 flex-1 sm:w-56 sm:flex-none">
@@ -255,11 +257,11 @@ function AccessoriesCategoryInner({
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(true)}
-                className="flex min-h-[44px] items-center gap-2 rounded-xl border border-white/10 bg-brand-card px-4 py-3 text-sm font-medium text-white md:hidden">
+                className="flex min-h-[44px] items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-3 text-sm font-medium text-brand-text shadow-sm md:hidden">
                 <SlidersHorizontal className="w-4 h-4" />
                 Filters
                 {activeFilterCount > 0 && (
-                  <span className="bg-brand-saffron text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  <span className="bg-brand-blue text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
                     {activeFilterCount}
                   </span>
                 )}
@@ -270,33 +272,37 @@ function AccessoriesCategoryInner({
 
           <div className="flex gap-8 items-start">
             <aside className="hidden md:block w-64 flex-shrink-0 sticky top-24">
-              <div className="bg-brand-card/50 border border-white/5 rounded-3xl p-6">
+              <div className={`${STORE_PANEL_SURFACE} p-6`}>
                 <FilterPanel />
               </div>
             </aside>
 
             <div className="flex-1 min-w-0">
+              {catalogLoading ? (
+                <CatalogSectionLoading message="Loading accessories…" />
+              ) : (
+                <>
               <div className="flex items-center justify-between mb-4">
-                <p className="text-gray-400 text-sm">
+                <p className="text-brand-muted text-sm">
                   Showing{' '}
-                  <span className="text-white font-semibold">
+                  <span className="text-brand-text font-semibold">
                     {paginatedItems.length}
                   </span>{' '}
                   of{' '}
-                  <span className="text-white font-semibold">
+                  <span className="text-brand-text font-semibold">
                     {filteredItems.length}
                   </span>{' '}
-                  items (paginated, demo)
+                  items
                 </p>
               </div>
 
               {paginatedItems.length === 0 ? (
-                <div className="bg-brand-card/50 border border-white/5 rounded-3xl p-16 text-center">
-                  <SearchX className="w-12 h-12 text-gray-500 mx-auto mb-4" />
-                  <h3 className="text-2xl font-bold text-white mb-2">
+                <div className={`${STORE_PANEL_SURFACE} p-16 text-center`}>
+                  <SearchX className="w-12 h-12 text-brand-muted mx-auto mb-4" />
+                  <h3 className="text-2xl font-bold text-brand-text mb-2">
                     No items match
                   </h3>
-                  <p className="text-gray-400 mb-6">
+                  <p className="text-brand-muted mb-6">
                     Try clearing type or price filters.
                   </p>
                   <button
@@ -320,38 +326,8 @@ function AccessoriesCategoryInner({
                 </motion.div>
               )}
 
-              {totalPages > 1 && (
-                <div className="mt-10 flex items-center justify-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => goToPage(page - 1)}
-                    disabled={page === 1}
-                    className="flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-xl border border-white/10 bg-brand-card text-white transition-colors hover:border-brand-saffron disabled:cursor-not-allowed disabled:opacity-30"
-                    aria-label="Previous page">
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                    (p) => (
-                      <button
-                        type="button"
-                        key={p}
-                        onClick={() => goToPage(p)}
-                        className={`h-11 min-h-[44px] w-11 min-w-[44px] rounded-xl text-sm font-bold transition-all ${p === page ? 'bg-brand-saffron text-white shadow-[0_0_15px_rgba(255,107,0,0.4)]' : 'border border-white/10 bg-brand-card text-gray-300 hover:border-brand-saffron'}`}>
-                        {p}
-                      </button>
-                    )
-                  )}
-
-                  <button
-                    type="button"
-                    onClick={() => goToPage(page + 1)}
-                    disabled={page === totalPages}
-                    className="flex h-11 min-h-[44px] w-11 min-w-[44px] items-center justify-center rounded-xl border border-white/10 bg-brand-card text-white transition-colors hover:border-brand-saffron disabled:cursor-not-allowed disabled:opacity-30"
-                    aria-label="Next page">
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </div>
+              <PaginationControls page={page} totalPages={totalPages} onPageChange={goToPage} />
+                </>
               )}
             </div>
           </div>
@@ -374,15 +350,15 @@ function AccessoriesCategoryInner({
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'tween', duration: 0.3 }}
-              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-brand-bg border-l border-white/10 z-50 overflow-y-auto md:hidden">
-              <div className="sticky top-0 bg-brand-bg border-b border-white/10 p-6 flex items-center justify-between z-10">
-                <h2 className="font-display text-2xl text-white tracking-wide uppercase">
+              className="fixed top-0 right-0 bottom-0 w-full max-w-sm bg-brand-bg border-l border-brand-border z-50 overflow-y-auto md:hidden">
+              <div className="sticky top-0 bg-brand-bg border-b border-brand-border p-6 flex items-center justify-between z-10">
+                <h2 className="font-display text-2xl text-brand-text tracking-wide uppercase">
                   Filters
                 </h2>
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}
-                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-gray-400 transition hover:text-white"
+                  className="inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-brand-muted transition hover:text-brand-text"
                   aria-label="Close filters">
                   <X className="w-6 h-6" />
                 </button>
@@ -390,7 +366,7 @@ function AccessoriesCategoryInner({
               <div className="p-6 pb-32">
                 <FilterPanel />
               </div>
-              <div className="fixed bottom-0 left-0 right-0 max-w-sm ml-auto p-4 bg-brand-bg border-t border-white/10">
+              <div className="fixed bottom-0 left-0 right-0 max-w-sm ml-auto p-4 bg-brand-bg border-t border-brand-border">
                 <button
                   type="button"
                   onClick={() => setMobileFiltersOpen(false)}

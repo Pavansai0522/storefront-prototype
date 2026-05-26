@@ -1,8 +1,19 @@
 {
   "installCommand": "cd .. && npm install",
+  "ignoreCommand": "bash ../scripts/vercel-should-build.sh client packages/admin-ui",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": "vite",
-  "ignoreCommand": "bash ../scripts/vercel-should-build.sh client packages/admin-ui",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "functions": {
+    "api/upload-product-image.js": {
+      "maxDuration": 30
+    },
+    "api/upload-status.js": {
+      "maxDuration": 10
+    },
+    "api/health.js": {
+      "maxDuration": 5
+    }
+  },
+  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]
 }
