@@ -17,7 +17,7 @@ export function FeaturedProductRail({
 }: FeaturedProductRailProps): JSX.Element {
   return (
     <section id={id} className="relative z-10 bg-brand-bg py-16 md:py-24">
-      <div className="container mx-auto mb-10 px-4 sm:mb-12 sm:px-6 lg:px-8">
+      <div className="storefront-shell mb-10 sm:mb-12">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           whileInView={{ opacity: 1, x: 0 }}
@@ -34,7 +34,7 @@ export function FeaturedProductRail({
         Do not use touch-pan-x — it blocks vertical page scroll when the finger starts on this row.
       */}
       <div className="scroll-rail w-full max-w-[100vw] snap-x snap-proximity overflow-x-auto overflow-y-visible pb-10 md:overflow-visible md:snap-none md:pb-0">
-        <div className="flex w-max min-w-full gap-4 px-4 sm:gap-6 sm:px-6 md:container md:mx-auto md:w-full md:max-w-7xl md:grid md:grid-cols-2 md:gap-6 md:px-8 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="flex w-max min-w-full gap-4 px-4 sm:gap-6 sm:px-6 md:mx-auto md:w-full md:max-w-screen-2xl md:grid md:grid-cols-2 md:gap-6 md:px-8 lg:px-12 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 2xl:px-16">
           {children}
         </div>
       </div>

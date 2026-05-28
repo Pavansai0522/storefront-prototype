@@ -11,7 +11,7 @@ export function Footer(): JSX.Element {
   const facebookHref = facebookUrl();
   return (
     <footer className="mt-auto border-t border-brand-border bg-brand-bg pb-24 pt-16 md:pb-8">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="storefront-shell">
         <div className="mb-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-12">
           <div className="col-span-2 flex flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
             <StoreLogo variant="footer" className="mb-4 justify-center md:justify-start" />

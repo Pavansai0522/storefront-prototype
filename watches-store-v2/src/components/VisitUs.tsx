@@ -20,7 +20,7 @@ function StorePhotoCarousel(): JSX.Element {
 
   return (
     <div
-      className="relative h-[min(400px,70vw)] w-full overflow-hidden rounded-2xl border border-brand-border bg-brand-surface sm:rounded-3xl sm:h-[400px] md:h-[500px]"
+      className="relative h-[min(400px,70vw)] w-full overflow-hidden rounded-2xl border border-brand-border bg-brand-surface sm:rounded-3xl sm:h-[400px] md:h-[500px] xl:h-[560px] 2xl:h-[640px]"
       role="region"
       aria-roledescription="carousel"
       aria-label="Store photos"
@@ -89,8 +89,8 @@ export function VisitUs(): JSX.Element {
 
   return (
     <section id="visit" className="relative z-10 bg-brand-bg py-16 md:py-20">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
+      <div className="storefront-shell">
+        <div className="grid items-center gap-12 lg:grid-cols-2 xl:gap-16 2xl:gap-20">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}

@@ -14,7 +14,7 @@ export function ToySubcategoryLayout({
 }: ToySubcategoryLayoutProps): JSX.Element {
   return (
     <div className="bg-brand-bg pb-16 pt-24">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="storefront-shell">
         <Link
           to="/toys"
           className="mb-8 inline-flex min-h-[44px] items-center text-sm font-medium text-brand-purple transition-colors hover:text-brand-purple/80"

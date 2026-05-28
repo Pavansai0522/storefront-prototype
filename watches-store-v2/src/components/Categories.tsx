@@ -59,7 +59,7 @@ export function Categories() {
       id="categories"
       className="py-16 md:py-20 bg-brand-bg relative z-10">
       
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="storefront-shell">
         <motion.div
           initial={{
             opacity: 0,

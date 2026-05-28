@@ -20,19 +20,19 @@ export function Hero(): JSX.Element {
       <div className="pointer-events-none absolute -right-24 top-0 h-[280px] w-[280px] rounded-full bg-brand-purple/20 blur-[100px] sm:right-0 sm:h-[400px] sm:w-[400px] md:h-[500px] md:w-[500px] md:blur-[120px]" />
       <div className="pointer-events-none absolute -left-32 bottom-0 h-[200px] w-[200px] rounded-full bg-brand-purple/10 blur-[80px] md:h-[280px] md:w-[280px]" />
 
-      <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2">
+      <div className="storefront-shell relative z-10">
+        <div className="grid items-center gap-12 lg:grid-cols-2 xl:gap-16 2xl:gap-20">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="min-w-0 max-w-2xl"
+            className="min-w-0 max-w-2xl 2xl:max-w-3xl"
           >
             <p className="mb-3 text-xs font-bold leading-snug text-brand-purple sm:text-sm">
               {clientConfig.brand.teluguTagline}
             </p>
 
-            <h1 className="mb-6 break-words font-bebas text-4xl leading-[0.95] tracking-wide text-brand-text sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="mb-6 break-words font-bebas text-4xl leading-[0.95] tracking-wide text-brand-text sm:text-5xl md:text-6xl lg:text-7xl 2xl:text-8xl">
               CHILAKALURIPET&apos;S FINEST <br />
               <span className="text-brand-purple">WATCHES & TOYS</span>
             </h1>
@@ -71,16 +71,16 @@ export function Hero(): JSX.Element {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="relative hidden h-[500px] lg:block"
+            className="relative hidden h-[500px] lg:block 2xl:h-[560px]"
           >
-            <div className="absolute right-10 top-0 z-20 h-80 w-64 rotate-3 transform overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-transform duration-500 hover:rotate-0">
+            <div className="absolute right-10 top-0 z-20 h-80 w-64 rotate-3 transform overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-transform duration-500 hover:rotate-0 2xl:right-14 2xl:h-96 2xl:w-72">
               <img
                 src="https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=800"
                 alt="Premium watch collection"
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute bottom-0 left-10 z-10 h-80 w-64 -rotate-6 transform overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-transform duration-500 hover:rotate-0">
+            <div className="absolute bottom-0 left-10 z-10 h-80 w-64 -rotate-6 transform overflow-hidden rounded-2xl border border-brand-border bg-brand-surface shadow-xl transition-transform duration-500 hover:rotate-0 2xl:left-14 2xl:h-96 2xl:w-72">
               <img
                 src="https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&q=80&w=800"
                 alt="Toys and gifts"

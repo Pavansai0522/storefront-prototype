@@ -23,7 +23,7 @@ export function SocialProof(): JSX.Element {
   const facebookHref = facebookUrl();
   return (
     <section className="relative z-10 border-y border-brand-border bg-brand-bg py-16 md:py-20">
-      <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
+      <div className="storefront-shell text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

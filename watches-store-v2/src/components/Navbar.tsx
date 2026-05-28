@@ -46,7 +46,7 @@ export function Navbar(): JSX.Element {
       <Disclosure>
         {({ open }) => (
           <>
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="storefront-shell">
               <div className="flex h-16 items-center justify-between gap-2 sm:h-20">
                 <div className="min-w-0 flex-1">
                   <StoreLogo variant="navbar" />

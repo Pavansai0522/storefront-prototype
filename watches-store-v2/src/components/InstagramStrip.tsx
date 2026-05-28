@@ -15,7 +15,7 @@ export function InstagramStrip(): JSX.Element {
 
   return (
     <section className="border-y border-brand-border bg-brand-bg py-12 md:py-16">
-      <div className="container mx-auto mb-8 flex flex-col flex-wrap items-center justify-between gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
+      <div className="storefront-shell mb-8 flex flex-col flex-wrap items-center justify-between gap-4 sm:flex-row">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[2px]">
             <div className="flex h-full w-full items-center justify-center rounded-full bg-brand-bg">
@@ -38,7 +38,7 @@ export function InstagramStrip(): JSX.Element {
       </div>
 
       <div className="scroll-rail w-full snap-x snap-proximity overflow-x-auto overflow-y-visible md:overflow-visible md:snap-none">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="storefront-shell">
           <div className="flex w-max gap-3 sm:gap-4 md:w-full md:grid md:grid-cols-3 md:gap-4 lg:grid-cols-4 xl:grid-cols-6">
             {POSTS.map((img, index) => (
               <motion.a

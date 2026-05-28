@@ -32,7 +32,7 @@ const tiles: {
 export function WatchCategoryTiles(): JSX.Element {
   return (
     <section className="relative z-10 border-b border-brand-border bg-brand-bg pb-12 pt-4">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="storefront-shell">
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}

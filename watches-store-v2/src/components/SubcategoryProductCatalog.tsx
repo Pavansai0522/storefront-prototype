@@ -213,7 +213,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
             </div>
           ) : (
             <>
-              <ul className="grid auto-rows-[1fr] grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+              <ul className="grid auto-rows-[1fr] grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {pageItems.map((item) => (
                   <li key={item.id} className="flex h-full min-h-0 min-w-0">
                     <CatalogProductTile item={item} />
