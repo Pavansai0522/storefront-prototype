@@ -12,7 +12,7 @@ export function Footer() {
 
   return (
     <footer className="border-t border-brand-border bg-brand-card pt-12 pb-8 md:pt-16">
-      <div className="mx-auto max-w-7xl px-4 md:px-8">
+      <div className="storefront-shell">
         <div className="md:hidden">
           <div className="mb-6 text-center">
             <div className="mb-0 flex justify-center">

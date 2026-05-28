@@ -38,7 +38,7 @@ const SERVICES = [
 export function Services() {
   return (
     <section id="services" className={`relative overflow-x-hidden ${STORE_SECTION_BASE} py-24`}>
-      <div className="mx-auto max-w-7xl px-4 md:px-8">
+      <div className="storefront-shell">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}

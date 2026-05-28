@@ -118,7 +118,7 @@ export function AllPhones() {
       <Navbar />
 
       <main className="pb-20 pt-28">
-        <div className="mx-auto max-w-screen-2xl px-6 py-8 lg:px-12">
+        <div className="storefront-shell py-8">
           <section className="mb-10">
             <Link
               to="/"
@@ -209,7 +209,7 @@ export function AllPhones() {
                   </button>
                 </div>
               ) : (
-                <motion.div layout className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <motion.div layout className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {paginatedPhones.map((phone, index) => (
                     <PhoneCard key={phone.id} {...phone} index={index} />
                   ))}

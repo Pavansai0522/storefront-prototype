@@ -14,8 +14,8 @@ export function Hero(): JSX.Element {
       <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand-blue/10 blur-[120px]" />
       <div className="pointer-events-none absolute right-[10%] top-[20%] h-32 w-32 rounded-full bg-brand-saffron/15 blur-3xl" />
 
-      <div className="relative z-10 mx-auto w-full max-w-7xl px-4 py-12 md:px-8 lg:py-0">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-8">
+      <div className="storefront-shell relative z-10 py-12 lg:py-0">
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-8 2xl:gap-16">
           <motion.div
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
@@ -82,7 +82,7 @@ export function Hero(): JSX.Element {
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             className="relative min-w-0"
           >
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-xs sm:max-w-md">
+            <div className="relative mx-auto aspect-[4/5] w-full max-w-xs sm:max-w-md xl:max-w-lg 2xl:max-w-xl">
               <div className="pointer-events-none absolute inset-0 scale-90 rotate-12 rounded-[3rem] bg-gradient-to-tr from-brand-blue/20 to-brand-saffron/15 blur-3xl" />
 
               {trending?.img ? (

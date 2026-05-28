@@ -212,7 +212,7 @@ function AccessoriesCategoryInner({
       <Navbar />
 
       <main className="pb-20 pt-28">
-        <div className="mx-auto max-w-screen-2xl px-6 py-8 lg:px-12">
+        <div className="storefront-shell py-8">
         <section className="mb-10">
           <Link
             to="/accessories"
@@ -315,7 +315,7 @@ function AccessoriesCategoryInner({
               ) : (
                 <motion.div
                   layout
-                  className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {paginatedItems.map((product, index) => (
                     <AccessoryTileCard
                       key={product.id}

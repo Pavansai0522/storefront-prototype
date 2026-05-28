@@ -50,7 +50,7 @@ export function Accessories(): JSX.Element {
       <Navbar />
 
       <main className="pb-20 pt-28">
-        <section className="mx-auto mb-10 max-w-7xl px-4 md:px-8">
+        <section className="storefront-shell mb-10">
           <Link
             to="/"
             className="mb-6 inline-flex min-h-[44px] items-center gap-2 text-sm font-medium text-brand-muted transition-colors hover:text-brand-blue">
@@ -70,7 +70,7 @@ export function Accessories(): JSX.Element {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-4 md:px-8">
+        <section className="storefront-shell">
           {catalogLoading ? (
             <CatalogSectionLoading message="Loading accessories…" />
           ) : (

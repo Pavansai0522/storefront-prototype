@@ -48,7 +48,7 @@ export function SocialProof(): JSX.Element {
 
   return (
     <section className={`relative overflow-x-hidden ${STORE_SECTION_SURFACE} py-20`}>
-      <motion.div className="mx-auto max-w-7xl px-4 md:px-8">
+      <motion.div className="storefront-shell">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}

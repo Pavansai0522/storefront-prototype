@@ -7,7 +7,7 @@ export function InstagramStrip(): JSX.Element {
 
   return (
     <section className="overflow-x-hidden bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] py-12">
-      <div className="mx-auto flex max-w-7xl flex-col flex-wrap items-center justify-between gap-4 px-4 sm:flex-row md:px-8">
+      <div className="storefront-shell flex flex-col flex-wrap items-center justify-between gap-4 sm:flex-row">
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
             <Instagram className="h-5 w-5 text-white" aria-hidden />

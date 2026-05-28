@@ -32,7 +32,7 @@ export function WhyChooseUs() {
     <section className={`relative overflow-x-hidden border-y border-brand-border ${STORE_SECTION_BASE} py-24`}>
       <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-brand-blue/10 blur-[100px]" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 md:px-8">
+      <div className="storefront-shell relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
