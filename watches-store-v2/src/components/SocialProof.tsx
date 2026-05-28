@@ -20,8 +20,9 @@ const REVIEWS = [
 ];
 
 export function SocialProof(): JSX.Element {
+  const facebookHref = facebookUrl();
   return (
-    <section className="relative z-10 border-y border-brand-border bg-brand-surface py-16 md:py-20">
+    <section className="relative z-10 border-y border-brand-border bg-brand-bg py-16 md:py-20">
       <div className="container mx-auto px-4 text-center sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -56,7 +57,7 @@ export function SocialProof(): JSX.Element {
               className="rounded-2xl border border-brand-border bg-brand-card p-6 text-left"
             >
               <Quote className="mb-3 h-6 w-6 text-brand-purple" aria-hidden />
-              <p className="mb-4 text-sm leading-relaxed text-brand-muted">&ldquo;{review.quote}&rdquo;</p>
+              <p className="mb-4 text-sm leading-relaxed text-brand-text">&ldquo;{review.quote}&rdquo;</p>
               <footer className="text-sm font-semibold text-brand-text">— {review.author}</footer>
             </motion.blockquote>
           ))}
@@ -68,7 +69,7 @@ export function SocialProof(): JSX.Element {
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          <p className="mb-8 text-lg text-brand-muted">
+          <p className="mb-8 text-lg text-brand-text">
             Chilakaluripet&apos;s trusted destination for watches, toys & mobiles
           </p>
 
@@ -77,7 +78,7 @@ export function SocialProof(): JSX.Element {
               href={instagramUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-muted transition-all hover:-translate-y-1 hover:border-[#E1306C] hover:text-[#E1306C] hover:shadow-md"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-text transition-all hover:-translate-y-1 hover:border-brand-purple hover:text-brand-purple hover:shadow-md"
               aria-label="Instagram"
             >
               <Instagram className="h-5 w-5" />
@@ -86,20 +87,22 @@ export function SocialProof(): JSX.Element {
               href={youtubeUrl()}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-muted transition-all hover:-translate-y-1 hover:border-[#FF0000] hover:text-[#FF0000] hover:shadow-md"
+              className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-text transition-all hover:-translate-y-1 hover:border-brand-purple hover:text-brand-purple hover:shadow-md"
               aria-label="YouTube"
             >
               <Youtube className="h-5 w-5" />
             </a>
-            <a
-              href={facebookUrl()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-muted transition-all hover:-translate-y-1 hover:border-[#1877F2] hover:text-[#1877F2] hover:shadow-md"
-              aria-label="Facebook"
-            >
-              <Facebook className="h-5 w-5" />
-            </a>
+            {facebookHref ? (
+              <a
+                href={facebookHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex h-12 w-12 items-center justify-center rounded-full border border-brand-border bg-brand-card text-brand-text transition-all hover:-translate-y-1 hover:border-brand-purple hover:text-brand-purple hover:shadow-md"
+                aria-label="Facebook"
+              >
+                <Facebook className="h-5 w-5" />
+              </a>
+            ) : null}
           </div>
         </motion.div>
       </div>

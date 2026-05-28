@@ -39,11 +39,11 @@ export function ToyCategoryTiles(): JSX.Element {
           transition={{ duration: 0.5 }}
           className="mb-10"
         >
-          <h2 className="font-bebas text-3xl tracking-wide text-brand-text md:text-4xl">
+          <h2 className="font-bebas text-3xl font-normal tracking-wide text-black md:text-4xl">
             BROWSE TOYS
           </h2>
           <div className="mt-3 h-1 w-20 rounded-full bg-brand-purple" />
-          <p className="mt-3 max-w-xl text-sm text-brand-muted md:text-base">
+          <p className="mt-3 max-w-xl text-sm font-normal text-black md:text-base">
             Pick a category to open its dedicated page.
           </p>
         </motion.div>
@@ -61,16 +61,16 @@ export function ToyCategoryTiles(): JSX.Element {
               >
                 <Link
                   to={tile.to}
-                  className="group flex h-full min-h-[240px] w-full flex-col rounded-2xl border border-brand-border bg-brand-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-glow-purple focus:outline-none focus:ring-2 focus:ring-brand-purple sm:min-h-[260px]"
+                  className="group flex h-full min-h-[240px] w-full flex-col rounded-2xl border border-brand-purple/20 bg-brand-card p-6 transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/40 hover:shadow-glow-purple focus:outline-none focus:ring-2 focus:ring-brand-purple sm:min-h-[260px]"
                 >
                   <Icon
                     className="h-10 w-10 shrink-0 text-brand-purple transition-transform group-hover:scale-110 md:h-12 md:w-12"
                     aria-hidden
                   />
-                  <h3 className="mt-4 line-clamp-2 min-h-[3.25rem] shrink-0 font-bebas text-2xl tracking-wide text-brand-text md:text-3xl">
+                  <h3 className="mt-4 line-clamp-2 min-h-[3.25rem] shrink-0 font-bebas text-2xl font-normal tracking-wide text-black md:text-3xl">
                     {tile.title}
                   </h3>
-                  <p className="mt-2 min-h-[3.75rem] flex-1 text-sm leading-relaxed text-brand-muted line-clamp-3">
+                  <p className="mt-2 min-h-[3.75rem] flex-1 text-sm font-normal leading-relaxed text-black line-clamp-3">
                     {tile.blurb}
                   </p>
                   <span

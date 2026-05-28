@@ -9,7 +9,7 @@ type CatalogProductTileProps = {
 
 export function CatalogProductTile({ item }: CatalogProductTileProps): JSX.Element {
   return (
-    <article className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-brand-border bg-brand-card transition-all duration-300 hover:border-brand-purple/40 hover:shadow-lg hover:shadow-brand-purple/10">
+    <article className="flex h-full min-h-0 w-full flex-col overflow-hidden rounded-xl border border-brand-purple/20 bg-brand-card transition-all duration-300 hover:border-brand-purple/40 hover:shadow-lg hover:shadow-brand-purple/10">
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-brand-surface">
         <img
           src={optimizeImageUrl(item.image, 360)}

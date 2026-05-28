@@ -28,8 +28,8 @@ export function StoreGate({ children }: StoreGateProps): JSX.Element {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-brand-bg px-4 py-16 text-center">
         <div className="mx-auto max-w-md rounded-2xl border border-red-500/30 bg-brand-card p-8">
-          <h1 className="font-display text-2xl uppercase text-white">Could not load store</h1>
-          <p className="mt-3 text-sm text-brand-muted">{catalogError}</p>
+          <h1 className="font-display text-2xl uppercase text-brand-text">Could not load store</h1>
+          <p className="mt-3 text-sm text-brand-purple">{catalogError}</p>
           <button
             type="button"
             onClick={() => void reloadCatalog()}

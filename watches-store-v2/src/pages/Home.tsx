@@ -10,7 +10,7 @@ import { SocialProof } from '../components/SocialProof';
 
 export function Home(): JSX.Element {
   return (
-    <>
+    <div className="bg-brand-bg">
       <Hero />
       <OffersBanner />
       <Categories />
@@ -19,6 +19,6 @@ export function Home(): JSX.Element {
       <WhyChooseUs />
       <VisitUs />
       <SocialProof />
-    </>
+    </div>
   );
 }

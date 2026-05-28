@@ -32,18 +32,18 @@ export function SiteInactive(): JSX.Element {
       ),
       React.createElement(
         'h1',
-        { className: 'font-display text-3xl uppercase tracking-wide text-white' },
+        { className: 'font-display text-3xl uppercase tracking-wide text-brand-text' },
         STORE_NAME,
       ),
       React.createElement(
         'p',
-        { className: 'mt-3 text-sm text-brand-muted' },
+        { className: 'mt-3 text-sm text-brand-text' },
         'Our online catalog is temporarily unavailable. Visit us in store or message us on WhatsApp — we are happy to help with watches, toys, and accessories.',
       ),
       config.contact.phoneDisplay
         ? React.createElement(
             'p',
-            { className: 'mt-4 text-sm text-white' },
+            { className: 'mt-4 text-sm font-medium text-brand-text' },
             config.contact.phoneDisplay,
           )
         : null,

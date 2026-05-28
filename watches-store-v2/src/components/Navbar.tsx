@@ -41,7 +41,7 @@ export function Navbar(): JSX.Element {
 
   return (
     <header
-      className={`fixed left-0 right-0 top-0 z-40 transition-all duration-300 ${isScrolled ? 'border-b border-brand-border bg-brand-elevated/90 shadow-[0_8px_32px_rgba(0,0,0,0.35)] backdrop-blur-xl' : 'bg-transparent'}`}
+      className={`fixed left-0 right-0 top-0 z-40 transition-all duration-300 ${isScrolled ? 'border-b border-brand-border bg-brand-bg/95 shadow-[0_8px_32px_rgba(30,29,27,0.08)] backdrop-blur-xl' : 'bg-brand-bg/80 backdrop-blur-sm'}`}
     >
       <Disclosure>
         {({ open }) => (
@@ -57,10 +57,10 @@ export function Navbar(): JSX.Element {
                     <Link
                       key={link.name}
                       to={link.href}
-                      className={`rounded-md px-2 py-1 text-sm font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-brand-purple ${
+                      className={`px-2 py-1 text-sm font-bold text-black transition-colors ${
                         isNavLinkActive(link.href, location.pathname)
-                          ? 'text-brand-purple'
-                          : 'text-brand-text/70 hover:text-brand-text'
+                          ? ''
+                          : 'hover:text-red-600'
                       }`}
                     >
                       {link.name}
@@ -108,10 +108,10 @@ export function Navbar(): JSX.Element {
                     key={link.name}
                     as={Link}
                     to={link.href}
-                    className={`flex min-h-[48px] w-full items-center text-lg font-medium transition-colors ${
+                    className={`flex min-h-[48px] w-full items-center px-2 text-lg font-bold text-black transition-colors ${
                       isNavLinkActive(link.href, location.pathname)
-                        ? 'text-brand-purple'
-                        : 'text-brand-text/70 hover:text-brand-text'
+                        ? ''
+                        : 'hover:text-red-600'
                     }`}
                   >
                     {link.name}

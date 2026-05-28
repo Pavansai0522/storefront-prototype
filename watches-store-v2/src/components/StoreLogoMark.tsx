@@ -3,11 +3,11 @@ type StoreLogoMarkProps = {
   className?: string;
 };
 
-/** PR monogram from official store logo (`public/prlogo2.png`). */
+/** PR mark from official store logo (`public/prlogo3.png`, transparent). */
 export function StoreLogoMark({ size = 44, className = '' }: StoreLogoMarkProps): JSX.Element {
   return (
     <img
-      src="/prlogo2.png"
+      src="/prlogo3.png"
       alt=""
       width={size}
       height={size}

@@ -15,22 +15,20 @@ export default {content: [
     },
     extend: {
       colors: {
-        'brand-bg': '#000000',
-        'brand-elevated': '#0A0A0A',
-        'brand-card': '#141414',
-        'brand-surface': '#1C1C1C',
-        'brand-purple': '#CBA860',
-        'brand-purple-dim': '#7B5527',
-        'brand-accent': '#B8B7B7',
-        'brand-text': '#FFFFFF',
-        'brand-muted': '#8A8A88',
-        'brand-border': 'rgba(255, 255, 255, 0.1)',
+        'brand-bg': '#F3ECE2',
+        'brand-elevated': '#F3ECE2',
+        'brand-card': '#F3ECE2',
+        'brand-surface': '#F3ECE2',
+        'brand-purple': '#BC2422',
+        'brand-purple-dim': '#8B1A18',
+        'brand-accent': '#CD3A34',
+        'brand-text': '#1E1D1B',
+        'brand-muted': 'rgba(30, 29, 27, 0.72)',
+        'brand-border': 'rgba(30, 29, 27, 0.12)',
+        /* Admin accent only — do not add bg/card/text here (collides with storefront brand-bg, brand-card, brand-text) */
         brand: {
-          bg: '#0A0A0A',
-          card: '#1A1A2E',
           saffron: '#FF6B00',
           saffronHover: '#ff8533',
-          text: '#FFFFFF',
         },
         surface: {
           sidebar: '#111111',
@@ -77,14 +75,13 @@ export default {content: [
         sans: ['Inter', 'sans-serif']
       },
       boxShadow: {
-        'glow-purple': '0 8px 32px rgba(203, 168, 96, 0.32)',
-        'glow-accent': '0 8px 28px rgba(184, 183, 183, 0.22)',
+        'glow-purple': '0 8px 32px rgba(188, 36, 34, 0.22)',
+        'glow-accent': '0 8px 28px rgba(205, 58, 52, 0.18)',
       },
       backgroundImage: {
         'brand-mesh':
-          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(203, 168, 96, 0.16), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(184, 183, 183, 0.08), transparent)',
+          'radial-gradient(ellipse 80% 50% at 50% -20%, rgba(188, 36, 34, 0.08), transparent), radial-gradient(ellipse 60% 40% at 100% 0%, rgba(30, 29, 27, 0.04), transparent)',
       },
     }
   }
 }
-

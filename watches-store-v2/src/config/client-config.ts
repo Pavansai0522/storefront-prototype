@@ -27,8 +27,8 @@ export const clientConfig = {
     trustedSince: '2015',
   },
   contact: {
-    whatsappE164: (env.VITE_WHATSAPP_E164 as string | undefined) ?? '917416958315',
-    phoneDisplay: (env.VITE_PHONE_DISPLAY as string | undefined) ?? '+91 74169 58315',
+    whatsappE164: (env.VITE_WHATSAPP_E164 as string | undefined) ?? '919391958315',
+    phoneDisplay: (env.VITE_PHONE_DISPLAY as string | undefined) ?? '+91 93919 58315',
     email: (env.VITE_STORE_EMAIL as string | undefined) ?? 'hello@prwatchesgadgets.in',
   },
   location: {
@@ -49,15 +49,15 @@ export const clientConfig = {
     ],
   },
   hours: {
-    summary: 'Mon–Sat 10:00–21:00 · Sun 11:00–20:00',
-    weekdays: 'Mon–Sat: 10:00 AM – 9:00 PM',
-    sunday: 'Sunday: 11:00 AM – 8:00 PM',
+    summary: 'Mon–Sun 9:30–22:00',
+    weekdays: 'Mon–Sun: 9:30 AM – 10:00 PM',
+    sunday: 'Sunday: 9:30 AM – 10:00 PM',
   },
   social: {
-    instagramHandle: '@prwatchesgadgets',
-    instagramUrl: 'https://www.instagram.com/prwatchesgadgets',
-    youtubeUrl: 'https://www.youtube.com/@prwatchesgadgets',
-    facebookUrl: 'https://www.facebook.com/prwatchesgadgets',
+    instagramHandle: '@pr_watch_mobiles',
+    instagramUrl: 'https://www.instagram.com/pr_watch_mobiles?igsh=NjF1dTJtc3pnMnc4&utm_source=qr',
+    youtubeUrl: 'https://youtube.com/@prwatchmobiles?si=3rzvzNyNM7R4q_uL',
+    facebookUrl: '',
   },
   seo: {
     title: 'PR Watches & Mobiles | Watches, Toys & Mobiles in Chilakaluripet',
@@ -67,7 +67,7 @@ export const clientConfig = {
       'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1200',
   },
   offers: {
-    banner: 'Festival season — EMI on watches, toys & accessories. Walk in or WhatsApp for best price.',
+    banner: 'Festival season — offers on watches, toys & accessories. Walk in or WhatsApp for best price.',
   },
   theme: {
     colors: {

@@ -18,7 +18,7 @@ export function Hero(): JSX.Element {
       className="relative mt-10 flex items-center bg-brand-bg py-16 sm:py-20 md:py-28"
     >
       <div className="pointer-events-none absolute -right-24 top-0 h-[280px] w-[280px] rounded-full bg-brand-purple/20 blur-[100px] sm:right-0 sm:h-[400px] sm:w-[400px] md:h-[500px] md:w-[500px] md:blur-[120px]" />
-      <div className="pointer-events-none absolute -left-32 bottom-0 h-[200px] w-[200px] rounded-full bg-brand-accent/10 blur-[80px] md:h-[280px] md:w-[280px]" />
+      <div className="pointer-events-none absolute -left-32 bottom-0 h-[200px] w-[200px] rounded-full bg-brand-purple/10 blur-[80px] md:h-[280px] md:w-[280px]" />
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -28,7 +28,7 @@ export function Hero(): JSX.Element {
             transition={{ duration: 0.8 }}
             className="min-w-0 max-w-2xl"
           >
-            <p className="mb-3 text-xs font-medium leading-snug text-brand-purple sm:text-sm">
+            <p className="mb-3 text-xs font-bold leading-snug text-brand-purple sm:text-sm">
               {clientConfig.brand.teluguTagline}
             </p>
 
@@ -37,16 +37,16 @@ export function Hero(): JSX.Element {
               <span className="text-brand-purple">WATCHES & TOYS</span>
             </h1>
 
-            <p className="mb-6 max-w-lg text-base font-light leading-relaxed text-brand-muted sm:text-lg md:text-xl">
+            <p className="mb-6 max-w-lg text-base font-normal leading-relaxed text-brand-text sm:text-lg md:text-xl">
               Premium timepieces, exciting toys, and quality audio gear — all under one roof.
               Trusted since {clientConfig.brand.trustedSince}.
             </p>
 
             <ul className="mb-10 space-y-2">
               {TRUST_BULLETS.map(({ icon: Icon, text }) => (
-                <li key={text} className="flex items-center gap-2 text-sm text-brand-muted sm:text-base">
+                <li key={text} className="flex items-center gap-2 text-sm text-brand-text sm:text-base">
                   <Icon className="h-4 w-4 shrink-0 text-brand-purple" aria-hidden />
-                  {text}
+                  <span>{text}</span>
                 </li>
               ))}
             </ul>

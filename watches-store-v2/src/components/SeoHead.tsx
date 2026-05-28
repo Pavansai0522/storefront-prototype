@@ -8,6 +8,10 @@ export function SeoHead(): null {
   useEffect(() => {
     document.title = clientConfig.seo.title;
 
+    const sameAs = [clientConfig.social.instagramUrl, clientConfig.social.youtubeUrl].filter(
+      (url): url is string => Boolean(url),
+    );
+
     const localBusinessJsonLd = {
       '@context': 'https://schema.org',
       '@type': 'Store',
@@ -25,24 +29,22 @@ export function SeoHead(): null {
       openingHoursSpecification: [
         {
           '@type': 'OpeningHoursSpecification',
-          dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-          opens: '10:00',
-          closes: '21:00',
-        },
-        {
-          '@type': 'OpeningHoursSpecification',
-          dayOfWeek: 'Sunday',
-          opens: '11:00',
-          closes: '20:00',
+          dayOfWeek: [
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+            'Sunday',
+          ],
+          opens: '09:30',
+          closes: '22:00',
         },
       ],
       url: window.location.origin,
       image: clientConfig.seo.ogImage,
-      sameAs: [
-        clientConfig.social.instagramUrl,
-        clientConfig.social.youtubeUrl,
-        clientConfig.social.facebookUrl,
-      ],
+      sameAs,
     };
 
     let script = document.getElementById(SCRIPT_ID) as HTMLScriptElement | null;

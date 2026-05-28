@@ -35,7 +35,7 @@ export function Spinner({ size = 'md', label, className = '' }: SpinnerProps): J
           aria-hidden
         />
       </div>
-      {label ? <p className="text-sm text-brand-muted">{label}</p> : null}
+      {label ? <p className="text-sm text-brand-text">{label}</p> : null}
       <span className="sr-only">{label ?? 'Loading'}</span>
     </div>
   );

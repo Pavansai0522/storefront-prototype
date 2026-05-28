@@ -6,9 +6,9 @@ export function OffersBanner(): JSX.Element {
   return (
     <section
       aria-label="Store offer"
-      className="border-y border-brand-purple/25 bg-gradient-to-r from-brand-purple/15 via-brand-surface/80 to-brand-accent/10 py-3"
+      className="border-y border-brand-purple/25 bg-gradient-to-r from-brand-purple/12 via-brand-bg to-brand-purple/8 py-3"
     >
-      <div className="container mx-auto flex items-center justify-center gap-2 px-4 text-center text-sm font-medium leading-snug text-brand-text text-balance sm:text-base">
+      <div className="container mx-auto flex items-center justify-center gap-2 px-4 text-center text-sm font-semibold leading-snug text-brand-purple text-balance sm:text-base">
         <Sparkles className="h-4 w-4 shrink-0 text-brand-purple" aria-hidden />
         <p>{clientConfig.offers.banner}</p>
       </div>

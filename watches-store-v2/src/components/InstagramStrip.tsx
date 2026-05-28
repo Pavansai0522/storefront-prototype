@@ -19,12 +19,12 @@ export function InstagramStrip(): JSX.Element {
         <div className="flex min-w-0 items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 rounded-full bg-gradient-to-tr from-yellow-400 via-red-500 to-purple-500 p-[2px]">
             <div className="flex h-full w-full items-center justify-center rounded-full bg-brand-bg">
-              <Instagram className="h-5 w-5 text-white" aria-hidden />
+              <Instagram className="h-5 w-5 text-brand-purple" aria-hidden />
             </div>
           </div>
           <div className="min-w-0 text-center sm:text-left">
             <h3 className="text-lg font-bold leading-tight text-brand-text">{instagramHandle}</h3>
-            <p className="text-sm text-brand-muted">New arrivals, festival offers & unboxings</p>
+            <p className="text-sm text-brand-text">New arrivals, festival offers & unboxings</p>
           </div>
         </div>
         <a
@@ -58,7 +58,7 @@ export function InstagramStrip(): JSX.Element {
                   loading="lazy"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                <div className="absolute inset-0 flex items-center justify-center bg-brand-text/40 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <Instagram className="h-10 w-10 text-white" aria-hidden />
                 </div>
               </motion.a>

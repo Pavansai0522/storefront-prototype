@@ -12,7 +12,7 @@ type FeaturedProductRailProps = {
 export function FeaturedProductRail({
   id,
   title,
-  accentClassName = 'bg-brand-text',
+  accentClassName = 'bg-brand-purple',
   children,
 }: FeaturedProductRailProps): JSX.Element {
   return (
@@ -23,7 +23,9 @@ export function FeaturedProductRail({
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
         >
-          <h2 className="font-bebas text-4xl tracking-wide text-brand-text md:text-5xl">{title}</h2>
+          <h2 className="font-bebas text-4xl font-normal tracking-wide text-black md:text-5xl">
+            {title}
+          </h2>
           <div className={`mt-4 h-1 w-24 rounded-full ${accentClassName}`} />
         </motion.div>
       </div>

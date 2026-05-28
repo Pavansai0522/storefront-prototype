@@ -11,12 +11,15 @@
   body:has(.admin-ui-root) {
     height: 100%;
     overflow: hidden;
+    background-color: #0a0a0a;
   }
 
   .admin-ui-root {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    @apply admin-scroll-rail h-screen min-h-0 overflow-x-hidden overflow-y-auto bg-brand-bg font-sans text-brand-text antialiased;
+    @apply admin-scroll-rail h-screen min-h-0 overflow-x-hidden overflow-y-auto font-sans antialiased;
+    background-color: #0a0a0a;
+    color: #ffffff;
   }
 
   .admin-ui-root input,
@@ -28,12 +31,12 @@
 
 @layer components {
   .admin-card {
-    @apply rounded-xl border border-white/5 bg-brand-card transition-all duration-300;
+    @apply rounded-xl border border-white/5 bg-[#1a1a2e] transition-all duration-300;
     @apply hover:border-brand-saffron/40 hover:shadow-[0_0_35px_rgba(255,107,0,0.12)];
   }
 
   .admin-card-static {
-    @apply rounded-xl border border-white/5 bg-brand-card;
+    @apply rounded-xl border border-white/5 bg-[#1a1a2e];
   }
 
   .admin-page-heading {
@@ -45,7 +48,7 @@
   }
 
   .admin-input {
-    @apply mt-1 min-h-[44px] w-full rounded-xl border border-white/10 bg-brand-bg px-3 py-2 text-base text-white outline-none transition;
+    @apply mt-1 min-h-[44px] w-full rounded-xl border border-white/10 bg-[#0a0a0a] px-3 py-2 text-base text-white outline-none transition;
     @apply placeholder:text-gray-500 focus:border-brand-saffron focus:ring-1 focus:ring-brand-saffron/40;
   }
 
@@ -64,7 +67,7 @@
   }
 
   .admin-table-shell {
-    @apply overflow-hidden rounded-xl border border-white/5 bg-brand-card transition-all duration-300;
+    @apply overflow-hidden rounded-xl border border-white/5 bg-[#1a1a2e] transition-all duration-300;
     @apply hover:border-brand-saffron/40 hover:shadow-[0_0_35px_rgba(255,107,0,0.12)];
   }
 
@@ -111,5 +114,14 @@
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+
+  /* Storefront shares watches Tailwind `brand-*` tokens (cream); keep admin dark */
+  .admin-ui-root [class*='bg-brand-bg'] {
+    background-color: #0a0a0a;
+  }
+
+  .admin-ui-root [class*='bg-brand-card'] {
+    background-color: #1a1a2e;
   }
 }

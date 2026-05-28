@@ -20,7 +20,7 @@ function StorePhotoCarousel(): JSX.Element {
 
   return (
     <div
-      className="relative h-[400px] w-full overflow-hidden rounded-3xl border border-brand-border bg-brand-surface md:h-[500px]"
+      className="relative h-[min(400px,70vw)] w-full overflow-hidden rounded-2xl border border-brand-border bg-brand-surface sm:rounded-3xl sm:h-[400px] md:h-[500px]"
       role="region"
       aria-roledescription="carousel"
       aria-label="Store photos"
@@ -37,11 +37,11 @@ function StorePhotoCarousel(): JSX.Element {
         />
       ))}
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-bg/50 backdrop-blur-[2px]">
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
         <StoreLogo variant="hero" linked={false} />
       </div>
 
-      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-2">
+      <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1">
         {storeImages.map((_, i) => (
           <button
             key={i}
@@ -49,10 +49,16 @@ function StorePhotoCarousel(): JSX.Element {
             aria-label={`Show store photo ${i + 1}`}
             aria-current={i === current ? true : undefined}
             onClick={() => setCurrent(i)}
-            className={`h-2 min-h-[20px] w-2 min-w-[20px] rounded-full transition-all ${
-              i === current ? 'scale-110 bg-brand-purple' : 'bg-white/40 hover:bg-white/60'
-            }`}
-          />
+            className="flex h-11 w-11 items-center justify-center"
+          >
+            <span
+              className={`block rounded-full transition-all ${
+                i === current
+                  ? 'h-3 w-3 bg-brand-purple'
+                  : 'h-2 w-2 bg-brand-text/30 hover:bg-brand-text/50'
+              }`}
+            />
+          </button>
         ))}
       </div>
 
@@ -60,17 +66,17 @@ function StorePhotoCarousel(): JSX.Element {
         type="button"
         aria-label="Previous store photo"
         onClick={() => setCurrent((p) => (p - 1 + storeImages.length) % storeImages.length)}
-        className="absolute left-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+        className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-brand-border bg-brand-bg/90 text-brand-text shadow-sm hover:bg-brand-bg sm:left-3"
       >
-        <ChevronLeft size={18} className="text-white" aria-hidden />
+        <ChevronLeft size={18} className="text-brand-text" aria-hidden />
       </button>
       <button
         type="button"
         aria-label="Next store photo"
         onClick={() => setCurrent((p) => (p + 1) % storeImages.length)}
-        className="absolute right-3 top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-black/40 hover:bg-black/60"
+        className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-brand-border bg-brand-bg/90 text-brand-text shadow-sm hover:bg-brand-bg sm:right-3"
       >
-        <ChevronRight size={18} className="text-white" aria-hidden />
+        <ChevronRight size={18} className="text-brand-text" aria-hidden />
       </button>
     </div>
   );
@@ -90,7 +96,7 @@ export function VisitUs(): JSX.Element {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <h2 className="mb-8 font-bebas text-4xl tracking-wide text-brand-text md:text-5xl">
+            <h2 className="mb-8 font-bebas text-4xl font-normal tracking-wide text-black md:text-5xl">
               VISIT OUR STORE
             </h2>
 
@@ -101,7 +107,7 @@ export function VisitUs(): JSX.Element {
                 </div>
                 <div>
                   <h4 className="mb-1 text-lg font-semibold text-brand-text">Location</h4>
-                  <p className="leading-relaxed text-brand-muted">
+                  <p className="leading-relaxed text-brand-text">
                     {clientConfig.location.addressLines.map((line) => (
                       <span key={line}>
                         {line}
@@ -127,7 +133,7 @@ export function VisitUs(): JSX.Element {
                 </div>
                 <div>
                   <h4 className="mb-1 text-lg font-semibold text-brand-text">Phone / WhatsApp</h4>
-                  <p className="text-brand-muted">{clientConfig.contact.phoneDisplay}</p>
+                  <p className="text-brand-text">{clientConfig.contact.phoneDisplay}</p>
                 </div>
               </div>
 
@@ -137,8 +143,8 @@ export function VisitUs(): JSX.Element {
                 </div>
                 <div>
                   <h4 className="mb-1 text-lg font-semibold text-brand-text">Hours</h4>
-                  <p className="text-brand-muted">{clientConfig.hours.weekdays}</p>
-                  <p className="text-brand-muted">{clientConfig.hours.sunday}</p>
+                  <p className="text-brand-text">{clientConfig.hours.weekdays}</p>
+                  <p className="text-brand-text">{clientConfig.hours.sunday}</p>
                 </div>
               </div>
             </div>

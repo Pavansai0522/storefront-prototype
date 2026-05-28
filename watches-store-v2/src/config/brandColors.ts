@@ -1,18 +1,19 @@
 /**
- * Palette sampled from `public/prlogo2.png` (gold PR, silver R, black ground).
- * Tailwind tokens in `tailwind.config.js` mirror these values.
+ * Cream UI + black body text + red accents.
+ * `cream` matches the logo ground removed from `public/prlogo3.png` (now transparent).
  */
 export const brandColors = {
-  bg: '#000000',
-  elevated: '#0A0A0A',
-  card: '#141414',
-  surface: '#1C1C1C',
-  gold: '#CBA860',
-  goldHighlight: '#FCDD82',
-  goldDim: '#7B5527',
-  silver: '#B8B7B7',
-  silverHighlight: '#F2F2F2',
-  text: '#FFFFFF',
-  muted: '#8A8A88',
-  border: 'rgba(255, 255, 255, 0.1)',
+  cream: '#F3ECE2',
+  bg: '#F3ECE2',
+  elevated: '#F3ECE2',
+  card: '#F3ECE2',
+  surface: '#F3ECE2',
+  gold: '#BC2422',
+  goldHighlight: '#CD3A34',
+  goldDim: '#8B1A18',
+  silver: '#CD3A34',
+  silverHighlight: '#BC2422',
+  text: '#1E1D1B',
+  muted: 'rgba(30, 29, 27, 0.72)',
+  border: 'rgba(30, 29, 27, 0.12)',
 } as const;

@@ -14,7 +14,7 @@ export function SubcategoryCatalogPage({ catalogKey }: SubcategoryCatalogPagePro
 
   if (catalogLoading) {
     return (
-      <div className="container mx-auto flex justify-center px-4 py-16">
+      <div className="container mx-auto flex justify-center bg-brand-bg px-4 py-16">
         <Spinner size="lg" label="Loading catalog…" />
       </div>
     );
@@ -23,7 +23,7 @@ export function SubcategoryCatalogPage({ catalogKey }: SubcategoryCatalogPagePro
   if (catalogError) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
-        <p className="text-red-300">{catalogError}</p>
+        <p className="text-brand-purple">{catalogError}</p>
         <button
           type="button"
           onClick={() => void reloadCatalog()}
@@ -37,7 +37,7 @@ export function SubcategoryCatalogPage({ catalogKey }: SubcategoryCatalogPagePro
 
   if (items.length === 0) {
     return (
-      <p className="container mx-auto px-4 py-12 text-center text-white/60">
+      <p className="container mx-auto px-4 py-12 text-center text-brand-text">
         No products in this category yet. Check back soon or WhatsApp us for availability.
       </p>
     );

@@ -62,15 +62,17 @@ export function ProductCard({
 
         <div className="mb-5">
           <p
-            className={`font-bebas text-2xl tracking-wide ${isWatch ? 'text-brand-text' : 'text-brand-purple'}`}
+            className="font-bebas text-2xl tracking-wide text-brand-purple"
           >
             {price}
           </p>
-          <p className="mt-1 text-xs text-brand-muted">
+          <p className="mt-1 text-xs text-brand-text">
             {isWatch ? (
-              <>EMI from <span className="font-semibold text-brand-text">{emi}/mo</span></>
+              <>
+                EMI from <span className="font-semibold text-brand-purple">{emi}/mo</span>
+              </>
             ) : (
-              <span className="inline-block rounded-md border border-brand-border bg-brand-surface px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-muted">
+              <span className="inline-block rounded-md border border-brand-purple/30 bg-brand-bg px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-brand-purple">
                 {emi}
               </span>
             )}

@@ -8,22 +8,23 @@ import { clientConfig, whatsappHref } from '../config/client-config';
 import { facebookUrl, instagramUrl, youtubeUrl } from '../utils/socialLinks';
 
 export function Footer(): JSX.Element {
+  const facebookHref = facebookUrl();
   return (
-    <footer className="border-t border-brand-border bg-brand-surface pb-8 pt-16">
+    <footer className="mt-auto border-t border-brand-border bg-brand-bg pb-24 pt-16 md:pb-8">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-12">
           <div className="col-span-2 flex flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
             <StoreLogo variant="footer" className="mb-4 justify-center md:justify-start" />
-            <p className="mb-6 max-w-xs text-brand-muted">
+            <p className="mb-6 max-w-xs text-brand-text">
               Premium watches, toys & mobiles — Chilakaluripet&apos;s finest since{' '}
               {clientConfig.brand.trustedSince}.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-2 sm:gap-4">
               <a
                 href={instagramUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-muted transition-colors hover:text-[#E1306C]"
+                className="flex h-11 w-11 items-center justify-center text-black transition-colors hover:text-brand-purple"
                 aria-label="Instagram"
               >
                 <Instagram className="h-5 w-5" />
@@ -32,20 +33,22 @@ export function Footer(): JSX.Element {
                 href={youtubeUrl()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-brand-muted transition-colors hover:text-[#FF0000]"
+                className="flex h-11 w-11 items-center justify-center text-black transition-colors hover:text-brand-purple"
                 aria-label="YouTube"
               >
                 <Youtube className="h-5 w-5" />
               </a>
-              <a
-                href={facebookUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-brand-muted transition-colors hover:text-[#1877F2]"
-                aria-label="Facebook"
-              >
-                <Facebook className="h-5 w-5" />
-              </a>
+              {facebookHref ? (
+                <a
+                  href={facebookHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-11 w-11 items-center justify-center text-black transition-colors hover:text-brand-purple"
+                  aria-label="Facebook"
+                >
+                  <Facebook className="h-5 w-5" />
+                </a>
+              ) : null}
             </div>
           </div>
 
@@ -54,23 +57,20 @@ export function Footer(): JSX.Element {
               Quick Links
             </h4>
             <nav className="flex w-full flex-col items-center gap-2.5 text-center md:items-start md:gap-3 md:text-left">
-              <Link to="/" className="text-brand-muted transition-colors hover:text-brand-purple">
+              <Link to="/" className="text-black transition-colors hover:text-brand-purple">
                 Home
               </Link>
-              <Link to="/watches" className="text-brand-muted transition-colors hover:text-brand-purple">
+              <Link to="/watches" className="text-black transition-colors hover:text-brand-purple">
                 Watches
               </Link>
-              <Link to="/toys" className="text-brand-muted transition-colors hover:text-brand-purple">
+              <Link to="/toys" className="text-black transition-colors hover:text-brand-purple">
                 Toys
               </Link>
               <Link
                 to="/accessories"
-                className="text-brand-muted transition-colors hover:text-brand-purple"
+                className="text-black transition-colors hover:text-brand-purple"
               >
                 Accessories
-              </Link>
-              <Link to="/visit" className="text-brand-muted transition-colors hover:text-brand-purple">
-                Visit Us
               </Link>
             </nav>
           </div>
@@ -79,7 +79,7 @@ export function Footer(): JSX.Element {
             <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
               Contact
             </h4>
-            <div className="w-full space-y-2.5 text-sm text-brand-muted md:space-y-3 md:text-base">
+            <div className="w-full space-y-2.5 text-sm text-brand-text md:space-y-3 md:text-base">
               <p className="break-words">{STORE_NAME}</p>
               <p>{clientConfig.location.footerCompactAddress}</p>
               <p className="mt-2 font-medium text-brand-text md:mt-4">
@@ -89,7 +89,7 @@ export function Footer(): JSX.Element {
                 href={whatsappHref()}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block text-green-400 transition-colors hover:text-green-300"
+                className="inline-block font-medium text-brand-purple transition-colors hover:text-brand-purple-dim"
               >
                 WhatsApp Us
               </a>
@@ -99,7 +99,7 @@ export function Footer(): JSX.Element {
 
         <div className="mb-8 h-px w-full bg-brand-border" />
 
-        <div className="px-2 text-center text-sm text-brand-muted">
+        <div className="px-2 text-center text-sm text-brand-text/75">
           <p className="break-words">
             © {format(new Date(), 'yyyy')} {STORE_NAME}, Chilakaluripet. All Rights Reserved.
           </p>

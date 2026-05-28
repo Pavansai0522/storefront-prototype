@@ -2,7 +2,7 @@ import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
 import Select from 'react-select';
-import { clientSelectStyles } from '../config/clientSelectStyles';
+import { clientSelectStyles, clientSelectTheme } from '../config/clientSelectStyles';
 import {
   CATALOG_SORT_OPTIONS,
   useCatalogFilters,
@@ -70,7 +70,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
                 key={brandName}
                 type="button"
                 onClick={() => toggleBrand(brandName)}
-                className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-all ${active ? 'border-brand-purple bg-brand-purple text-white shadow-glow-purple' : 'border-brand-border bg-transparent text-brand-muted hover:border-brand-purple/50'}`}
+                className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-all ${active ? 'border-brand-purple bg-brand-purple text-white shadow-glow-purple' : 'border-brand-border bg-transparent text-brand-text hover:border-brand-purple/50'}`}
               >
                 {brandName}
               </button>
@@ -100,7 +100,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
                 key={range.label}
                 type="button"
                 onClick={() => setSelectedPriceIndex(active ? null : idx)}
-                className={`min-h-[44px] w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${active ? 'border-brand-purple/50 bg-brand-purple/10 text-brand-purple' : 'border-brand-border bg-transparent text-brand-muted hover:border-brand-purple/30'}`}
+                className={`min-h-[44px] w-full rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${active ? 'border-brand-purple/50 bg-brand-purple/10 text-brand-purple' : 'border-brand-border bg-transparent text-brand-text hover:border-brand-purple/30'}`}
               >
                 {range.label}
               </button>
@@ -140,31 +140,37 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
           />
         </div>
 
-        <div className="flex w-full flex-wrap items-end gap-3 lg:w-auto lg:justify-end">
-          <label className="hidden text-sm text-brand-muted sm:block" htmlFor="catalog-sort">
-            Sort by
-          </label>
-          <div className="min-w-0 flex-1 sm:w-56 sm:flex-none">
-            <Select<SelectOption<CatalogSortKey>, false>
-              instanceId="catalog-sort"
-              inputId="catalog-sort"
-              options={CATALOG_SORT_OPTIONS}
-              value={selectedSortOption}
-              onChange={(opt) => {
-                if (opt) {
-                  setSortKey(opt.value);
-                }
-              }}
-              styles={clientSelectStyles}
-              isSearchable={false}
-              aria-label="Sort results"
-            />
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
+          <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:flex-none">
+            <label
+              className="hidden shrink-0 text-sm leading-none text-brand-muted sm:block"
+              htmlFor="catalog-sort"
+            >
+              Sort by
+            </label>
+            <div className="min-w-0 w-full flex-1 sm:w-56">
+              <Select<SelectOption<CatalogSortKey>, false>
+                instanceId="catalog-sort"
+                inputId="catalog-sort"
+                options={CATALOG_SORT_OPTIONS}
+                value={selectedSortOption}
+                onChange={(opt) => {
+                  if (opt) {
+                    setSortKey(opt.value);
+                  }
+                }}
+                styles={clientSelectStyles}
+                theme={clientSelectTheme}
+                isSearchable={false}
+                aria-label="Sort results"
+              />
+            </div>
           </div>
 
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className="flex min-h-[44px] items-center gap-2 rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-sm font-medium text-brand-text lg:hidden"
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-sm font-medium text-brand-text sm:w-auto lg:hidden"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             Filters
@@ -196,7 +202,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
             <div className="rounded-xl border border-brand-border bg-brand-card py-16 text-center">
               <SearchX className="mx-auto mb-4 h-12 w-12 text-brand-muted" aria-hidden />
               <h3 className="mb-2 text-xl font-semibold text-brand-text">No products found</h3>
-              <p className="mb-6 text-brand-muted">Try adjusting your search or filters.</p>
+              <p className="mb-6 text-brand-text">Try adjusting your search or filters.</p>
               <button
                 type="button"
                 onClick={clearFilters}
@@ -283,7 +289,7 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setMobileFiltersOpen(false)}
-              className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden"
+              className="fixed inset-0 z-50 bg-brand-text/40 backdrop-blur-sm lg:hidden"
             />
             <motion.div
               initial={{ x: '100%' }}

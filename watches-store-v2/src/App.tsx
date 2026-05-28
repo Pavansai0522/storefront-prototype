@@ -44,7 +44,7 @@ const GadgetsPage = lazy(async () => ({ default: (await import('./pages/accessor
 
 function RouteFallback(): JSX.Element {
   return (
-    <div className="flex min-h-[50vh] items-center justify-center">
+    <div className="flex min-h-[50vh] items-center justify-center bg-brand-bg">
       <Spinner size="md" label="Loading…" />
     </div>
   );
@@ -52,7 +52,7 @@ function RouteFallback(): JSX.Element {
 
 function AdminFallback(): JSX.Element {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
+    <div className="flex min-h-screen items-center justify-center bg-brand-bg">
       <Spinner size="md" label="Loading admin…" />
     </div>
   );
@@ -94,13 +94,20 @@ function StorefrontShell(): JSX.Element {
       <Toaster
         position="top-center"
         containerStyle={{ top: 80 }}
-        toastOptions={{ duration: 2000 }}
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: '#F3ECE2',
+            color: '#1E1D1B',
+            border: '1px solid rgba(30, 29, 27, 0.12)',
+          },
+        }}
       />
       <ScrollToTop />
-      <div className="flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip bg-brand-bg font-sans text-brand-text selection:bg-brand-purple selection:text-white">
+      <div className="storefront-root flex min-h-screen w-full max-w-[100vw] flex-col overflow-x-clip font-sans selection:bg-brand-purple/30 selection:text-brand-text">
         <Navbar />
 
-        <main className="flex-grow pb-20 md:pb-0">
+        <main className="bg-brand-bg">
           <Suspense fallback={<RouteFallback />}>
             <Routes>
               <Route path="/" element={<Home />} />
