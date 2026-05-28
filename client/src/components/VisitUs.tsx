@@ -4,7 +4,6 @@ import { MapPin, Phone, Clock, ExternalLink, ChevronLeft, ChevronRight } from 'l
 import { useStoreConfig } from '../context/StoreDataContext';
 import { phoneTelHref } from '../utils/phoneTel';
 import { SocialLinksRow } from './SocialLinksRow';
-import { StoreLogo } from './StoreLogo';
 import { STORE_PANEL_SURFACE, STORE_SECTION_SURFACE } from '../constants/ui';
 
 const CAROUSEL_INTERVAL_MS = 4000;
@@ -41,7 +40,7 @@ function StorePhotoCarousel({ images }: StorePhotoCarouselProps): JSX.Element | 
 
   return (
     <div
-      className={`relative h-[360px] w-full overflow-hidden md:h-[480px] ${STORE_PANEL_SURFACE}`}
+      className={`relative h-[min(480px,92vw)] w-full overflow-hidden sm:h-[480px] md:h-[580px] lg:h-[640px] ${STORE_PANEL_SURFACE}`}
       role="region"
       aria-roledescription="carousel"
       aria-label="Store photos"
@@ -57,12 +56,6 @@ function StorePhotoCarousel({ images }: StorePhotoCarouselProps): JSX.Element | 
           loading={i === 0 ? 'eager' : 'lazy'}
         />
       ))}
-
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-brand-text/50 via-transparent to-brand-text/10" />
-
-      <div className="absolute inset-0 flex flex-col items-center justify-center bg-brand-bg/25 p-6 backdrop-blur-[1px]">
-        <StoreLogo variant="hero" linked={false} />
-      </div>
 
       {count > 1 ? (
         <>
@@ -117,7 +110,7 @@ export function VisitUs(): JSX.Element {
   return (
     <section id="visit" className={`relative overflow-x-hidden ${STORE_SECTION_SURFACE} py-24`}>
       <div className="mx-auto max-w-7xl px-4 md:px-8">
-        <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <div className="grid items-center gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.2fr)] lg:gap-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -199,7 +192,7 @@ export function VisitUs(): JSX.Element {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="min-w-0"
+            className="min-w-0 w-full max-w-none"
           >
             <StorePhotoCarousel images={storeImages} />
           </motion.div>

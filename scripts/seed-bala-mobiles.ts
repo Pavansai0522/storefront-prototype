@@ -73,7 +73,16 @@ const BALA_CLIENT_ROW = {
     telegramUrl: 'https://t.me/bala2233',
     whatsappChannelUrl: 'https://whatsapp.com/channel/0029VaA45vC1t90XGjoulr3Q',
     instagramHandle: '@bala_digital_xpress',
-    storeCarouselImages: [],
+    storeCarouselImages: [
+      '/store/b1.jpeg',
+      '/store/b2.jpeg',
+      '/store/b3.jpeg',
+      '/store/b4.jpeg',
+      '/store/b5.jpeg',
+      '/store/b6.jpeg',
+      '/store/b7.jpeg',
+      '/store/b8.jpeg',
+    ],
   },
 };
 
