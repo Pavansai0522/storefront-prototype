@@ -82,14 +82,14 @@ export function Hero(): JSX.Element {
             transition={{ duration: 0.8, delay: 0.2, ease: 'easeOut' }}
             className="relative min-w-0"
           >
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-xs sm:max-w-md xl:max-w-lg 2xl:max-w-xl">
+            <div className="relative mx-auto aspect-[3/4] w-full max-w-[240px] sm:max-w-[280px] lg:max-w-[300px] xl:max-w-[320px]">
               <div className="pointer-events-none absolute inset-0 scale-90 rotate-12 rounded-[3rem] bg-gradient-to-tr from-brand-blue/20 to-brand-saffron/15 blur-3xl" />
 
               {trending?.img ? (
                 <img
                   src={trending.img}
                   alt={trending.name}
-                  className="relative z-10 h-full w-full rounded-[2.5rem] border border-brand-border object-cover shadow-xl transition-transform duration-500 -rotate-6 md:hover:rotate-0"
+                  className="relative z-10 h-full w-full rounded-[2.5rem] border border-brand-border object-contain bg-brand-card p-3 shadow-xl transition-transform duration-500 -rotate-6 md:hover:rotate-0"
                 />
               ) : trending ? (
                 <div className="relative z-10 flex h-full w-full items-center justify-center overflow-hidden rounded-[2.5rem] border border-brand-border bg-brand-card shadow-xl -rotate-6 md:hover:rotate-0">

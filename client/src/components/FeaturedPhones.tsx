@@ -65,7 +65,7 @@ export function FeaturedPhones(): JSX.Element | null {
 
       <div className="w-full overflow-x-auto overflow-y-visible overscroll-x-contain touch-pan-x hide-scrollbar pb-12 snap-x snap-mandatory md:overflow-visible md:snap-none">
         <div className="w-full md:storefront-shell">
-          <div className="flex w-max gap-4 pl-4 pr-4 sm:gap-6 sm:pl-8 sm:pr-8 md:w-full md:grid md:grid-cols-2 md:gap-6 md:pl-0 md:pr-0 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6">
+          <div className="flex w-max gap-4 pl-4 pr-4 sm:gap-6 sm:pl-8 sm:pr-8 md:w-full md:grid md:grid-cols-2 md:gap-6 md:pl-0 md:pr-0 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
             {featured.map((phone, index) => (
               <div key={phone.id} className="shrink-0 snap-center md:snap-none md:shrink">
                 <PhoneCard {...phone} index={index} layout="featured" />

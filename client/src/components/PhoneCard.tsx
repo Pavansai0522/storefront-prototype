@@ -17,7 +17,7 @@ interface PhoneCardProps {
   layout?: 'default' | 'featured';
 }
 
-const cardBase = `group flex flex-col rounded-3xl p-4 ${STORE_TILE_SURFACE} ${STORE_TILE_HOVER} md:hover:-translate-y-2`;
+const cardBase = `group flex flex-col rounded-3xl p-3 ${STORE_TILE_SURFACE} ${STORE_TILE_HOVER} md:hover:-translate-y-2`;
 
 export function PhoneCard({
   brand,
@@ -37,7 +37,7 @@ export function PhoneCard({
 
   const widthClass =
     layout === 'featured'
-      ? 'w-[260px] min-w-[260px] sm:w-[300px] sm:min-w-[300px] md:w-full md:min-w-0'
+      ? 'w-[288px] min-w-[288px] sm:w-[320px] sm:min-w-[320px] md:w-full md:min-w-0'
       : 'min-w-0 w-full';
 
   return (
@@ -48,12 +48,12 @@ export function PhoneCard({
       transition={{ duration: 0.5, delay: Math.min(index * 0.05, 0.4) }}
       className={`${cardBase} ${widthClass}`}
     >
-      <div className="relative mb-6 aspect-square w-full overflow-hidden rounded-2xl bg-black/50">
+      <div className="relative mb-4 aspect-[5/4] w-full overflow-hidden rounded-2xl bg-brand-surface">
         {img.trim() ? (
           <img
             src={img}
             alt={name}
-            className="h-full w-full object-contain object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
           />
         ) : (
           <ProductImagePlaceholder label={brand} />
@@ -73,11 +73,11 @@ export function PhoneCard({
           </span>
         </div>
 
-        <p className="mb-6 text-xs text-brand-muted">
+        <p className="mb-3 text-xs text-brand-muted">
           EMI from <span className="font-semibold text-brand-text">₹{emi}/mo</span>
         </p>
 
-        <div className="mt-auto flex w-full flex-col gap-2 pt-4 sm:flex-row">
+        <div className="mt-auto flex w-full flex-col gap-2 pt-2 sm:flex-row">
           <a
             href={whatsappHref(buyMessage)}
             target="_blank"

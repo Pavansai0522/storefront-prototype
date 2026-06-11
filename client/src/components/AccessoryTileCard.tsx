@@ -33,12 +33,12 @@ export function AccessoryTileCard({
         delay: Math.min(index * 0.04, 0.32)
       }}
       className={`group flex min-w-0 flex-col overflow-hidden rounded-2xl ${STORE_TILE_SURFACE} ${STORE_TILE_HOVER}`}>
-      <div className="relative aspect-square w-full overflow-hidden bg-black/40">
+      <div className="relative aspect-[5/4] w-full overflow-hidden bg-brand-surface">
         {product.img.trim() ? (
           <img
             src={product.img}
             alt={product.name}
-            className="h-full w-full object-contain object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
+            className="absolute inset-0 h-full w-full object-cover object-center md:transition-transform md:duration-500 md:group-hover:scale-105"
           />
         ) : (
           <ProductImagePlaceholder label={product.itemCode} />
@@ -53,7 +53,7 @@ export function AccessoryTileCard({
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-2 p-3 sm:p-4">
+      <div className="flex flex-1 flex-col gap-1.5 p-3">
         <h3 className="truncate text-sm font-bold leading-snug text-brand-text">{product.name}</h3>
         <p className="line-clamp-2 flex-1 text-xs leading-relaxed text-brand-muted">{product.detail}</p>
         <div className="flex items-baseline justify-between gap-2 border-t border-brand-border pt-1">
@@ -61,7 +61,7 @@ export function AccessoryTileCard({
             ₹{product.priceDisplay}
           </span>
         </div>
-        <div className="mt-4 flex w-full flex-col gap-2 sm:flex-row">
+        <div className="mt-2 flex w-full flex-col gap-2 sm:flex-row">
           <a
             href={buildWhatsappHref(product)}
             target="_blank"

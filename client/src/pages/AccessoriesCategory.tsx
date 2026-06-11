@@ -315,7 +315,7 @@ function AccessoriesCategoryInner({
               ) : (
                 <motion.div
                   layout
-                  className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                  className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
                   {paginatedItems.map((product, index) => (
                     <AccessoryTileCard
                       key={product.id}

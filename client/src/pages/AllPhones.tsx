@@ -209,7 +209,7 @@ export function AllPhones() {
                   </button>
                 </div>
               ) : (
-                <motion.div layout className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <motion.div layout className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4">
                   {paginatedPhones.map((phone, index) => (
                     <PhoneCard key={phone.id} {...phone} index={index} />
                   ))}
