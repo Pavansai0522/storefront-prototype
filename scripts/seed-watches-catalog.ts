@@ -3,25 +3,8 @@
  *   npm run seed:watches
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
  */
-import 'dotenv/config';
-import { createClient } from '@supabase/supabase-js';
-import { FEATURED_TOYS, FEATURED_WATCHES } from '../watches-store-v2/src/data/featured';
-import { SUBCATEGORY_CATALOG } from '../watches-store-v2/src/data/subcategoryCatalog';
-import type { SubcategoryCatalogKey } from '../watches-store-v2/src/types/catalogTile.types';
-
-const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
-const serviceKey =
-  process.env.SUPABASE_SERVICE_ROLE_KEY ??
-  process.env.SUPABASE_SECRET_KEY;
-
-if (!url || !serviceKey) {
-  console.error('Set SUPABASE_URL and SUPABASE_SECRET_KEY (or SUPABASE_SERVICE_ROLE_KEY)');
-  process.exit(1);
-}
-
-const supabase = createClient(url, serviceKey, {
-  auth: { persistSession: false, autoRefreshToken: false },
-});
+import './load-env';
+import { createSupabaseAdmin, seedProductsForClient } from './seed-client-catalogs';
 
 const WATCHES_CLIENT_ID = 'client-watches-1';
 
@@ -65,69 +48,29 @@ const PR_WATCHES_CLIENT_ROW = {
 };
 
 async function seedClients(): Promise<void> {
-  const rows = [PR_WATCHES_CLIENT_ROW];
-
-  const { error } = await supabase.from('clients').upsert(rows);
+  const supabase = createSupabaseAdmin();
+  const { error } = await supabase.from('clients').upsert(PR_WATCHES_CLIENT_ROW);
   if (error) {
     throw new Error(error.message);
   }
-  console.log(`Seeded ${rows.length} clients`);
-}
-
-async function seedWatchesProducts(): Promise<void> {
-  await supabase.from('products').delete().eq('client_id', WATCHES_CLIENT_ID);
-
-  const productRows: Record<string, unknown>[] = [];
-  let sort = 0;
-
-  const subcategoryKeys = Object.keys(SUBCATEGORY_CATALOG) as SubcategoryCatalogKey[];
-  for (const subcategory of subcategoryKeys) {
-    for (const item of SUBCATEGORY_CATALOG[subcategory]) {
-      productRows.push({
-        client_id: WATCHES_CLIENT_ID,
-        name: item.name,
-        brand: item.brand,
-        price_inr: item.priceInr,
-        emi_price_inr: Math.max(1, Math.round(item.priceInr / 12)),
-        image_url: item.image,
-        in_stock: true,
-        category: subcategory,
-        subcategory,
-        is_accessory: false,
-        featured_group: null,
-        featured_sort: null,
-        sort_order: sort++,
-      });
-    }
-  }
-
-  const featuredNameSet = new Map<string, { group: 'watch' | 'toy'; sort: number }>();
-  FEATURED_WATCHES.forEach((f, i) => {
-    featuredNameSet.set(f.name.toLowerCase(), { group: 'watch', sort: i });
-  });
-  FEATURED_TOYS.forEach((f, i) => {
-    featuredNameSet.set(f.name.toLowerCase(), { group: 'toy', sort: i });
-  });
-
-  for (const row of productRows) {
-    const key = String(row.name).toLowerCase();
-    const featured = featuredNameSet.get(key);
-    if (featured) {
-      row.featured_group = featured.group;
-      row.featured_sort = featured.sort;
-    }
-  }
-
-  const { error } = await supabase.from('products').insert(productRows);
-  if (error) {
-    throw new Error(error.message);
-  }
-  console.log(`Seeded ${productRows.length} products for ${WATCHES_CLIENT_ID}`);
+  console.log('Seeded PR Watches client');
 }
 
 async function main(): Promise<void> {
+  const supabase = createSupabaseAdmin();
+  const force = process.env.SEED_FORCE === 'true';
+
   await seedClients();
-  await seedWatchesProducts();
+  await seedProductsForClient(
+    supabase,
+    {
+      id: WATCHES_CLIENT_ID,
+      slug: PR_WATCHES_CLIENT_ROW.slug,
+      template: PR_WATCHES_CLIENT_ROW.template,
+      store_name: PR_WATCHES_CLIENT_ROW.store_name,
+    },
+    { force },
+  );
   console.log('Done.');
 }
 

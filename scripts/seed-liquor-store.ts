@@ -1,13 +1,13 @@
 /**
- * Seed United Liquors client and store admin.
- * Clears any sample catalog rows on each run (production: add SKUs in admin).
- *
+ * Seed United Liquors client, store admin, and sample catalog.
  * Run from repo root: npm run seed:liquor
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
+ * Set SEED_FORCE=true to replace an existing catalog.
  */
 import './load-env';
 import { createClient } from '@supabase/supabase-js';
 import { clientConfig } from '../liquor-store-v1/src/config/client-config';
+import { createSupabaseAdmin, seedProductsForClient } from './seed-client-catalogs';
 
 const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const serviceKey =
@@ -85,14 +85,6 @@ async function seedClient(): Promise<void> {
   console.log(`Upserted client ${LIQUOR_CLIENT_ID} (${LIQUOR_SLUG})`);
 }
 
-async function clearProducts(): Promise<void> {
-  const { error } = await supabase.from('products').delete().eq('client_id', LIQUOR_CLIENT_ID);
-  if (error) {
-    throw new Error(error.message);
-  }
-  console.log(`Cleared products for ${LIQUOR_CLIENT_ID}`);
-}
-
 async function seedStoreAdmin(): Promise<void> {
   const { data: list } = await supabase.auth.admin.listUsers();
   const existing = list.users.find(
@@ -137,9 +129,22 @@ async function seedStoreAdmin(): Promise<void> {
 
 async function main(): Promise<void> {
   await seedClient();
-  await clearProducts();
   await seedStoreAdmin();
-  console.log('\nUnited Liquors ready (empty catalog — add products in /admin).');
+
+  const admin = createSupabaseAdmin();
+  const force = process.env.SEED_FORCE === 'true';
+  await seedProductsForClient(
+    admin,
+    {
+      id: LIQUOR_CLIENT_ID,
+      slug: LIQUOR_SLUG,
+      template: LIQUOR_CLIENT_ROW.template,
+      store_name: LIQUOR_CLIENT_ROW.store_name,
+    },
+    { force },
+  );
+
+  console.log('\nUnited Liquors ready.');
   console.log('  Storefront: your liquor Vercel URL');
   console.log(`  Store admin: ${STORE_ADMIN_EMAIL} / ${STORE_ADMIN_PASSWORD}`);
   console.log('  Superadmin: your VITE_SUPERADMIN_EMAIL on any storefront /admin');

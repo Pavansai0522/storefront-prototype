@@ -1,11 +1,12 @@
 /**
- * Seed Bala Mobiles client and store admin.
- * Products are managed in /admin — not seeded from mock files.
+ * Seed Bala Mobiles client, store admin, and sample catalog.
  * Run from repo root: npm run seed:bala
- * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY.
+ * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY + BALA_STORE_ADMIN_PASSWORD.
+ * Set SEED_FORCE=true to replace an existing catalog.
  */
-import 'dotenv/config';
+import './load-env';
 import { createClient } from '@supabase/supabase-js';
+import { createSupabaseAdmin, seedProductsForClient } from './seed-client-catalogs';
 
 const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
 const serviceKey =
@@ -173,11 +174,24 @@ async function main(): Promise<void> {
   await seedClient();
   await clearMockCatalog();
   await seedStoreAdmin();
+
+  const admin = createSupabaseAdmin();
+  const force = process.env.SEED_FORCE === 'true';
+  await seedProductsForClient(
+    admin,
+    {
+      id: BALA_CLIENT_ID,
+      slug: BALA_SLUG,
+      template: BALA_CLIENT_ROW.template,
+      store_name: BALA_CLIENT_ROW.store_name,
+    },
+    { force },
+  );
+
   console.log('\nBala Mobiles ready.');
   console.log('  Storefront: http://localhost:5173');
   console.log('  Store admin: http://localhost:5173/admin');
   console.log(`  Admin login: ${STORE_ADMIN_EMAIL}`);
-  console.log('  Add phones & accessories in /admin (no mock catalog is seeded).');
   if (process.env.BALA_CLEAR_MOCK_CATALOG !== 'true') {
     console.log('  Tip: set BALA_CLEAR_MOCK_CATALOG=true to delete Unsplash placeholder products.');
   }
