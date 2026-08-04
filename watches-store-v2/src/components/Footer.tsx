@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { STORE_NAME } from '../config/storeBranding';
 import { StoreLogo } from './StoreLogo';
 import { clientConfig, whatsappHref } from '../config/client-config';
+import { LEGAL_FOOTER_LINKS } from '../data/legalPolicies';
 import { facebookUrl, instagramUrl, youtubeUrl } from '../utils/socialLinks';
 
 export function Footer(): JSX.Element {
@@ -12,7 +13,7 @@ export function Footer(): JSX.Element {
   return (
     <footer className="mt-auto border-t border-brand-border bg-brand-bg pb-24 pt-16 md:pb-8">
       <div className="storefront-shell">
-        <div className="mb-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-3 md:gap-12">
+        <div className="mb-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-10">
           <div className="col-span-2 flex flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
             <StoreLogo variant="footer" className="mb-4 justify-center md:justify-start" />
             <p className="mb-6 max-w-xs text-brand-text">
@@ -77,6 +78,23 @@ export function Footer(): JSX.Element {
 
           <div className="flex min-w-0 flex-col items-center text-center md:items-start md:text-left">
             <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
+              Legal
+            </h4>
+            <nav className="flex w-full flex-col items-center gap-2.5 text-center md:items-start md:gap-3 md:text-left">
+              {LEGAL_FOOTER_LINKS.map((link) => (
+                <Link
+                  key={link.path}
+                  to={link.path}
+                  className="text-black transition-colors hover:text-brand-purple"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="col-span-2 flex min-w-0 flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
+            <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
               Contact
             </h4>
             <div className="w-full space-y-2.5 text-sm text-brand-text md:space-y-3 md:text-base">
@@ -99,10 +117,21 @@ export function Footer(): JSX.Element {
 
         <div className="mb-8 h-px w-full bg-brand-border" />
 
-        <div className="px-2 text-center text-sm text-brand-text/75">
+        <div className="flex flex-col items-center gap-3 px-2 text-center text-sm text-brand-text/75">
           <p className="break-words">
             © {format(new Date(), 'yyyy')} {STORE_NAME}, Chilakaluripet. All Rights Reserved.
           </p>
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            {LEGAL_FOOTER_LINKS.map((link) => (
+              <Link
+                key={`bottom-${link.path}`}
+                to={link.path}
+                className="transition-colors hover:text-brand-purple"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

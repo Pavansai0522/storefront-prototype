@@ -18,7 +18,7 @@ export function FeaturedAccessories(): JSX.Element | null {
     >
       {featuredAccessories.map((item, index) => (
         <motion.div
-          key={item.id}
+          key={item.productId}
           className="shrink-0 snap-start md:w-full md:snap-none md:shrink"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -26,6 +26,8 @@ export function FeaturedAccessories(): JSX.Element | null {
           transition={{ delay: index * 0.05 }}
         >
           <ProductCard
+            productId={item.productId}
+            priceInr={item.priceInr}
             type="accessory"
             brand={item.brand}
             name={item.name}

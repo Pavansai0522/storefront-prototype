@@ -7,6 +7,7 @@ import { Footer } from './components/Footer';
 import { WhatsAppFAB } from './components/WhatsAppFAB';
 import { Home } from './pages/Home';
 import { StoreDataProvider } from './context/StoreDataContext';
+import { CartProvider } from './context/CartContext';
 import { StoreGate } from './components/StoreGate';
 import { Spinner } from './components/Spinner';
 
@@ -41,6 +42,12 @@ const PhoneAccessoriesPage = lazy(async () => ({
   default: (await import('./pages/accessories/PhoneAccessoriesPage')).PhoneAccessoriesPage,
 }));
 const GadgetsPage = lazy(async () => ({ default: (await import('./pages/accessories/GadgetsPage')).GadgetsPage }));
+const LegalPage = lazy(async () => ({ default: (await import('./pages/LegalPage')).LegalPage }));
+const CartPage = lazy(async () => ({ default: (await import('./pages/CartPage')).CartPage }));
+const CheckoutPage = lazy(async () => ({ default: (await import('./pages/CheckoutPage')).CheckoutPage }));
+const OrderSuccessPage = lazy(async () => ({
+  default: (await import('./pages/OrderSuccessPage')).OrderSuccessPage,
+}));
 
 function RouteFallback(): JSX.Element {
   return (
@@ -89,7 +96,8 @@ function AdminMount(): JSX.Element {
 
 function StorefrontShell(): JSX.Element {
   return (
-    <StoreGate>
+    <CartProvider>
+      <StoreGate>
       <SeoHead />
       <Toaster
         position="top-center"
@@ -129,6 +137,12 @@ function StorefrontShell(): JSX.Element {
               <Route path="/accessories/gadgets" element={<GadgetsPage />} />
               <Route path="/accessories" element={<Accessories />} />
               <Route path="/visit" element={<VisitUsPage />} />
+              <Route path="/terms" element={<LegalPage policyId="terms" />} />
+              <Route path="/privacy" element={<LegalPage policyId="privacy" />} />
+              <Route path="/refund" element={<LegalPage policyId="refund" />} />
+              <Route path="/cart" element={<CartPage />} />
+              <Route path="/checkout" element={<CheckoutPage />} />
+              <Route path="/order-success" element={<OrderSuccessPage />} />
             </Routes>
           </Suspense>
         </main>
@@ -136,7 +150,8 @@ function StorefrontShell(): JSX.Element {
         <Footer />
         <WhatsAppFAB />
       </div>
-    </StoreGate>
+      </StoreGate>
+    </CartProvider>
   );
 }
 

@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingBag } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreLogo } from './StoreLogo';
 import { whatsappHref } from '../config/client-config';
+import { useCart } from '../context/CartContext';
 import { btnWhatsAppNav } from '../constants/buttonStyles';
 
 const navLinks = [
@@ -30,6 +31,7 @@ function isNavLinkActive(href: string, pathname: string): boolean {
 export function Navbar(): JSX.Element {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const { itemCount } = useCart();
 
   useEffect(() => {
     const handleScroll = (): void => {
@@ -68,7 +70,19 @@ export function Navbar(): JSX.Element {
                   ))}
                 </nav>
 
-                <div className="hidden shrink-0 md:flex md:items-center">
+                <div className="hidden shrink-0 md:flex md:items-center md:gap-3">
+                  <Link
+                    to="/cart"
+                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand-border text-brand-text transition hover:border-brand-purple hover:text-brand-purple"
+                    aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}
+                  >
+                    <ShoppingBag className="h-5 w-5" aria-hidden />
+                    {itemCount > 0 ? (
+                      <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-brand-purple px-1 text-[10px] font-bold text-white">
+                        {itemCount > 99 ? '99+' : itemCount}
+                      </span>
+                    ) : null}
+                  </Link>
                   <a
                     href={whatsappHref()}
                     target="_blank"
@@ -80,6 +94,18 @@ export function Navbar(): JSX.Element {
                 </div>
 
                 <div className="flex items-center gap-2 md:hidden">
+                  <Link
+                    to="/cart"
+                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand-border text-brand-text"
+                    aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}
+                  >
+                    <ShoppingBag className="h-5 w-5" aria-hidden />
+                    {itemCount > 0 ? (
+                      <span className="absolute -right-1 -top-1 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-brand-purple px-1 text-[10px] font-bold text-white">
+                        {itemCount > 99 ? '99+' : itemCount}
+                      </span>
+                    ) : null}
+                  </Link>
                   <a
                     href={whatsappHref()}
                     target="_blank"

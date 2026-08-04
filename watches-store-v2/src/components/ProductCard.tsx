@@ -1,8 +1,12 @@
-import React from 'react';
+import React, { useId, useState } from 'react';
+import { AddToCartButton } from './AddToCartButton';
 import { ProductWhatsAppActions } from './ProductWhatsAppActions';
 import { optimizeImageUrl } from '../utils/optimizeImageUrl';
+import type { ID } from '../types/utils.types';
 
 interface ProductCardProps {
+  productId: ID;
+  priceInr: number;
   image: string;
   brand: string;
   name: string;
@@ -16,6 +20,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({
+  productId,
+  priceInr,
   image,
   brand,
   name,
@@ -25,12 +31,16 @@ export function ProductCard({
   layout = 'carousel',
   priority = false,
 }: ProductCardProps): JSX.Element {
+  const titleId = useId();
+  const [imageFailed, setImageFailed] = useState(false);
   const isWatch = type === 'watch';
   const isGrid = layout === 'grid';
   const imageSrc = optimizeImageUrl(image, priority ? 640 : 400);
+  const showImage = imageSrc.trim().length > 0 && !imageFailed;
 
   return (
     <article
+      aria-labelledby={titleId}
       className={
         isGrid
           ? 'flex w-full min-w-0 max-w-none flex-col overflow-hidden rounded-2xl border border-brand-border bg-brand-card transition-colors duration-200 hover:border-brand-purple/30 md:hover:shadow-lg md:hover:shadow-brand-purple/10'
@@ -38,25 +48,37 @@ export function ProductCard({
       }
     >
       <div className="group relative flex aspect-square items-center justify-center overflow-hidden bg-brand-surface p-6">
-        <img
-          src={imageSrc}
-          alt={name}
-          width={400}
-          height={400}
-          loading={priority ? 'eager' : 'lazy'}
-          decoding="async"
-          fetchPriority={priority ? 'high' : 'auto'}
-          className="h-full w-full object-contain md:transition-transform md:duration-500 md:group-hover:scale-105"
-        />
-        <div className="absolute left-4 top-4 rounded-full border border-brand-border bg-brand-bg/90 px-3 py-1 backdrop-blur-sm">
-          <span className="text-xs font-bold uppercase tracking-wider text-brand-text">
+        {showImage ? (
+          <img
+            src={imageSrc}
+            alt=""
+            width={400}
+            height={400}
+            loading={priority ? 'eager' : 'lazy'}
+            decoding="async"
+            fetchPriority={priority ? 'high' : 'auto'}
+            onError={() => setImageFailed(true)}
+            className="h-full w-full object-contain md:transition-transform md:duration-500 md:group-hover:scale-105"
+          />
+        ) : (
+          <div
+            className="flex h-full w-full items-center justify-center rounded-xl border border-dashed border-brand-border/60 bg-brand-bg/40"
+            aria-hidden
+          />
+        )}
+        <div className="pointer-events-none absolute left-4 top-4 z-10 max-w-[calc(100%-2rem)] rounded-full border border-brand-border bg-brand-bg/90 px-3 py-1 backdrop-blur-sm">
+          <span className="block truncate text-xs font-bold uppercase tracking-wider text-brand-text">
             {brand}
           </span>
         </div>
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="mb-2 line-clamp-1 text-lg font-semibold text-brand-text" title={name}>
+        <h3
+          id={titleId}
+          className="mb-2 line-clamp-2 min-h-[1.75rem] text-lg font-semibold leading-snug text-brand-text"
+          title={name}
+        >
           {name}
         </h3>
 
@@ -79,7 +101,15 @@ export function ProductCard({
           </p>
         </div>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-2">
+          <AddToCartButton
+            productId={productId}
+            name={name}
+            brand={brand}
+            priceInr={priceInr}
+            priceLabel={price}
+            image={image}
+          />
           <ProductWhatsAppActions productName={name} priceLabel={price} variant="card" />
         </div>
       </div>

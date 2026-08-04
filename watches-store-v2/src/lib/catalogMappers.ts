@@ -31,10 +31,12 @@ export function dbProductToFeatured(
   type: FeaturedProduct['type'],
 ): FeaturedProduct {
   return {
-    id: row.featured_sort ?? 0,
+    productId: row.id,
+    sortOrder: row.featured_sort ?? 0,
     brand: row.brand.toUpperCase(),
     name: row.name,
     price: formatInrLabel(row.price_inr),
+    priceInr: row.price_inr,
     emi: formatEmiLabel(row.emi_price_inr, row.price_inr),
     image: optimizeImageUrl(row.image_url ?? '', 400),
     type,

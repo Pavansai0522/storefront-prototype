@@ -18,10 +18,12 @@ export function FeaturedToys(): JSX.Element | null {
     >
       {featuredToys.map((toy, index) => (
         <div
-          key={`${toy.id}-${toy.name}`}
+          key={`${toy.productId}-${toy.name}`}
           className="shrink-0 snap-start md:w-full md:snap-none md:shrink"
         >
           <ProductCard
+            productId={toy.productId}
+            priceInr={toy.priceInr}
             type="toy"
             brand={toy.brand}
             name={toy.name}

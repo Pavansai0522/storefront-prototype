@@ -43,9 +43,10 @@ export const clientConfig = {
     googleMapsUrl:
       'https://www.google.com/maps/search/?api=1&query=PR+Watches+Mobiles+Chilakaluripet+522616',
     storeCarouselImages: [
-      'https://images.unsplash.com/photo-1556656793-08538906a9f8?auto=format&fit=crop&q=80&w=1000',
-      'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1000',
-      'https://images.unsplash.com/photo-1585366119957-e9730b6d0f60?auto=format&fit=crop&q=80&w=1000',
+      '/store/pr1.jpeg',
+      '/store/pr2.jpeg',
+      '/store/pr3.jpeg',
+      '/store/pr4.jpeg',
     ],
   },
   hours: {
@@ -63,11 +64,14 @@ export const clientConfig = {
     title: 'PR Watches & Mobiles | Watches, Toys & Mobiles in Chilakaluripet',
     description:
       'Watches, toys & mobiles in Chilakaluripet. Genuine products, EMI available, same-day pickup. Visit PR Watches & Mobiles or WhatsApp us.',
-    ogImage:
-      'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&q=80&w=1200',
+    ogImage: '/store/pr1.jpeg',
   },
   offers: {
     banner: 'Festival season — offers on watches, toys & accessories. Walk in or WhatsApp for best price.',
+  },
+  checkout: {
+    deliveryChargeInr: 60,
+    currency: 'INR',
   },
   theme: {
     colors: {

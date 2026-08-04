@@ -112,3 +112,21 @@ npm run set:pr-watches-url -- https://your-app.vercel.app
 
 - `npm run build:watches` — production build
 - `npm run lint:watches` — ESLint
+
+## Online checkout (Razorpay India)
+
+Cart → `/checkout` → Razorpay (UPI / cards). Delivery charge is **₹60** (see `client-config.ts`).
+
+1. Apply migration: from repo root, `npm run db:migrate` (creates `orders` + `order_items`).
+2. Add to **Vercel** (watches project) and local `watches-store-v2/.env`:
+
+| Variable | Notes |
+|----------|--------|
+| `RAZORPAY_KEY_ID` | Server + public key id |
+| `RAZORPAY_KEY_SECRET` | Server only — never expose in `VITE_*` |
+| `VITE_RAZORPAY_KEY_ID` | Same key id for Checkout.js in the browser |
+| `SUPABASE_SERVICE_ROLE_KEY` | Required for order writes in `/api/create-razorpay-order` |
+
+3. Redeploy. Without keys, checkout UI works but **Proceed to Pay** stays disabled with a WhatsApp fallback.
+
+Routes: `/cart`, `/checkout`, `/order-success`.

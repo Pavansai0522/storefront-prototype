@@ -4,7 +4,6 @@ import { MapPin, Phone, Clock, MessageCircle, ChevronLeft, ChevronRight, Externa
 import toast from 'react-hot-toast';
 import { clientConfig, whatsappHref } from '../config/client-config';
 import { btnWhatsApp } from '../constants/buttonStyles';
-import { StoreLogo } from './StoreLogo';
 
 const storeImages = clientConfig.location.storeCarouselImages;
 
@@ -31,15 +30,11 @@ function StorePhotoCarousel(): JSX.Element {
           src={img}
           alt={`Store view ${i + 1}`}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
-            i === current ? 'opacity-80' : 'opacity-0'
+            i === current ? 'opacity-100' : 'opacity-0'
           }`}
           loading={i === 0 ? 'eager' : 'lazy'}
         />
       ))}
-
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <StoreLogo variant="hero" linked={false} />
-      </div>
 
       <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1">
         {storeImages.map((_, i) => (

@@ -2,6 +2,30 @@ import path from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
 
+function checkoutDevApi(): Plugin {
+  return {
+    name: 'checkout-dev-api',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? '';
+        if (url.startsWith('/api/create-razorpay-order')) {
+          void import('./api/_lib/ordersHttp.js').then(({ handleCreateRazorpayOrder }) =>
+            handleCreateRazorpayOrder(req, res),
+          );
+          return;
+        }
+        if (url.startsWith('/api/verify-razorpay-payment')) {
+          void import('./api/_lib/ordersHttp.js').then(({ handleVerifyRazorpayPayment }) =>
+            handleVerifyRazorpayPayment(req, res),
+          );
+          return;
+        }
+        next();
+      });
+    },
+  };
+}
+
 function r2UploadDevApi(): Plugin {
   return {
     name: 'r2-upload-dev-api',
@@ -20,7 +44,7 @@ function r2UploadDevApi(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), r2UploadDevApi()],
+  plugins: [react(), r2UploadDevApi(), checkoutDevApi()],
   resolve: {
     dedupe: ['react', 'react-dom', 'react-router-dom'],
     alias: {
