@@ -11,12 +11,12 @@ import { facebookUrl, instagramUrl, youtubeUrl } from '../utils/socialLinks';
 export function Footer(): JSX.Element {
   const facebookHref = facebookUrl();
   return (
-    <footer className="mt-auto border-t border-brand-border bg-brand-bg pb-24 pt-16 md:pb-8">
+    <footer className="mt-auto border-t border-brand-border bg-brand-bg pb-20 pt-10 md:pb-6">
       <div className="storefront-shell">
-        <div className="mb-12 grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-4 md:gap-10">
+        <div className="mb-8 grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-4 md:gap-6">
           <div className="col-span-2 flex flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
-            <StoreLogo variant="footer" className="mb-4 justify-center md:justify-start" />
-            <p className="mb-6 max-w-xs text-brand-text">
+            <StoreLogo variant="footer" className="mb-3 justify-center md:justify-start" />
+            <p className="mb-4 max-w-xs text-sm text-brand-text">
               Premium watches, toys & mobiles — Chilakaluripet&apos;s finest since{' '}
               {clientConfig.brand.trustedSince}.
             </p>
@@ -54,10 +54,10 @@ export function Footer(): JSX.Element {
           </div>
 
           <div className="flex min-w-0 flex-col items-center text-center md:items-start md:text-left">
-            <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
+            <h4 className="mb-3 w-full text-sm font-semibold uppercase tracking-wider text-brand-text">
               Quick Links
             </h4>
-            <nav className="flex w-full flex-col items-center gap-2.5 text-center md:items-start md:gap-3 md:text-left">
+            <nav className="flex w-full flex-col items-center gap-2 text-center md:items-start md:text-left">
               <Link to="/" className="text-black transition-colors hover:text-brand-purple">
                 Home
               </Link>
@@ -77,10 +77,10 @@ export function Footer(): JSX.Element {
           </div>
 
           <div className="flex min-w-0 flex-col items-center text-center md:items-start md:text-left">
-            <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
+            <h4 className="mb-3 w-full text-sm font-semibold uppercase tracking-wider text-brand-text">
               Legal
             </h4>
-            <nav className="flex w-full flex-col items-center gap-2.5 text-center md:items-start md:gap-3 md:text-left">
+            <nav className="flex w-full flex-col items-center gap-2 text-center md:items-start md:text-left">
               {LEGAL_FOOTER_LINKS.map((link) => (
                 <Link
                   key={link.path}
@@ -94,13 +94,13 @@ export function Footer(): JSX.Element {
           </div>
 
           <div className="col-span-2 flex min-w-0 flex-col items-center text-center md:col-span-1 md:items-start md:text-left">
-            <h4 className="mb-4 w-full text-sm font-semibold uppercase tracking-wider text-brand-text md:mb-6">
+            <h4 className="mb-3 w-full text-sm font-semibold uppercase tracking-wider text-brand-text">
               Contact
             </h4>
-            <div className="w-full space-y-2.5 text-sm text-brand-text md:space-y-3 md:text-base">
+            <div className="w-full space-y-2 text-sm text-brand-text">
               <p className="break-words">{STORE_NAME}</p>
               <p>{clientConfig.location.footerCompactAddress}</p>
-              <p className="mt-2 font-medium text-brand-text md:mt-4">
+              <p className="mt-1 font-medium text-brand-text">
                 {clientConfig.contact.phoneDisplay}
               </p>
               <a
@@ -115,9 +115,9 @@ export function Footer(): JSX.Element {
           </div>
         </div>
 
-        <div className="mb-8 h-px w-full bg-brand-border" />
+        <div className="mb-5 h-px w-full bg-brand-border" />
 
-        <div className="flex flex-col items-center gap-3 px-2 text-center text-sm text-brand-text/75">
+        <div className="flex flex-col items-center gap-2 px-2 text-center text-xs text-brand-text/75">
           <p className="break-words">
             © {format(new Date(), 'yyyy')} {STORE_NAME}, Chilakaluripet. All Rights Reserved.
           </p>

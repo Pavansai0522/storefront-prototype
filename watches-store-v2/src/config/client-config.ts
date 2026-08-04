@@ -58,7 +58,7 @@ export const clientConfig = {
     instagramHandle: '@pr_watch_mobiles',
     instagramUrl: 'https://www.instagram.com/pr_watch_mobiles?igsh=NjF1dTJtc3pnMnc4&utm_source=qr',
     youtubeUrl: 'https://youtube.com/@prwatchmobiles?si=3rzvzNyNM7R4q_uL',
-    facebookUrl: '',
+    facebookUrl: 'https://www.facebook.com/share/1DAPY1s12S/?mibextid=wwXIfr',
   },
   seo: {
     title: 'PR Watches & Mobiles | Watches, Toys & Mobiles in Chilakaluripet',

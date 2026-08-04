@@ -3,10 +3,9 @@ import { MessageCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import {
   buyProductMessage,
-  enquireProductMessage,
   whatsappHref,
 } from '../config/client-config';
-import { btnEnquireLink, btnWhatsApp, btnWhatsAppCompact } from '../constants/buttonStyles';
+import { btnWhatsApp, btnWhatsAppCompact } from '../constants/buttonStyles';
 
 type ProductWhatsAppActionsProps = {
   productName: string;
@@ -40,26 +39,15 @@ export function ProductWhatsAppActions({
   }
 
   return (
-    <div className="flex flex-col gap-1">
-      <a
-        href={whatsappHref(buyProductMessage(productName, priceLabel))}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleClick}
-        className={`w-full ${btnWhatsApp} text-sm`}
-      >
-        <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
-        Order on WhatsApp
-      </a>
-      <a
-        href={whatsappHref(enquireProductMessage(productName))}
-        target="_blank"
-        rel="noopener noreferrer"
-        onClick={handleClick}
-        className={btnEnquireLink}
-      >
-        Ask about this product
-      </a>
-    </div>
+    <a
+      href={whatsappHref(buyProductMessage(productName, priceLabel))}
+      target="_blank"
+      rel="noopener noreferrer"
+      onClick={handleClick}
+      className={`w-full ${btnWhatsApp} text-sm`}
+    >
+      <MessageCircle className="h-4 w-4 shrink-0" aria-hidden />
+      Order on WhatsApp
+    </a>
   );
 }
