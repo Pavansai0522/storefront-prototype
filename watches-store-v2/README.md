@@ -124,8 +124,9 @@ Cart → `/checkout` → Razorpay (UPI / cards). Delivery charge is **₹60** (s
 |----------|--------|
 | `RAZORPAY_KEY_ID` | Server + public key id |
 | `RAZORPAY_KEY_SECRET` | Server only — never expose in `VITE_*` |
-| `VITE_RAZORPAY_KEY_ID` | Same key id for Checkout.js in the browser |
-| `SUPABASE_SERVICE_ROLE_KEY` | Required for order writes in `/api/create-razorpay-order` |
+| `VITE_RAZORPAY_KEY_ID` | Optional — checkout detects keys at runtime via `/api/payment-status` |
+| `SUPABASE_SECRET_KEY` or `SUPABASE_SERVICE_ROLE_KEY` | **Required** — service role key for order writes (not `VITE_SUPABASE_ANON_KEY`) |
+| `VITE_SUPABASE_URL` | Storefront + server fallback for URL |
 
 3. Redeploy. Without keys, checkout UI works but **Proceed to Pay** stays disabled with a WhatsApp fallback.
 
