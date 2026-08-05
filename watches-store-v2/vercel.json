@@ -13,6 +13,9 @@
     },
     "api/health.js": {
       "maxDuration": 5
+    },
+    "api/payment-status.js": {
+      "maxDuration": 5
     }
   },
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }]

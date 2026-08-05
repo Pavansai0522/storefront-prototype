@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { CreditCard, MapPin, User } from 'lucide-react';
@@ -6,7 +6,7 @@ import { useCart } from '../context/CartContext';
 import { useStoreConfig } from '../context/StoreDataContext';
 import { clientConfig, whatsappHref } from '../config/client-config';
 import { btnShop } from '../constants/buttonStyles';
-import { createRazorpayOrder, paymentsEnabled, verifyRazorpayPayment } from '../services/checkoutService';
+import { createRazorpayOrder, fetchPaymentStatus, paymentsEnabled, verifyRazorpayPayment } from '../services/checkoutService';
 import type { CheckoutCustomer } from '../types/cart.types';
 import { formatInr } from '../utils/formatCurrency';
 import { openRazorpayCheckout } from '../utils/razorpay';
@@ -32,7 +32,15 @@ export function CheckoutPage(): JSX.Element {
   const grandTotal = subtotalInr + deliveryInr;
   const [customer, setCustomer] = useState<CheckoutCustomer>(emptyCustomer);
   const [paying, setPaying] = useState(false);
-  const canPayOnline = paymentsEnabled();
+  const [canPayOnline, setCanPayOnline] = useState(false);
+  const [paymentsReady, setPaymentsReady] = useState(false);
+
+  useEffect(() => {
+    void fetchPaymentStatus()
+      .then((status) => setCanPayOnline(status.configured))
+      .catch(() => setCanPayOnline(paymentsEnabled()))
+      .finally(() => setPaymentsReady(true));
+  }, []);
 
   if (items.length === 0) {
     return (
@@ -283,7 +291,9 @@ export function CheckoutPage(): JSX.Element {
                   <span className="text-sm font-medium text-brand-text">Credit or debit card / UPI</span>
                 </div>
               </div>
-              {!canPayOnline ? (
+              {!paymentsReady ? (
+                <p className="mb-4 text-sm text-brand-muted">Checking payment options…</p>
+              ) : !canPayOnline ? (
                 <p className="mb-4 text-sm text-brand-muted">
                   Online payments coming soon — WhatsApp us to place your order.
                 </p>
@@ -291,7 +301,7 @@ export function CheckoutPage(): JSX.Element {
               <button
                 type="button"
                 onClick={() => void handlePay()}
-                disabled={!canPayOnline || paying}
+                disabled={!paymentsReady || !canPayOnline || paying}
                 className={`${btnShop} w-full disabled:cursor-not-allowed disabled:opacity-50`}
               >
                 {paying ? 'Processing…' : 'Proceed to Pay'}

@@ -31,6 +31,11 @@ function checkoutDevApi(): Plugin {
           void handleVerifyRazorpayPayment(req, res);
           return;
         }
+        if (url.startsWith('/api/payment-status')) {
+          const handler = requireDev(path.join(projectRoot, 'api/payment-status.js'));
+          handler(req, res);
+          return;
+        }
         next();
       });
     },

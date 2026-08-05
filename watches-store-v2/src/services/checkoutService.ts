@@ -1,6 +1,7 @@
 import type {
   CheckoutCustomer,
   CreateRazorpayOrderResponse,
+  PaymentStatusResponse,
   VerifyRazorpayPaymentResponse,
 } from '../types/cart.types';
 import type { ID } from '../types/utils.types';
@@ -42,6 +43,15 @@ export async function verifyRazorpayPayment(
   payload: VerifyPaymentPayload,
 ): Promise<VerifyRazorpayPaymentResponse> {
   return postJson<VerifyRazorpayPaymentResponse>('/api/verify-razorpay-payment', payload);
+}
+
+export async function fetchPaymentStatus(): Promise<PaymentStatusResponse> {
+  const res = await fetch('/api/payment-status');
+  const data = (await res.json()) as PaymentStatusResponse & { error?: string };
+  if (!res.ok) {
+    throw new Error(typeof data.error === 'string' ? data.error : 'Could not load payment status');
+  }
+  return data;
 }
 
 export function paymentsEnabled(): boolean {

@@ -35,3 +35,8 @@ export type VerifyRazorpayPaymentResponse = {
   orderId: ID;
   status: 'paid';
 };
+
+export type PaymentStatusResponse = {
+  configured: boolean;
+  keyId: string | null;
+};
