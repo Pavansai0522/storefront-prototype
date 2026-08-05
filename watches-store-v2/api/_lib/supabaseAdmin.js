@@ -1,4 +1,4 @@
-const { createClient } = require('@supabase/supabase-js');
+const { createNodeSupabaseClient } = require('./nodeSupabase');
 
 function getSupabaseAdmin() {
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
@@ -16,7 +16,7 @@ function getSupabaseAdmin() {
     throw new Error(`Missing Supabase server config: ${missing.join(', ')}`);
   }
 
-  return createClient(url, serviceKey, {
+  return createNodeSupabaseClient(url, serviceKey, {
     auth: { persistSession: false, autoRefreshToken: false },
   });
 }
