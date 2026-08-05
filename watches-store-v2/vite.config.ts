@@ -1,6 +1,11 @@
 import path from 'node:path';
+import { createRequire } from 'node:module';
+import { fileURLToPath } from 'node:url';
 import { defineConfig, type Plugin } from 'vite';
 import react from '@vitejs/plugin-react';
+
+const requireDev = createRequire(import.meta.url);
+const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 
 function checkoutDevApi(): Plugin {
   return {
@@ -9,15 +14,21 @@ function checkoutDevApi(): Plugin {
       server.middlewares.use((req, res, next) => {
         const url = req.url ?? '';
         if (url.startsWith('/api/create-razorpay-order')) {
-          void import('./api/_lib/ordersHttp.js').then(({ handleCreateRazorpayOrder }) =>
-            handleCreateRazorpayOrder(req, res),
+          const { loadServerEnv } = requireDev(path.join(projectRoot, 'api/_lib/loadServerEnv.js'));
+          const { handleCreateRazorpayOrder } = requireDev(
+            path.join(projectRoot, 'api/_lib/ordersHttp.js'),
           );
+          loadServerEnv();
+          void handleCreateRazorpayOrder(req, res);
           return;
         }
         if (url.startsWith('/api/verify-razorpay-payment')) {
-          void import('./api/_lib/ordersHttp.js').then(({ handleVerifyRazorpayPayment }) =>
-            handleVerifyRazorpayPayment(req, res),
+          const { loadServerEnv } = requireDev(path.join(projectRoot, 'api/_lib/loadServerEnv.js'));
+          const { handleVerifyRazorpayPayment } = requireDev(
+            path.join(projectRoot, 'api/_lib/ordersHttp.js'),
           );
+          loadServerEnv();
+          void handleVerifyRazorpayPayment(req, res);
           return;
         }
         next();
@@ -35,9 +46,12 @@ function r2UploadDevApi(): Plugin {
           next();
           return;
         }
-        void import('./api/_lib/uploadProductImageHttp.js').then(({ handleUploadProductImage }) =>
-          handleUploadProductImage(req, res),
+        const { loadServerEnv } = requireDev(path.join(projectRoot, 'api/_lib/loadServerEnv.js'));
+        const { handleUploadProductImage } = requireDev(
+          path.join(projectRoot, 'api/_lib/uploadProductImageHttp.js'),
         );
+        loadServerEnv();
+        void handleUploadProductImage(req, res);
       });
     },
   };
