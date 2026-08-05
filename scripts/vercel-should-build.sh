@@ -23,7 +23,8 @@ else
 fi
 
 if [ -z "$CHANGED" ]; then
-  exit 0
+  # Same commit redeploy (e.g. env var update) — must rebuild for VITE_* to apply.
+  exit 1
 fi
 
 while IFS= read -r file; do
