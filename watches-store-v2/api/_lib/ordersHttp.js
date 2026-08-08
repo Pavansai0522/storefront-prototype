@@ -5,6 +5,7 @@ const { sendJson } = require('./sendJson');
 const { readJsonBody } = require('./readJsonBody');
 const { getSupabaseAdmin } = require('./supabaseAdmin');
 const { getRazorpayKeys, paymentsConfigured } = require('./razorpayConfig');
+const { sendOrderPlacedEmails } = require('./orderConfirmationEmail');
 
 const requireFromPkg = createRequire(join(process.cwd(), 'package.json'));
 
@@ -321,6 +322,27 @@ async function handleVerifyRazorpayPayment(req, res) {
   if (updateError) {
     sendJson(res, 500, { error: updateError.message });
     return;
+  }
+
+  const { data: fullOrder, error: fullOrderError } = await supabase
+    .from('orders')
+    .select(
+      'id, customer_name, customer_email, customer_phone, address_line, landmark, postal_code, city, state, country, notes, subtotal_inr, delivery_inr, total_inr',
+    )
+    .eq('id', orderId)
+    .single();
+
+  if (!fullOrderError && fullOrder) {
+    const { data: orderItems } = await supabase
+      .from('order_items')
+      .select('name, brand, unit_price_inr, qty')
+      .eq('order_id', orderId);
+
+    try {
+      await sendOrderPlacedEmails(fullOrder, orderItems ?? []);
+    } catch {
+      // Payment succeeded — email is best-effort only.
+    }
   }
 
   sendJson(res, 200, { orderId: orderRow.id, status: 'paid' });

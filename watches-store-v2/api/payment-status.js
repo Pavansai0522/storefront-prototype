@@ -1,6 +1,7 @@
 const { loadServerEnv } = require('./_lib/loadServerEnv');
 const { sendJson } = require('./_lib/sendJson');
 const { getRazorpayKeys, paymentsConfigured } = require('./_lib/razorpayConfig');
+const { getResendConfig, resendConfigured } = require('./_lib/resendConfig');
 
 function envPresent(name) {
   return Boolean(process.env[name]?.trim());
@@ -25,12 +26,33 @@ function resolveSupabaseAdminEnv() {
   };
 }
 
+function resolveResendEnv() {
+  const { fromEmail, notifyEmail } = getResendConfig();
+  const hasApiKey = envPresent('RESEND_API_KEY');
+  const hasFrom = envPresent('RESEND_FROM_EMAIL');
+  const missing = [];
+  if (!hasApiKey) {
+    missing.push('RESEND_API_KEY');
+  }
+  if (!hasFrom) {
+    missing.push('RESEND_FROM_EMAIL');
+  }
+  return {
+    configured: resendConfigured(),
+    hasApiKey,
+    hasFrom,
+    hasNotifyEmail: Boolean(notifyEmail),
+    missing,
+  };
+}
+
 module.exports = function handler(_req, res) {
   try {
     loadServerEnv();
     const razorpayConfigured = paymentsConfigured();
     const { keyId } = getRazorpayKeys();
     const supabase = resolveSupabaseAdminEnv();
+    const email = resolveResendEnv();
     const configured = razorpayConfigured && supabase.configured;
 
     let hint = null;
@@ -39,6 +61,9 @@ module.exports = function handler(_req, res) {
         'Checkout needs the Supabase service role key on Vercel (SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY). VITE_SUPABASE_ANON_KEY is for the browser only.';
     } else if (!razorpayConfigured) {
       hint = 'Add RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET on Vercel (Production).';
+    } else if (!email.configured) {
+      hint =
+        'Order emails optional: add RESEND_API_KEY and RESEND_FROM_EMAIL on Vercel. Set ORDER_NOTIFY_EMAIL or VITE_STORE_EMAIL for store alerts.';
     }
 
     sendJson(res, 200, {
@@ -46,6 +71,7 @@ module.exports = function handler(_req, res) {
       keyId: razorpayConfigured ? keyId : null,
       razorpay: { configured: razorpayConfigured },
       supabase,
+      email,
       hint,
     });
   } catch (err) {

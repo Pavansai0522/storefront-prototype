@@ -131,3 +131,23 @@ Cart → `/checkout` → Razorpay (UPI / cards). Delivery charge is **₹60** (s
 3. Redeploy. Without keys, checkout UI works but **Proceed to Pay** stays disabled with a WhatsApp fallback.
 
 Routes: `/cart`, `/checkout`, `/order-success`.
+
+## Order confirmation emails (Resend)
+
+After Razorpay payment is verified, the server sends:
+
+1. **Customer email** — if they entered an email at checkout  
+2. **Store alert** — to `ORDER_NOTIFY_EMAIL` (falls back to `VITE_STORE_EMAIL`)
+
+Add to **Vercel** and root `.env` (server-only — never `VITE_*` for the API key):
+
+| Variable | Notes |
+|----------|--------|
+| `RESEND_API_KEY` | From [resend.com](https://resend.com) → API Keys |
+| `RESEND_FROM_EMAIL` | Verified sender, e.g. `orders@yourdomain.com` |
+| `RESEND_FROM_NAME` | Optional display name (default: PR Watches & Mobiles) |
+| `ORDER_NOTIFY_EMAIL` | Optional — store inbox for new orders |
+
+Without Resend env vars, checkout still works; emails are skipped. Check `/api/payment-status` → `email.configured`.
+
+**Resend test tip:** until your domain is verified, use `onboarding@resend.dev` as `RESEND_FROM_EMAIL` (Resend only delivers to your account email in test mode).
