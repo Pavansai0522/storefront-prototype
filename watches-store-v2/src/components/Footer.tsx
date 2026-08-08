@@ -64,6 +64,9 @@ export function Footer(): JSX.Element {
               <Link to="/watches" className="text-black transition-colors hover:text-brand-purple">
                 Watches
               </Link>
+              <Link to="/mobiles" className="text-black transition-colors hover:text-brand-purple">
+                Mobiles
+              </Link>
               <Link to="/toys" className="text-black transition-colors hover:text-brand-purple">
                 Toys
               </Link>

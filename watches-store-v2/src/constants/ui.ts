@@ -1,6 +1,9 @@
 /** Catalog grid page size (matches subcategory product grids). */
 export const CATALOG_PAGE_SIZE = 16;
 
+/** Portal target for desktop catalog sort beside page titles. */
+export const CATALOG_SORT_SLOT_ID = 'catalog-sort-slot';
+
 export const CATALOG_PRICE_RANGES: { label: string; min: number; max: number }[] = [
   { label: 'Under ₹500', min: 0, max: 500 },
   { label: '₹500 – ₹1,500', min: 500, max: 1500 },

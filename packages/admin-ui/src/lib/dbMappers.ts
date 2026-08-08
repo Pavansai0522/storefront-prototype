@@ -5,9 +5,9 @@ import {
   defaultCountryForTemplate,
 } from '../constants/countryCurrency';
 import { isLiquorStoreTemplate } from '../constants/templates';
-import type { Client, PaymentHistory, Product } from '../types';
+import type { Client, Order, PaymentHistory, Product } from '../types';
 import type { ClientBilling, ClientNote } from '../types/client.types';
-import type { DbClient, DbProduct } from './supabaseTypes';
+import type { DbClient, DbOrder, DbOrderItem, DbProduct } from './supabaseTypes';
 
 function parseBilling(raw: Record<string, unknown>): ClientBilling {
   const history = Array.isArray(raw.paymentHistory)
@@ -167,4 +167,38 @@ export function productToDbUpdate(
   if (product.featuredGroup !== undefined) patch.featured_group = product.featuredGroup;
   if (product.featuredSort !== undefined) patch.featured_sort = product.featuredSort;
   return patch;
+}
+
+export function dbOrderToOrder(
+  row: DbOrder & { order_items?: DbOrderItem[] },
+): Order {
+  return {
+    id: row.id,
+    clientId: row.client_id,
+    customerName: row.customer_name,
+    customerEmail: row.customer_email,
+    customerPhone: row.customer_phone,
+    addressLine: row.address_line,
+    landmark: row.landmark,
+    postalCode: row.postal_code,
+    city: row.city,
+    state: row.state,
+    country: row.country,
+    notes: row.notes,
+    subtotalInr: row.subtotal_inr,
+    deliveryInr: row.delivery_inr,
+    totalInr: row.total_inr,
+    status: row.status,
+    razorpayOrderId: row.razorpay_order_id,
+    razorpayPaymentId: row.razorpay_payment_id,
+    createdAt: row.created_at,
+    items: (row.order_items ?? []).map((item) => ({
+      id: item.id,
+      productId: item.product_id,
+      name: item.name,
+      brand: item.brand,
+      unitPriceInr: item.unit_price_inr,
+      qty: item.qty,
+    })),
+  };
 }

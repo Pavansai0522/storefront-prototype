@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Menu, X, ShoppingBag } from 'lucide-react';
+import { Menu, Search, X, ShoppingBag } from 'lucide-react';
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { Link, useLocation } from 'react-router-dom';
 import { StoreLogo } from './StoreLogo';
+import { NavbarSearch } from './NavbarSearch';
 import { whatsappHref } from '../config/client-config';
 import { useCart } from '../context/CartContext';
 import { btnWhatsAppNav } from '../constants/buttonStyles';
@@ -10,6 +11,7 @@ import { btnWhatsAppNav } from '../constants/buttonStyles';
 const navLinks = [
   { name: 'Home', href: '/' },
   { name: 'Watches', href: '/watches' },
+  { name: 'Mobiles', href: '/mobiles' },
   { name: 'Toys', href: '/toys' },
   { name: 'Accessories', href: '/accessories' },
   { name: 'Visit Us', href: '/visit' },
@@ -19,8 +21,11 @@ function isNavLinkActive(href: string, pathname: string): boolean {
   if (href === '/watches') {
     return pathname === '/watches' || pathname.startsWith('/watches/');
   }
+  if (href === '/mobiles') {
+    return pathname === '/mobiles' || pathname.startsWith('/mobiles/');
+  }
   if (href === '/toys') {
-    return pathname === '/toys' || pathname.startsWith('/toys/');
+    return pathname === '/toys';
   }
   if (href === '/accessories') {
     return pathname === '/accessories' || pathname.startsWith('/accessories/');
@@ -50,11 +55,15 @@ export function Navbar(): JSX.Element {
           <>
             <div className="storefront-shell">
               <div className="flex h-16 items-center justify-between gap-2 sm:h-20">
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0 shrink-0">
                   <StoreLogo variant="navbar" />
                 </div>
 
-                <nav className="hidden items-center gap-8 md:flex">
+                <div className="hidden min-w-0 flex-1 px-4 lg:block lg:max-w-md">
+                  <NavbarSearch />
+                </div>
+
+                <nav className="hidden items-center gap-4 xl:gap-6 md:flex">
                   {navLinks.map((link) => (
                     <Link
                       key={link.name}
@@ -93,10 +102,17 @@ export function Navbar(): JSX.Element {
                   </a>
                 </div>
 
-                <div className="flex items-center gap-2 md:hidden">
+                <div className="flex items-center gap-2 lg:hidden">
+                  <Link
+                    to="/search"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand-border text-brand-text transition hover:border-brand-purple hover:text-brand-purple"
+                    aria-label="Search products"
+                  >
+                    <Search className="h-5 w-5" aria-hidden />
+                  </Link>
                   <Link
                     to="/cart"
-                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand-border text-brand-text"
+                    className="relative inline-flex h-11 w-11 items-center justify-center rounded-lg border border-brand-border text-brand-text md:hidden"
                     aria-label={`Cart${itemCount > 0 ? `, ${itemCount} items` : ''}`}
                   >
                     <ShoppingBag className="h-5 w-5" aria-hidden />
@@ -110,12 +126,12 @@ export function Navbar(): JSX.Element {
                     href={whatsappHref()}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`${btnWhatsAppNav} px-3 py-2 text-sm`}
+                    className={`${btnWhatsAppNav} px-3 py-2 text-sm md:hidden`}
                   >
                     WhatsApp
                   </a>
                   <DisclosureButton
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-md text-brand-text hover:text-brand-text/80 focus:outline-none focus:ring-2 focus:ring-brand-purple"
+                    className="inline-flex h-11 w-11 items-center justify-center rounded-md text-brand-text hover:text-brand-text/80 focus:outline-none focus:ring-2 focus:ring-brand-purple md:hidden"
                     aria-label={open ? 'Close menu' : 'Open menu'}
                   >
                     {open ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}

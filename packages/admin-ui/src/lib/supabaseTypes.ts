@@ -60,3 +60,38 @@ export type DbProduct = {
 
 export type ProductInsert = Omit<DbProduct, 'id'> & { id?: string };
 export type ProductUpdate = Partial<Omit<DbProduct, 'id' | 'client_id'>>;
+
+export type DbOrder = {
+  id: string;
+  client_id: string;
+  customer_name: string;
+  customer_email: string;
+  customer_phone: string;
+  address_line: string;
+  landmark: string;
+  postal_code: string;
+  city: string;
+  state: string;
+  country: string;
+  notes: string;
+  subtotal_inr: number;
+  delivery_inr: number;
+  total_inr: number;
+  status: 'pending' | 'paid' | 'failed' | 'cancelled';
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  razorpay_signature: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type DbOrderItem = {
+  id: string;
+  order_id: string;
+  product_id: string;
+  name: string;
+  brand: string;
+  unit_price_inr: number;
+  qty: number;
+  created_at: string;
+};

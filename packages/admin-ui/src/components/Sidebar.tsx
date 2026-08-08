@@ -8,6 +8,7 @@ import {
   Lock,
   Package,
   Puzzle,
+  ShoppingBag,
   Store,
   UserCog,
   Users,
@@ -127,6 +128,16 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl, clientTemplate }: Si
               <Package className="h-4 w-4 shrink-0" aria-hidden />
               Products
             </NavLink>
+            {isWatchesStore ? (
+              <NavLink
+                to={routes.ORDERS}
+                className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
+                onClick={closeMobile}
+              >
+                <ShoppingBag className="h-4 w-4 shrink-0" aria-hidden />
+                Orders
+              </NavLink>
+            ) : null}
             {!isLiquorStore && !isWatchesStore ? (
               <NavLink
                 to={routes.ACCESSORIES}

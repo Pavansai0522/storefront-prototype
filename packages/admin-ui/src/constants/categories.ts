@@ -59,6 +59,7 @@ export const WATCHES_SUBCATEGORIES = [
   { value: 'smart-watches', label: 'Smart watches' },
   { value: 'dial-watches', label: 'Dial watches' },
   { value: 'kids-watches', label: 'Kids watches' },
+  { value: 'mobiles', label: 'Mobiles' },
   { value: 'rc-toys', label: 'RC toys' },
   { value: 'soft-toys', label: 'Soft toys' },
   { value: 'education-toys', label: 'Education toys' },

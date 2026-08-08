@@ -18,6 +18,8 @@ const AdminApp = lazy(async () => {
 
 const Watches = lazy(async () => ({ default: (await import('./pages/Watches')).Watches }));
 const Toys = lazy(async () => ({ default: (await import('./pages/Toys')).Toys }));
+const Mobiles = lazy(async () => ({ default: (await import('./pages/Mobiles')).Mobiles }));
+const SearchPage = lazy(async () => ({ default: (await import('./pages/SearchPage')).SearchPage }));
 const Accessories = lazy(async () => ({ default: (await import('./pages/Accessories')).Accessories }));
 const VisitUsPage = lazy(async () => ({ default: (await import('./pages/VisitUsPage')).VisitUsPage }));
 const SmartWatchesPage = lazy(async () => ({
@@ -29,15 +31,10 @@ const DialWatchesPage = lazy(async () => ({
 const KidsWatchesPage = lazy(async () => ({
   default: (await import('./pages/watches/KidsWatchesPage')).KidsWatchesPage,
 }));
-const RcToysPage = lazy(async () => ({ default: (await import('./pages/toys/RcToysPage')).RcToysPage }));
-const SoftToysPage = lazy(async () => ({ default: (await import('./pages/toys/SoftToysPage')).SoftToysPage }));
-const EducationToysPage = lazy(async () => ({
-  default: (await import('./pages/toys/EducationToysPage')).EducationToysPage,
-}));
-const CablesPage = lazy(async () => ({ default: (await import('./pages/accessories/CablesPage')).CablesPage }));
 const HeadphonesPage = lazy(async () => ({
   default: (await import('./pages/accessories/HeadphonesPage')).HeadphonesPage,
 }));
+const CablesPage = lazy(async () => ({ default: (await import('./pages/accessories/CablesPage')).CablesPage }));
 const PhoneAccessoriesPage = lazy(async () => ({
   default: (await import('./pages/accessories/PhoneAccessoriesPage')).PhoneAccessoriesPage,
 }));
@@ -123,9 +120,11 @@ function StorefrontShell(): JSX.Element {
               <Route path="/watches/dial" element={<DialWatchesPage />} />
               <Route path="/watches/kids" element={<KidsWatchesPage />} />
               <Route path="/watches" element={<Watches />} />
-              <Route path="/toys/rc" element={<RcToysPage />} />
-              <Route path="/toys/soft" element={<SoftToysPage />} />
-              <Route path="/toys/education" element={<EducationToysPage />} />
+              <Route path="/mobiles" element={<Mobiles />} />
+              <Route path="/search" element={<SearchPage />} />
+              <Route path="/toys/rc" element={<Navigate to="/toys" replace />} />
+              <Route path="/toys/soft" element={<Navigate to="/toys" replace />} />
+              <Route path="/toys/education" element={<Navigate to="/toys" replace />} />
               <Route path="/toys" element={<Toys />} />
               <Route path="/accessories/cables" element={<CablesPage />} />
               <Route path="/accessories/headphones" element={<HeadphonesPage />} />

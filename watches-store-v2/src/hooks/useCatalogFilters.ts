@@ -19,7 +19,10 @@ export const CATALOG_SORT_OPTIONS: CatalogSortOption[] = [
   { value: 'price-desc', label: 'Price: high to low' },
 ];
 
-export function useCatalogFilters(items: CatalogTileItem[]): {
+export function useCatalogFilters(
+  items: CatalogTileItem[],
+  initialQuery = '',
+): {
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
   selectedBrands: string[];
@@ -48,7 +51,7 @@ export function useCatalogFilters(items: CatalogTileItem[]): {
   goToPage: (p: number) => void;
   visiblePageNumbers: number[];
 } {
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(initialQuery);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceIndex, setSelectedPriceIndex] = useState<number | null>(null);
   const [sortKey, setSortKey] = useState<CatalogSortKey>('featured');
@@ -60,6 +63,10 @@ export function useCatalogFilters(items: CatalogTileItem[]): {
     items.forEach((item) => uniq.add(item.brand));
     return Array.from(uniq).sort((a, b) => a.localeCompare(b));
   }, [items]);
+
+  useEffect(() => {
+    setQuery(initialQuery);
+  }, [initialQuery]);
 
   useEffect(() => {
     setPage(1);

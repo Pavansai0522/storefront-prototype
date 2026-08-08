@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { CatalogSortSlot } from './CatalogSortSlot';
 
 type WatchSubcategoryLayoutProps = {
   title: string;
@@ -21,12 +22,17 @@ export function WatchSubcategoryLayout({
         >
           ← Back to Watches
         </Link>
-        <h1 className="font-bebas text-4xl font-normal tracking-wide text-black md:text-5xl lg:text-6xl">
-          {title}
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg font-normal text-black">{description}</p>
-        {children ? <div className="mt-12">{children}</div> : null}
+        <div className="lg:flex lg:items-end lg:justify-between lg:gap-8">
+          <div className="min-w-0">
+            <h1 className="font-bebas text-4xl font-normal tracking-wide text-black md:text-5xl lg:text-6xl">
+              {title}
+            </h1>
+            <p className="mt-4 max-w-2xl text-lg font-normal text-black">{description}</p>
+          </div>
+          <CatalogSortSlot />
+        </div>
       </div>
+      {children ? <div className="mt-6">{children}</div> : null}
     </div>
   );
 }

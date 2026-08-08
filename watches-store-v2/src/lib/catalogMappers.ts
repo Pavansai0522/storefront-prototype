@@ -1,5 +1,6 @@
 import type { FeaturedProduct } from '../data/featured';
 import type { CatalogTileItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
+import { TOY_SUBCATEGORY_KEYS } from '../types/catalogTile.types';
 import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 import type { DbProduct } from './supabaseTypes';
 
@@ -50,9 +51,8 @@ export function groupProductsBySubcategory(
     'smart-watches',
     'dial-watches',
     'kids-watches',
-    'rc-toys',
-    'soft-toys',
-    'education-toys',
+    'mobiles',
+    ...TOY_SUBCATEGORY_KEYS,
     'cables',
     'headphones',
     'phone-accessories',
@@ -97,3 +97,15 @@ export function featuredFromProducts(products: DbProduct[]): {
 
   return { watches, toys, accessories };
 }
+
+export const ALL_CATALOG_KEYS: SubcategoryCatalogKey[] = [
+  'smart-watches',
+  'dial-watches',
+  'kids-watches',
+  'mobiles',
+  ...TOY_SUBCATEGORY_KEYS,
+  'cables',
+  'headphones',
+  'phone-accessories',
+  'gadgets',
+];

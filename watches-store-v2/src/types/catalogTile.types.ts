@@ -13,6 +13,7 @@ export type SubcategoryCatalogKey =
   | 'smart-watches'
   | 'dial-watches'
   | 'kids-watches'
+  | 'mobiles'
   | 'rc-toys'
   | 'soft-toys'
   | 'education-toys'
@@ -20,3 +21,5 @@ export type SubcategoryCatalogKey =
   | 'headphones'
   | 'phone-accessories'
   | 'gadgets';
+
+export const TOY_SUBCATEGORY_KEYS = ['rc-toys', 'soft-toys', 'education-toys'] as const satisfies readonly SubcategoryCatalogKey[];

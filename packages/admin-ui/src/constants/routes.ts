@@ -6,6 +6,7 @@ export type AdminRoutes = {
   readonly BILLING: string;
   readonly WATCHES_TEMPLATE_PREVIEW: string;
   readonly PRODUCTS: string;
+  readonly ORDERS: string;
   readonly ACCESSORIES: string;
   readonly STORE_INFO: string;
   readonly CHANGE_PASSWORD: string;
@@ -23,6 +24,7 @@ export function createAdminRoutes(basePath: string): AdminRoutes {
     BILLING: p('/billing'),
     WATCHES_TEMPLATE_PREVIEW: p('/templates/watches-store-v2'),
     PRODUCTS: p('/products'),
+    ORDERS: p('/orders'),
     ACCESSORIES: p('/accessories'),
     STORE_INFO: p('/store-info'),
     CHANGE_PASSWORD: p('/change-password'),

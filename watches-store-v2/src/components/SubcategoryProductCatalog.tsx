@@ -1,23 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
-import Select from 'react-select';
-import { clientSelectStyles, clientSelectTheme } from '../config/clientSelectStyles';
+import { ChevronLeft, ChevronRight, SearchX, SlidersHorizontal, X } from 'lucide-react';
+import { CatalogSortControl } from './CatalogSortControl';
 import {
-  CATALOG_SORT_OPTIONS,
   useCatalogFilters,
-  type CatalogSortKey,
 } from '../hooks/useCatalogFilters';
+import { CATALOG_SORT_SLOT_ID } from '../constants/ui';
 import type { CatalogTileItem } from '../types/catalogTile.types';
 import { CatalogProductTile } from './CatalogProductTile';
-
-type SelectOption<T extends string> = { value: T; label: string };
+import { StorefrontSearchInput } from './StorefrontSearchInput';
 
 type SubcategoryProductCatalogProps = {
   items: CatalogTileItem[];
+  initialQuery?: string;
 };
 
-export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogProps): JSX.Element {
+export function SubcategoryProductCatalog({
+  items,
+  initialQuery = '',
+}: SubcategoryProductCatalogProps): JSX.Element {
   const {
     query,
     setQuery,
@@ -42,10 +44,23 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
     showingTo,
     goToPage,
     visiblePageNumbers,
-  } = useCatalogFilters(items);
+  } = useCatalogFilters(items, initialQuery);
 
-  const selectedSortOption =
-    CATALOG_SORT_OPTIONS.find((o) => o.value === sortKey) ?? CATALOG_SORT_OPTIONS[0] ?? null;
+  const [sortSlot, setSortSlot] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setSortSlot(document.getElementById(CATALOG_SORT_SLOT_ID));
+  }, []);
+
+  const desktopSortControl = (
+    <CatalogSortControl
+      sortKey={sortKey}
+      setSortKey={setSortKey}
+      instanceId="catalog-sort-desktop"
+      inputId="catalog-sort-desktop"
+      className="w-full"
+    />
+  );
 
   const FilterPanel = (): JSX.Element => (
     <div className="space-y-8">
@@ -122,55 +137,33 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
   );
 
   return (
-    <div className="border-t border-brand-border pt-8">
-      <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between lg:gap-6">
-        <div className="relative w-full min-w-[min(100%,280px)] flex-[2] lg:max-w-2xl">
-          <Search
-            className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-muted"
-            aria-hidden
-          />
-          <input
-            type="search"
+    <div className="storefront-shell border-t border-brand-border pt-8 lg:pt-6">
+      {sortSlot ? createPortal(desktopSortControl, sortSlot) : null}
+
+      <div className="mb-6 flex flex-col gap-4 lg:hidden">
+        <div className="relative w-full min-w-[min(100%,280px)]">
+          <StorefrontSearchInput
+            id="catalog-search"
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={setQuery}
             placeholder="Search by name or brand…"
-            autoComplete="off"
-            className="min-h-[44px] w-full rounded-xl border border-brand-border bg-brand-bg py-2.5 pl-10 pr-3 text-base text-brand-text outline-none transition placeholder:text-brand-muted focus:border-brand-purple focus:ring-1 focus:ring-brand-purple/40 md:text-sm"
-            aria-label="Search catalog"
+            ariaLabel="Search catalog"
           />
         </div>
 
-        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center lg:w-auto lg:justify-end">
-          <div className="flex w-full min-w-0 items-center gap-2 sm:w-auto sm:flex-none">
-            <label
-              className="hidden shrink-0 text-sm leading-none text-brand-muted sm:block"
-              htmlFor="catalog-sort"
-            >
-              Sort by
-            </label>
-            <div className="min-w-0 w-full flex-1 sm:w-56">
-              <Select<SelectOption<CatalogSortKey>, false>
-                instanceId="catalog-sort"
-                inputId="catalog-sort"
-                options={CATALOG_SORT_OPTIONS}
-                value={selectedSortOption}
-                onChange={(opt) => {
-                  if (opt) {
-                    setSortKey(opt.value);
-                  }
-                }}
-                styles={clientSelectStyles}
-                theme={clientSelectTheme}
-                isSearchable={false}
-                aria-label="Sort results"
-              />
-            </div>
-          </div>
+        <div className="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+          <CatalogSortControl
+            sortKey={sortKey}
+            setSortKey={setSortKey}
+            instanceId="catalog-sort-mobile"
+            inputId="catalog-sort-mobile"
+            className="w-full sm:w-auto"
+          />
 
           <button
             type="button"
             onClick={() => setMobileFiltersOpen(true)}
-            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-sm font-medium text-brand-text sm:w-auto lg:hidden"
+            className="flex min-h-[44px] w-full items-center justify-center gap-2 rounded-xl border border-brand-border bg-brand-card px-4 py-3 text-sm font-medium text-brand-text sm:w-auto"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden />
             Filters
@@ -182,6 +175,12 @@ export function SubcategoryProductCatalog({ items }: SubcategoryProductCatalogPr
           </button>
         </div>
       </div>
+
+      {!sortSlot ? (
+        <div className="mb-6 hidden lg:block">
+          {desktopSortControl}
+        </div>
+      ) : null}
 
       <div className="flex items-start gap-8">
         <aside className="sticky top-24 hidden w-64 shrink-0 lg:block">

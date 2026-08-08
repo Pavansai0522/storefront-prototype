@@ -15,6 +15,7 @@ type WatchesSubcategory =
   | 'smart-watches'
   | 'dial-watches'
   | 'kids-watches'
+  | 'mobiles'
   | 'rc-toys'
   | 'soft-toys'
   | 'education-toys'
@@ -58,6 +59,9 @@ export function watchesCatalogItems(): ProductSeedItem[] {
     watchItem('dial-watches', 'Casio Enticer', 'Casio', 5999, WATCH_2),
     watchItem('kids-watches', 'Zoop Disney', 'Zoop', 1299, WATCH),
     watchItem('kids-watches', 'Timex Kids Digital', 'Timex', 1999, WATCH_2),
+    watchItem('mobiles', 'Redmi Note 13', 'Xiaomi', 14999, WATCH_2),
+    watchItem('mobiles', 'Samsung Galaxy M14', 'Samsung', 13499, WATCH),
+    watchItem('mobiles', 'iPhone 13', 'Apple', 49900, WATCH_2),
     watchItem('rc-toys', 'Remote Control Car', 'Hot Wheels', 2499, TOY, { group: 'toy', sort: 0 }),
     watchItem('rc-toys', 'RC Drone Mini', 'Sky Rider', 3999, TOY),
     watchItem('rc-toys', 'RC Monster Truck', 'Maisto', 3499, TOY, { group: 'toy', sort: 1 }),

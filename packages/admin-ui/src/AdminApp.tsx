@@ -13,6 +13,7 @@ import { Clients } from './pages/Clients';
 import { CreateClient } from './pages/CreateClient';
 import { Dashboard } from './pages/Dashboard';
 import { Products } from './pages/Products';
+import { Orders } from './pages/Orders';
 import { Accessories } from './pages/Accessories';
 import { StoreInfo } from './pages/StoreInfo';
 import { ChangePassword } from './pages/ChangePassword';
@@ -99,6 +100,14 @@ function AdminRoutes(): JSX.Element {
             element={
               <AdminOnly>
                 <Products />
+              </AdminOnly>
+            }
+          />
+          <Route
+            path="orders"
+            element={
+              <AdminOnly>
+                <Orders />
               </AdminOnly>
             }
           />
