@@ -34,9 +34,6 @@ while IFS= read -r file; do
       "${prefix}"/*|"${prefix}") exit 1 ;;
     esac
   done
-  case "$file" in
-    package.json|package-lock.json) exit 1 ;;
-  esac
 done <<< "$CHANGED"
 
 exit 0

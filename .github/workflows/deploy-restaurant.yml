@@ -1,0 +1,48 @@
+name: Deploy Restaurant Storefront
+
+# Manual deploy for Aruna's Eagle. Set Vercel env vars first, then run from Actions tab.
+# When ready for auto-deploy on merge to main:
+#   push:
+#     branches: [main]
+#     paths:
+#       - 'restaurant-v1/**'
+#       - 'packages/admin-ui/**'
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy-restaurant:
+    name: Deploy Aruna's Eagle Storefront to Vercel
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build restaurant storefront
+        run: npm run build -w restaurant-v1
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_CLIENT_SLUG: arunas-eagle
+          VITE_CLIENT_ID: client-restaurant-1
+          VITE_SUPERADMIN_EMAIL: ${{ secrets.VITE_SUPERADMIN_EMAIL }}
+          VITE_PRODUCT_IMAGE_UPLOAD_URL: /api/upload-product-image
+
+      - name: Deploy to Vercel
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_RESTAURANT_PROJECT_ID }}
+          working-directory: ./restaurant-v1
+          vercel-args: '--prod'

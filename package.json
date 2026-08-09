@@ -23,7 +23,7 @@
     "build:liquor": "npm run build -w liquor-store-v1",
     "build:watches": "npm run build -w watches-store-v2",
     "build:restaurant": "npm run build -w restaurant-v1",
-    "build": "npm run build:client && npm run build:liquor && npm run build:watches && npm run build:restaurant && npm run build:server",
+    "build": "npm run build:client && npm run build:liquor && npm run build:watches && npm run build:server",
     "lint:restaurant": "npm run lint -w restaurant-v1",
     "lint:client": "npm run lint -w client",
     "lint:watches": "npm run lint -w watches-store-v2",
