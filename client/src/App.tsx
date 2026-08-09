@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { Home } from './pages/Home';
 import { AllPhones } from './pages/AllPhones';
@@ -68,6 +68,7 @@ function StorefrontShell(): JSX.Element {
         <Route path="/phones" element={<AllPhones />} />
         <Route path="/accessories" element={<Accessories />} />
         <Route path="/accessories/:categoryId" element={<AccessoriesCategory />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
   );

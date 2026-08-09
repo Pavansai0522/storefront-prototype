@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { ContactBar } from './components/ContactBar';
@@ -63,6 +63,7 @@ function StorefrontShell(): JSX.Element {
             <Route path="/residence" element={<VenuePage venueId="residence" />} />
             <Route path="/terms" element={<LegalPage policyId="terms" />} />
             <Route path="/privacy" element={<LegalPage policyId="privacy" />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </div>
         <Footer />

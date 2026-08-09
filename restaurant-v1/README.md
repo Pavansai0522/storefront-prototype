@@ -22,3 +22,25 @@ SEED_FORCE=true npm run seed:restaurant
 ```
 
 Optional env overrides: `RESTAURANT_STORE_ADMIN_EMAIL`, `RESTAURANT_STORE_ADMIN_PASSWORD`, `RESTAURANT_LIVE_URL`.
+
+## Vercel deploy
+
+| Setting | Value |
+|---------|--------|
+| Project | `storefront-prototype-restaurant-v1` |
+| Project ID | `prj_sLqd1OS5yFO7Je3s4HdBLfLaMbGJ` |
+| Production URL | https://storefront-prototype-restaurant-v1.vercel.app |
+| Root directory | `restaurant-v1` |
+| GitHub repo | `Pavansai0522/storefront-prototype` |
+
+GitHub Actions secret (repo → Settings → Secrets → Actions):
+
+- `VERCEL_RESTAURANT_PROJECT_ID` = `prj_sLqd1OS5yFO7Je3s4HdBLfLaMbGJ`
+
+Or via CLI after `gh auth login`:
+
+```bash
+gh secret set VERCEL_RESTAURANT_PROJECT_ID --body "prj_sLqd1OS5yFO7Je3s4HdBLfLaMbGJ"
+```
+
+Deploy manually: GitHub → **Actions** → **Deploy Restaurant Storefront** → **Run workflow**.

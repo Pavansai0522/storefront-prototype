@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 import { AdminLogin } from './admin/AdminLogin';
 import { AdminShell } from './admin/AdminShell';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { Spinner } from './components/Spinner';
 import { AdminConfigProvider, useAdminRoutes } from './context/AdminConfigContext';
 import { AuthProvider, useAuthContext } from './context/AuthContext';
 import { AdminDataProvider } from './context/AdminDataContext';
@@ -44,6 +45,21 @@ function AdminOnly({ children }: { children: JSX.Element }): JSX.Element {
     return <Navigate to={routes.DASHBOARD} replace />;
   }
   return children;
+}
+
+function AdminUnknownRoute(): JSX.Element {
+  const routes = useAdminRoutes();
+  const { isLoggedIn, loading } = useAuthContext();
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-brand-bg">
+        <Spinner size="lg" label="Loading session…" />
+      </div>
+    );
+  }
+
+  return <Navigate to={isLoggedIn ? routes.DASHBOARD : routes.LOGIN} replace />;
 }
 
 function AdminRoutes(): JSX.Element {
@@ -137,7 +153,7 @@ function AdminRoutes(): JSX.Element {
           />
         </Route>
       </Route>
-      <Route path="*" element={<Navigate to={routes.LOGIN} replace />} />
+      <Route path="*" element={<AdminUnknownRoute />} />
     </Routes>
   );
 }

@@ -47,7 +47,7 @@ const RESTAURANT_CLIENT_ROW = {
   store_name: clientConfig.storeName,
   status: 'active',
   monthly_fee: 299,
-  live_url: process.env.RESTAURANT_LIVE_URL ?? 'http://localhost:3003',
+  live_url: process.env.RESTAURANT_LIVE_URL ?? 'https://storefront-prototype-restaurant-v1.vercel.app',
   whatsapp_number: `+${clientConfig.whatsappE164}`,
   store_phone: clientConfig.phonePrimary.replace(/\s/g, ''),
   address: fullAddress,

@@ -1,5 +1,5 @@
 import React, { Suspense, lazy, useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { AgeGate } from './components/AgeGate';
 import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
@@ -77,6 +77,7 @@ function StorefrontShell(): JSX.Element {
               <Route path="/wine" element={<Wine />} />
               <Route path="/beer" element={<Beer />} />
               <Route path="/deals" element={<Deals />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
           <Footer />
