@@ -14,9 +14,10 @@ import {
   Users,
   Watch,
   X,
+  UtensilsCrossed,
 } from 'lucide-react';
 import type { Nullable } from '../types';
-import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isRestaurantStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminRoutes } from '../context/AdminConfigContext';
 import type { UserRole } from '../types';
 
@@ -43,6 +44,7 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl, clientTemplate }: Si
 
   const isLiquorStore = isLiquorStoreTemplate(clientTemplate);
   const isWatchesStore = isWatchesStoreTemplate(clientTemplate);
+  const isRestaurantStore = isRestaurantStoreTemplate(clientTemplate);
 
   return (
     <aside
@@ -125,8 +127,12 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl, clientTemplate }: Si
               className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}
               onClick={closeMobile}
             >
-              <Package className="h-4 w-4 shrink-0" aria-hidden />
-              Products
+              {isRestaurantStore ? (
+                <UtensilsCrossed className="h-4 w-4 shrink-0" aria-hidden />
+              ) : (
+                <Package className="h-4 w-4 shrink-0" aria-hidden />
+              )}
+              {isRestaurantStore ? 'Menu' : 'Products'}
             </NavLink>
             {isWatchesStore ? (
               <NavLink
@@ -138,7 +144,7 @@ export function Sidebar({ role, isOpen, setIsOpen, liveUrl, clientTemplate }: Si
                 Orders
               </NavLink>
             ) : null}
-            {!isLiquorStore && !isWatchesStore ? (
+            {!isLiquorStore && !isWatchesStore && !isRestaurantStore ? (
               <NavLink
                 to={routes.ACCESSORIES}
                 className={({ isActive }) => `${linkBase} ${isActive ? linkActive : linkIdle}`}

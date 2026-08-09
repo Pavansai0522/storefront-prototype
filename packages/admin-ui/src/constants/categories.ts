@@ -37,6 +37,18 @@ export const ACCESSORY_CATEGORIES = [
   { value: 'Other', label: 'Other' },
 ] as const;
 
+export const RESTAURANT_CATEGORIES = [
+  { value: 'Starters', label: 'Starters & Appetizers' },
+  { value: 'Tandoor', label: 'Tandoor & Grill' },
+  { value: 'Biryani', label: 'Biryani & Rice' },
+  { value: 'Curries', label: 'Curries & Gravies' },
+  { value: 'Thali', label: 'Thali & Family Combos' },
+  { value: 'Beverages', label: 'Beverages' },
+  { value: 'Other', label: "Chef's Specials" },
+] as const;
+
+export type RestaurantCategory = (typeof RESTAURANT_CATEGORIES)[number]['value'];
+
 /** Matches watches-store-v2 `/accessories/*` catalog keys. */
 export const WATCHES_ACCESSORY_SUBCATEGORY_KEYS = [
   'cables',

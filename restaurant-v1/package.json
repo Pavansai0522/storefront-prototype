@@ -1,0 +1,44 @@
+{
+  "name": "restaurant-v1",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vite + React storefront for Aruna's Eagle restaurant (restaurant-v1). Supabase menu + embedded /admin.",
+  "type": "module",
+  "engines": {
+    "node": "20.x"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.750.0",
+    "@my-agency/admin-ui": "*",
+    "@supabase/supabase-js": "^2.105.4",
+    "dotenv": "^17.4.2",
+    "lucide-react": "0.522.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.26.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.18",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.54.0",
+    "@typescript-eslint/parser": "^5.54.0",
+    "@vercel/node": "^5.0.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.50.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "3.4.17",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "^5.5.4",
+    "vite": "^5.2.0"
+  }
+}

@@ -10,7 +10,7 @@ import {
 import Select from 'react-select';
 import { CheckSquare, Package, Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { ACCESSORY_CATEGORIES, SKELETON_DELAY_MS } from '../constants';
-import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isRestaurantStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
 import {
   SORT_KEY_OPTIONS,
@@ -47,7 +47,12 @@ export function Accessories(): JSX.Element {
     [clients, clientId],
   );
 
-  if (client && (isLiquorStoreTemplate(client.template) || isWatchesStoreTemplate(client.template))) {
+  if (
+    client &&
+    (isLiquorStoreTemplate(client.template) ||
+      isWatchesStoreTemplate(client.template) ||
+      isRestaurantStoreTemplate(client.template))
+  ) {
     return <Navigate to={routes.PRODUCTS} replace />;
   }
 

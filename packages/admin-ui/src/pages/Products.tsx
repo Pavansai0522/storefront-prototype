@@ -7,15 +7,16 @@ import {
   type RowSelectionState,
 } from '@tanstack/react-table';
 import Select from 'react-select';
-import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2 } from 'lucide-react';
+import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2, UtensilsCrossed } from 'lucide-react';
 import {
   LIQUOR_CATEGORIES,
   LIQUOR_LISTING_OPTIONS,
   PRODUCT_CATEGORIES,
+  RESTAURANT_CATEGORIES,
   SKELETON_DELAY_MS,
   WATCHES_SUBCATEGORIES,
 } from '../constants';
-import { isLiquorStoreTemplate, isMobileStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isMobileStoreTemplate, isRestaurantStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import { useAdminData } from '../context/AdminDataContext';
 import {
   SORT_KEY_OPTIONS,
@@ -93,18 +94,20 @@ export function Products(): JSX.Element {
   const isLiquor = isLiquorStoreTemplate(client?.template);
   const isWatches = isWatchesStoreTemplate(client?.template);
   const isMobile = isMobileStoreTemplate(client?.template);
+  const isRestaurant = isRestaurantStoreTemplate(client?.template);
   const currencyCode = client
     ? getClientCurrency(client)
     : isLiquor
       ? 'USD'
       : 'INR';
-  const showEmi = usesEmiPricing(currencyCode);
+  const showEmi = usesEmiPricing(currencyCode) && !isRestaurant;
   const useRetailPrice = usesRetailDecimals(currencyCode);
   const productCategoryChoices = useMemo(() => {
     if (isLiquor) return LIQUOR_CATEGORIES;
     if (isWatches) return WATCHES_SUBCATEGORIES;
+    if (isRestaurant) return RESTAURANT_CATEGORIES;
     return PRODUCT_CATEGORIES;
-  }, [isLiquor, isWatches]);
+  }, [isLiquor, isWatches, isRestaurant]);
 
   const rows = useMemo(
     () => (clientId ? products.filter((p) => p.clientId === clientId) : products),
@@ -228,7 +231,7 @@ export function Products(): JSX.Element {
         size: 48,
       }),
       columnHelper.accessor('name', {
-        header: 'Product',
+        header: isRestaurant ? 'Dish' : 'Product',
         cell: ({ row }) => {
           const p = row.original;
           return (
@@ -254,7 +257,13 @@ export function Products(): JSX.Element {
         header: 'Category',
         cell: (info) => {
           const v = info.getValue();
-          const choices = isLiquor ? LIQUOR_CATEGORIES : PRODUCT_CATEGORIES;
+          const choices = isLiquor
+            ? LIQUOR_CATEGORIES
+            : isRestaurant
+              ? RESTAURANT_CATEGORIES
+              : isWatches
+                ? WATCHES_SUBCATEGORIES
+                : PRODUCT_CATEGORIES;
           const label = choices.find((c) => c.value === v)?.label ?? v;
           return <span className="text-gray-200">{label}</span>;
         },
@@ -360,7 +369,7 @@ export function Products(): JSX.Element {
         },
       }),
     ],
-    [isLiquor, client, showEmi, useRetailPrice, clientId, dealToggleId, setProductListing],
+    [isLiquor, isRestaurant, isWatches, client, showEmi, useRetailPrice, clientId, dealToggleId, setProductListing],
   );
 
   const table = useReactTable({
@@ -444,7 +453,7 @@ export function Products(): JSX.Element {
         name: values.name,
         brand: values.brand,
         price: shelfPrice,
-        emiPrice: values.emiPrice,
+        emiPrice: isRestaurant ? 0 : values.emiPrice,
         image: imageUrl,
         inStock: values.inStock,
         category,
@@ -455,7 +464,16 @@ export function Products(): JSX.Element {
       };
 
       await saveProduct(product);
-      showToast(modalMode === 'create' ? 'Product added successfully' : 'Product updated successfully', 'success');
+      showToast(
+        modalMode === 'create'
+          ? isRestaurant
+            ? 'Menu item added successfully'
+            : 'Product added successfully'
+          : isRestaurant
+            ? 'Menu item updated successfully'
+            : 'Product updated successfully',
+        'success',
+      );
       setModalOpen(false);
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Save failed', 'error');
@@ -509,13 +527,19 @@ export function Products(): JSX.Element {
         <RequireStoreBanner />
         <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <h1 className="admin-page-heading">Products</h1>
+            <h1 className="admin-page-heading">{isRestaurant ? 'Menu' : 'Products'}</h1>
             <p className="admin-page-subtitle mt-2 break-words">
               {client
-                ? `Managing catalog for ${client.storeName}.`
+                ? isRestaurant
+                  ? `Managing menu for ${client.storeName}.`
+                  : `Managing catalog for ${client.storeName}.`
                 : isSuperadmin
-                  ? 'Select a store from Clients to manage its catalog.'
-                  : 'Products'}
+                  ? isRestaurant
+                    ? 'Select a store from Clients to manage its menu.'
+                    : 'Select a store from Clients to manage its catalog.'
+                  : isRestaurant
+                    ? 'Menu'
+                    : 'Products'}
               {isLiquor && client ? (
                 <>
                   {' '}
@@ -531,7 +555,7 @@ export function Products(): JSX.Element {
             className="btn-admin-primary inline-flex w-full items-center justify-center gap-2 sm:w-auto disabled:cursor-not-allowed disabled:opacity-50"
           >
             <Plus className="h-4 w-4" aria-hidden />
-            Add product
+            {isRestaurant ? 'Add menu item' : 'Add product'}
           </button>
         </div>
 
@@ -540,17 +564,25 @@ export function Products(): JSX.Element {
         ) : rows.length === 0 ? (
           <div className="admin-table-shell">
             <div className="flex flex-col items-center justify-center gap-4 py-16">
-              <Smartphone className="size-16 text-white/20" aria-hidden />
-              <h2 className="font-display text-2xl text-white/60">No products yet</h2>
+              {isRestaurant ? (
+                <UtensilsCrossed className="size-16 text-white/20" aria-hidden />
+              ) : (
+                <Smartphone className="size-16 text-white/20" aria-hidden />
+              )}
+              <h2 className="font-display text-2xl text-white/60">
+                {isRestaurant ? 'No menu items yet' : 'No products yet'}
+              </h2>
               <p className="max-w-xs text-center text-sm text-white/40">
                 {isLiquor
                   ? 'Add your first bottle or product to start building your catalog'
                   : isWatches
                     ? 'Add your first watch, toy, or accessory to start building your catalog'
-                    : 'Add your first phone or device to start building your catalog'}
+                    : isRestaurant
+                      ? 'Add your first dish to start building your menu'
+                      : 'Add your first phone or device to start building your catalog'}
               </p>
               <button type="button" onClick={openCreate} className="btn-admin-primary w-full sm:w-auto">
-                + Add First Product
+                {isRestaurant ? '+ Add First Menu Item' : '+ Add First Product'}
               </button>
             </div>
           </div>
@@ -568,7 +600,7 @@ export function Products(): JSX.Element {
                   placeholder="Search by name..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
-                  aria-label="Search products by name"
+                  aria-label={isRestaurant ? 'Search menu by name' : 'Search products by name'}
                 />
               </div>
               <div className="flex min-w-[140px] flex-1 flex-col text-sm sm:flex-initial">
@@ -621,7 +653,7 @@ export function Products(): JSX.Element {
               </div>
             </div>
             <p className="text-sm text-white/40">
-              Showing {displayRows.length} of {rows.length} products
+              Showing {displayRows.length} of {rows.length} {isRestaurant ? 'menu items' : 'products'}
             </p>
 
             {selectedCount > 0 ? (
@@ -657,7 +689,9 @@ export function Products(): JSX.Element {
             <div className="admin-table-shell">
               {showFilterEmpty ? (
                 <div className="flex flex-col items-center justify-center gap-4 py-16">
-                  <p className="text-center text-sm text-white/60">No products match your search</p>
+                  <p className="text-center text-sm text-white/60">
+                    {isRestaurant ? 'No menu items match your search' : 'No products match your search'}
+                  </p>
                   <button type="button" onClick={clearFilters} className="btn-admin-secondary">
                     Clear filters
                   </button>
@@ -702,12 +736,22 @@ export function Products(): JSX.Element {
 
         <ProductModal
           open={modalOpen}
-          title={modalMode === 'create' ? 'Add product' : 'Edit product'}
+          title={
+            modalMode === 'create'
+              ? isRestaurant
+                ? 'Add menu item'
+                : 'Add product'
+              : isRestaurant
+                ? 'Edit menu item'
+                : 'Edit product'
+          }
           categoryChoices={[...productCategoryChoices]}
           mode={modalMode}
           currencyCode={currencyCode}
           initial={editing}
           showWeeklyDealField={isLiquor}
+          showEmiField={showEmi}
+          brandLabel={isRestaurant ? 'Short description' : 'Brand'}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
           saving={saving}
@@ -715,14 +759,16 @@ export function Products(): JSX.Element {
         />
         <ConfirmModal
           open={deleteTarget !== null}
-          title="Delete Product"
+          title={isRestaurant ? 'Delete Menu Item' : 'Delete Product'}
           message={`Are you sure you want to delete "${deleteTarget?.name ?? ''}"? This action cannot be undone.`}
           confirmLabel="Delete"
           variant="danger"
           onConfirm={() => {
             if (deleteTarget) {
               void removeProduct(deleteTarget.id)
-                .then(() => showToast('Product deleted', 'success'))
+                .then(() =>
+                  showToast(isRestaurant ? 'Menu item deleted' : 'Product deleted', 'success'),
+                )
                 .catch((err: unknown) =>
                   showToast(err instanceof Error ? err.message : 'Delete failed', 'error'),
                 );
@@ -733,8 +779,8 @@ export function Products(): JSX.Element {
         />
         <ConfirmModal
           open={bulkDeleteOpen}
-          title="Delete products"
-          message={`Delete ${selectedCount} products? This cannot be undone.`}
+          title={isRestaurant ? 'Delete menu items' : 'Delete products'}
+          message={`Delete ${selectedCount} ${isRestaurant ? 'menu item' : 'product'}${selectedCount === 1 ? '' : 's'}? This cannot be undone.`}
           confirmLabel="Delete"
           variant="danger"
           onConfirm={confirmBulkDelete}

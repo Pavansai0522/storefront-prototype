@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAdminData } from '../context/AdminDataContext';
-import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isRestaurantStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import {
   countAccessoriesForClient,
   countProductsForClient,
@@ -47,6 +47,7 @@ export function StoreAdminDashboard(): JSX.Element {
   const template = myClient?.template ?? null;
   const isLiquor = isLiquorStoreTemplate(template);
   const isWatches = isWatchesStoreTemplate(template);
+  const isRestaurant = isRestaurantStoreTemplate(template);
   const showAccessories = supportsAccessoriesCatalog(template);
 
   const productCountForStore = useMemo(
@@ -90,10 +91,14 @@ export function StoreAdminDashboard(): JSX.Element {
         }`}
       >
         <div className="admin-card p-5">
-          <p className="text-xs uppercase tracking-wide text-brand-saffron">Products (your store)</p>
+          <p className="text-xs uppercase tracking-wide text-brand-saffron">
+            {isRestaurant ? 'Menu items (your store)' : 'Products (your store)'}
+          </p>
           <p className="mt-2 font-display text-5xl text-white">{productCountForStore}</p>
           {isWatches ? (
             <p className="mt-1 text-xs text-gray-400">Watches &amp; toys (Products page)</p>
+          ) : isRestaurant ? (
+            <p className="mt-1 text-xs text-gray-400">Dishes on your food menu</p>
           ) : null}
         </div>
         {showAccessories ? (

@@ -20,3 +20,7 @@ export function isLiquorStoreTemplate(template: string | undefined | null): bool
 export function isWatchesStoreTemplate(template: string | undefined | null): boolean {
   return template === 'watches-store-v2';
 }
+
+export function isRestaurantStoreTemplate(template: string | undefined | null): boolean {
+  return template === 'restaurant-v1';
+}

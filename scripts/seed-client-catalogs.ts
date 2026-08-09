@@ -2,6 +2,7 @@ import './load-env';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { liquorCatalogItems } from './seed-data/liquor-catalog';
 import { mobileCatalogItems } from './seed-data/mobile-catalog';
+import { restaurantCatalogItems } from './seed-data/restaurant-catalog';
 import { toDbProductRows, type ProductSeedItem } from './seed-data/types';
 import { watchesCatalogItems } from './seed-data/watches-catalog';
 
@@ -26,6 +27,9 @@ function catalogItemsForTemplate(template: string): ProductSeedItem[] | null {
   }
   if (template === 'watches-store-v2') {
     return watchesCatalogItems();
+  }
+  if (template === 'restaurant-v1') {
+    return restaurantCatalogItems();
   }
   return null;
 }

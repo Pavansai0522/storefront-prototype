@@ -55,6 +55,9 @@ type ProductModalProps = {
   allowImageUpload?: boolean;
   /** Liquor template: show Deals page listing dropdown. */
   showWeeklyDealField?: boolean;
+  /** Override EMI field visibility (defaults from currency). */
+  showEmiField?: boolean;
+  brandLabel?: string;
   saving?: boolean;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void | Promise<void>;
@@ -83,11 +86,13 @@ export function ProductModal({
   initial,
   allowImageUpload = false,
   showWeeklyDealField = false,
+  showEmiField,
+  brandLabel = 'Brand',
   saving = false,
   onClose,
   onSave,
 }: ProductModalProps): JSX.Element {
-  const showEmi = usesEmiPricing(currencyCode);
+  const showEmi = showEmiField ?? usesEmiPricing(currencyCode);
   const retailPrice = usesRetailDecimals(currencyCode);
   const priceLabel = `Price (${currencySymbol(currencyCode)})`;
   const { register, control, handleSubmit, reset, watch, setValue, setError, formState } =
@@ -227,7 +232,7 @@ export function ProductModal({
                   <input required className="admin-input" {...register('name', { required: true })} />
                 </label>
                 <label className="block text-sm">
-                  <span className="admin-label">Brand</span>
+                  <span className="admin-label">{brandLabel}</span>
                   <input required className="admin-input" {...register('brand', { required: true })} />
                 </label>
               </div>

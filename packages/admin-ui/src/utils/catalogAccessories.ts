@@ -1,10 +1,13 @@
 import { isWatchesAccessorySubcategory } from '../constants/categories';
-import { isLiquorStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
+import { isLiquorStoreTemplate, isRestaurantStoreTemplate, isWatchesStoreTemplate } from '../constants/templates';
 import type { Product } from '../types';
 import { productCategoryKey } from '../types/product.types';
 
 export function supportsAccessoriesCatalog(template: string | null | undefined): boolean {
-  return !isLiquorStoreTemplate(template);
+  return (
+    !isLiquorStoreTemplate(template) &&
+    !isRestaurantStoreTemplate(template)
+  );
 }
 
 /** Whether a SKU belongs in the accessories catalog for this store template. */
