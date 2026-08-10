@@ -43,6 +43,7 @@ import { useProfile } from '../hooks/useProfile';
 import { uploadProductImage } from '../services/catalogService';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { findClientById } from '../utils/clientLookup';
+import { resolveRestaurantDietType, restaurantDietLabel } from '../utils/restaurantDiet';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
@@ -268,6 +269,29 @@ export function Products(): JSX.Element {
           return <span className="text-gray-200">{label}</span>;
         },
       }),
+      ...(isRestaurant
+        ? [
+            columnHelper.display({
+              id: 'dietType',
+              header: 'Diet',
+              cell: ({ row }) => {
+                const p = row.original;
+                const diet = resolveRestaurantDietType(p.name, p.category, p.dietType);
+                return (
+                  <span
+                    className={`inline-flex rounded-md px-2 py-1 text-xs font-medium ring-1 ${
+                      diet === 'veg'
+                        ? 'bg-green-500/15 text-green-300 ring-green-500/25'
+                        : 'bg-red-500/15 text-red-300 ring-red-500/25'
+                    }`}
+                  >
+                    {restaurantDietLabel(diet)}
+                  </span>
+                );
+              },
+            }),
+          ]
+        : []),
       columnHelper.accessor('price', {
         header: 'Price',
         cell: (info) => (
@@ -392,6 +416,7 @@ export function Products(): JSX.Element {
     inStock: boolean;
     category: string;
     weeklyDeal: 'catalog' | 'deals';
+    dietType: 'veg' | 'non-veg';
   }): Promise<void> => {
     if (!clientId) {
       showToast(
@@ -459,6 +484,7 @@ export function Products(): JSX.Element {
         category,
         subcategory,
         isAccessory: false,
+        dietType: isRestaurant ? values.dietType : undefined,
         featuredGroup: listingFields.featuredGroup ?? undefined,
         featuredSort: listingFields.featuredSort ?? undefined,
       };
@@ -705,7 +731,7 @@ export function Products(): JSX.Element {
                           {hg.headers.map((h) => (
                             <th
                               key={h.id}
-                              className={`admin-th ${h.column.id === 'select' ? 'w-12' : ''} ${h.column.id === 'actions' ? 'text-right' : ''} ${h.column.id === 'category' || h.column.id === 'price' || h.column.id === 'emiPrice' ? 'hidden md:table-cell' : ''}`}
+                              className={`admin-th ${h.column.id === 'select' ? 'w-12' : ''} ${h.column.id === 'actions' ? 'text-right' : ''} ${h.column.id === 'category' || h.column.id === 'dietType' || h.column.id === 'price' || h.column.id === 'emiPrice' ? 'hidden md:table-cell' : ''}`}
                             >
                               {h.isPlaceholder ? null : flexRender(h.column.columnDef.header, h.getContext())}
                             </th>
@@ -719,7 +745,7 @@ export function Products(): JSX.Element {
                           {row.getVisibleCells().map((cell) => (
                             <td
                               key={cell.id}
-                              className={`px-4 py-3 ${cell.column.id === 'select' ? 'align-middle' : ''} ${cell.column.id === 'category' || cell.column.id === 'price' || cell.column.id === 'emiPrice' ? 'hidden md:table-cell' : ''} ${cell.column.id === 'actions' ? 'text-right' : ''}`}
+                              className={`px-4 py-3 ${cell.column.id === 'select' ? 'align-middle' : ''} ${cell.column.id === 'category' || cell.column.id === 'dietType' || cell.column.id === 'price' || cell.column.id === 'emiPrice' ? 'hidden md:table-cell' : ''} ${cell.column.id === 'actions' ? 'text-right' : ''}`}
                             >
                               {flexRender(cell.column.columnDef.cell, cell.getContext())}
                             </td>
@@ -752,6 +778,7 @@ export function Products(): JSX.Element {
           showWeeklyDealField={isLiquor}
           showEmiField={showEmi}
           brandLabel={isRestaurant ? 'Short description' : 'Brand'}
+          showDietField={isRestaurant}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
           saving={saving}

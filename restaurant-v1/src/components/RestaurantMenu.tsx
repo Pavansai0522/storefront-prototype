@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeft, Phone } from 'lucide-react';
 import type { Product } from '../types/product.types';
@@ -11,14 +11,22 @@ import {
   restaurantCategoryLabel,
   sortMenuCategories,
 } from '../constants/restaurantCategories';
+import { MENU_SECTION_PAGE_SIZE } from '../constants/menu';
 import {
   STORE_PHONE_PRIMARY_DISPLAY,
   STORE_PHONE_PRIMARY_TEL,
   STORE_WHATSAPP_HREF,
 } from '../config/store';
 import { formatInr } from '../utils/formatCurrency';
+import { MenuPagination } from './MenuPagination';
+import { getSectionPageCount, sliceSectionPage, clampSectionPage } from '../utils/menuSectionPagination';
 
 type DietFilter = 'all' | 'veg' | 'non-veg';
+
+type MenuSection = {
+  category: string;
+  items: Product[];
+};
 
 type RestaurantMenuProps = {
   products: Product[];
@@ -29,7 +37,7 @@ type RestaurantMenuProps = {
 };
 
 function MenuItemRow({ item }: { item: Product }): JSX.Element {
-  const isVeg = isVegetarianDish(item.name, item.category);
+  const isVeg = isVegetarianDish(item.name, item.category, item.dietType);
   const available = item.inStock !== false;
 
   return (
@@ -70,15 +78,13 @@ export function RestaurantMenu({
   emptyActionHref = STORE_PHONE_PRIMARY_TEL,
 }: RestaurantMenuProps): JSX.Element {
   const [dietFilter, setDietFilter] = useState<DietFilter>('all');
-
-  const categories = useMemo(
-    () => sortMenuCategories(Array.from(new Set(products.map((p) => p.category)))),
-    [products],
-  );
+  const [activeSectionIndex, setActiveSectionIndex] = useState(0);
+  const [sectionPages, setSectionPages] = useState<Record<string, number>>({});
+  const menuTopRef = useRef<HTMLDivElement>(null);
 
   const filteredProducts = useMemo(() => {
     return products.filter((item) => {
-      const isVeg = isVegetarianDish(item.name, item.category);
+      const isVeg = isVegetarianDish(item.name, item.category, item.dietType);
       if (dietFilter === 'veg') {
         return isVeg;
       }
@@ -89,7 +95,7 @@ export function RestaurantMenu({
     });
   }, [products, dietFilter]);
 
-  const groupedSections = useMemo(() => {
+  const menuSections = useMemo((): MenuSection[] => {
     const sections = new Map<string, Product[]>();
     for (const item of filteredProducts) {
       const list = sections.get(item.category) ?? [];
@@ -102,8 +108,63 @@ export function RestaurantMenu({
     }));
   }, [filteredProducts]);
 
-  const scrollToSection = (category: string): void => {
-    document.getElementById(menuSectionId(category))?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const currentSection = menuSections[activeSectionIndex] ?? null;
+  const currentSectionPage = currentSection ? (sectionPages[currentSection.category] ?? 1) : 1;
+  const sectionSlice = currentSection
+    ? sliceSectionPage(currentSection.items, currentSectionPage, MENU_SECTION_PAGE_SIZE)
+    : null;
+  const paginatedSectionItems = sectionSlice?.items ?? [];
+  const sectionTotalPages = sectionSlice?.totalPages ?? 1;
+  const sectionPageStart = sectionSlice?.pageStart ?? 0;
+  const sectionPageEnd = sectionSlice?.pageEnd ?? 0;
+
+  useEffect(() => {
+    setActiveSectionIndex(0);
+    setSectionPages({});
+  }, [dietFilter]);
+
+  useEffect(() => {
+    if (activeSectionIndex >= menuSections.length) {
+      setActiveSectionIndex(Math.max(0, menuSections.length - 1));
+    }
+  }, [activeSectionIndex, menuSections.length]);
+
+  useEffect(() => {
+    if (!currentSection) {
+      return;
+    }
+    if (currentSectionPage > sectionTotalPages) {
+      setSectionPages((prev) => ({
+        ...prev,
+        [currentSection.category]: sectionTotalPages,
+      }));
+    }
+  }, [currentSection, currentSectionPage, sectionTotalPages]);
+
+  const scrollMenuTop = (): void => {
+    menuTopRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const goToSection = (category: string): void => {
+    const index = menuSections.findIndex((section) => section.category === category);
+    if (index >= 0) {
+      setActiveSectionIndex(index);
+      scrollMenuTop();
+    }
+  };
+
+  const goToSectionPage = (category: string, nextPage: number): void => {
+    const section = menuSections.find((entry) => entry.category === category);
+    if (!section) {
+      return;
+    }
+    const total = getSectionPageCount(section.items.length, MENU_SECTION_PAGE_SIZE);
+    const clamped = clampSectionPage(nextPage, total);
+    setSectionPages((prev) => ({
+      ...prev,
+      [category]: clamped,
+    }));
+    scrollMenuTop();
   };
 
   return (
@@ -138,24 +199,31 @@ export function RestaurantMenu({
           </div>
         </header>
 
-        {groupedSections.length > 0 ? (
+        {currentSection ? (
           <>
             <nav
+              ref={menuTopRef}
               className="menu-booklet-nav mt-10"
               aria-label="Menu sections"
             >
               <p className="mb-3 text-center font-serif text-sm italic text-muted">Jump to a section</p>
               <div className="flex flex-wrap justify-center gap-x-4 gap-y-2">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    type="button"
-                    onClick={() => scrollToSection(category)}
-                    className="font-serif text-sm text-gold underline-offset-4 transition hover:text-gold-hover hover:underline"
-                  >
-                    {restaurantCategoryLabel(category)}
-                  </button>
-                ))}
+                {menuSections.map((section, index) => {
+                  const isActive = activeSectionIndex === index;
+                  return (
+                    <button
+                      key={section.category}
+                      type="button"
+                      onClick={() => goToSection(section.category)}
+                      className={`font-serif text-sm underline-offset-4 transition hover:text-gold-hover hover:underline ${
+                        isActive ? 'font-bold text-gold' : 'text-muted'
+                      }`}
+                      aria-current={isActive ? 'true' : undefined}
+                    >
+                      {restaurantCategoryLabel(section.category)}
+                    </button>
+                  );
+                })}
               </div>
               <div className="mt-5 flex justify-center gap-4 border-t border-gold/10 pt-4">
                 {(
@@ -179,29 +247,44 @@ export function RestaurantMenu({
               </div>
             </nav>
 
+            <p className="mt-4 text-center text-xs uppercase tracking-wider text-muted">
+              {restaurantCategoryLabel(currentSection.category)}
+              {sectionTotalPages > 1
+                ? ` · Page ${currentSectionPage} of ${sectionTotalPages} · Dishes ${sectionPageStart + 1}–${sectionPageEnd} of ${currentSection.items.length}`
+                : ` · ${currentSection.items.length} dish${currentSection.items.length === 1 ? '' : 'es'}`}
+            </p>
+
             <div className="menu-booklet mt-10">
-              {groupedSections.map(({ category, items }) => (
-                <section key={category} id={menuSectionId(category)} className="scroll-mt-28 pb-8 last:pb-4">
-                  <div className="flex items-center gap-3">
-                    <span className="h-px flex-1 bg-gold/30" aria-hidden />
-                    <h2 className="shrink-0 text-center font-display text-lg uppercase tracking-[0.18em] text-gold">
-                      {restaurantCategoryLabel(category)}
-                    </h2>
-                    <span className="h-px flex-1 bg-gold/30" aria-hidden />
-                  </div>
-                  {MENU_SECTION_BLURB[category] ? (
-                    <p className="mt-2 text-center font-serif text-sm italic text-muted">
-                      {MENU_SECTION_BLURB[category]}
-                    </p>
-                  ) : null}
-                  <div className="mt-4 px-2 sm:px-4">
-                    {items.map((item) => (
-                      <MenuItemRow key={item.id} item={item} />
-                    ))}
-                  </div>
-                </section>
-              ))}
+              <section
+                id={menuSectionId(currentSection.category)}
+                className="scroll-mt-28 pb-4"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="h-px flex-1 bg-gold/30" aria-hidden />
+                  <h2 className="shrink-0 text-center font-display text-lg uppercase tracking-[0.18em] text-gold">
+                    {restaurantCategoryLabel(currentSection.category)}
+                  </h2>
+                  <span className="h-px flex-1 bg-gold/30" aria-hidden />
+                </div>
+                {MENU_SECTION_BLURB[currentSection.category] ? (
+                  <p className="mt-2 text-center font-serif text-sm italic text-muted">
+                    {MENU_SECTION_BLURB[currentSection.category]}
+                  </p>
+                ) : null}
+                <div className="mt-4 px-2 sm:px-4">
+                  {paginatedSectionItems.map((item) => (
+                    <MenuItemRow key={item.id} item={item} />
+                  ))}
+                </div>
+              </section>
             </div>
+
+            <MenuPagination
+              page={currentSectionPage}
+              totalPages={sectionTotalPages}
+              onPageChange={(nextPage) => goToSectionPage(currentSection.category, nextPage)}
+              ariaLabel={`${restaurantCategoryLabel(currentSection.category)} pages`}
+            />
 
             <footer className="menu-booklet-footer mt-6 text-center">
               <p className="font-serif text-base italic text-muted">

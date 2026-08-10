@@ -28,4 +28,5 @@ export type DbProduct = {
   sort_order: number;
   featured_group: 'watch' | 'toy' | 'accessory' | 'deal' | null;
   featured_sort: number | null;
+  diet_type: 'veg' | 'non-veg' | null;
 };

@@ -118,7 +118,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       const { data: productRows, error: productsError } = await supabase
         .from('products')
         .select(
-          'id, client_id, name, brand, price_inr, image_url, in_stock, category, subcategory, sort_order, featured_group, featured_sort',
+          'id, client_id, name, brand, price_inr, image_url, in_stock, category, subcategory, sort_order, featured_group, featured_sort, diet_type',
         )
         .eq('client_id', clientRow.id)
         .order('sort_order', { ascending: true });

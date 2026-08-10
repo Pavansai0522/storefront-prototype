@@ -7,6 +7,8 @@ export type RestaurantCategory =
   | 'Beverages'
   | 'Other';
 
+export type RestaurantDietType = 'veg' | 'non-veg';
+
 export interface Product {
   id: string | number;
   name: string;
@@ -17,4 +19,5 @@ export interface Product {
   image: string;
   /** Defaults to true when omitted (catalog from API may omit). */
   inStock?: boolean;
+  dietType?: RestaurantDietType;
 }

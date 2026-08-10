@@ -49,6 +49,13 @@ export const RESTAURANT_CATEGORIES = [
 
 export type RestaurantCategory = (typeof RESTAURANT_CATEGORIES)[number]['value'];
 
+export const RESTAURANT_DIET_OPTIONS = [
+  { value: 'veg', label: 'Veg' },
+  { value: 'non-veg', label: 'Non-veg' },
+] as const;
+
+export type RestaurantDietOption = (typeof RESTAURANT_DIET_OPTIONS)[number]['value'];
+
 /** Matches watches-store-v2 `/accessories/*` catalog keys. */
 export const WATCHES_ACCESSORY_SUBCATEGORY_KEYS = [
   'cables',

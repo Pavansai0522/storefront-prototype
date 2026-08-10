@@ -15,6 +15,7 @@ import {
   usesRetailDecimals,
 } from '../constants/countryCurrency';
 import type { Nullable, Product } from '../types';
+import { resolveRestaurantDietType } from '../utils/restaurantDiet';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 
 export type ProductModalMode = 'create' | 'edit';
@@ -30,6 +31,8 @@ export type ProductModalValues = {
   category: string;
   /** Liquor stores: include on /deals when `deals`. */
   weeklyDeal: 'catalog' | 'deals';
+  /** Restaurant stores: veg or non-veg. */
+  dietType: 'veg' | 'non-veg';
 };
 
 const defaultValues: ProductModalValues = {
@@ -42,6 +45,7 @@ const defaultValues: ProductModalValues = {
   inStock: true,
   category: '',
   weeklyDeal: 'catalog',
+  dietType: 'non-veg',
 };
 
 type ProductModalProps = {
@@ -58,6 +62,8 @@ type ProductModalProps = {
   /** Override EMI field visibility (defaults from currency). */
   showEmiField?: boolean;
   brandLabel?: string;
+  /** Restaurant template: show veg / non-veg selector. */
+  showDietField?: boolean;
   saving?: boolean;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void | Promise<void>;
@@ -66,6 +72,12 @@ type ProductModalProps = {
 type CategoryOption = { value: string; label: string };
 type StockOption = { value: 'in' | 'out'; label: string };
 type WeeklyDealOption = { value: 'catalog' | 'deals'; label: string };
+type DietOption = { value: 'veg' | 'non-veg'; label: string };
+
+const RESTAURANT_DIET_MODAL_OPTIONS: DietOption[] = [
+  { value: 'veg', label: 'Veg' },
+  { value: 'non-veg', label: 'Non-veg' },
+];
 
 const WEEKLY_DEAL_MODAL_OPTIONS: WeeklyDealOption[] = [
   { value: 'catalog', label: 'Catalog only (Shop, Spirits, Wine, Beer)' },
@@ -88,6 +100,7 @@ export function ProductModal({
   showWeeklyDealField = false,
   showEmiField,
   brandLabel = 'Brand',
+  showDietField = false,
   saving = false,
   onClose,
   onSave,
@@ -132,6 +145,11 @@ export function ProductModal({
         inStock: initial.inStock,
         category: initial.subcategory ?? initial.category,
         weeklyDeal: initial.featuredGroup === 'deal' ? 'deals' : 'catalog',
+        dietType: resolveRestaurantDietType(
+          initial.name,
+          initial.subcategory ?? initial.category,
+          initial.dietType,
+        ),
       });
       setPriceText(
         retailPrice ? formatDollarInput(price) : formatIntegerPriceInput(price),
@@ -143,6 +161,7 @@ export function ProductModal({
         emiPrice: showEmi ? defaultValues.emiPrice : 0,
         category: categoryChoices[0]?.value ?? '',
         weeklyDeal: 'catalog',
+        dietType: 'non-veg',
       });
       setPriceText('');
       setEmiPriceText('');
@@ -350,6 +369,36 @@ export function ProductModal({
                           value={WEEKLY_DEAL_MODAL_OPTIONS.find((o) => o.value === field.value) ?? null}
                           onChange={(opt) => {
                             field.onChange(opt?.value ?? 'catalog');
+                          }}
+                          onBlur={field.onBlur}
+                          styles={adminSelectStyles}
+                          isSearchable={false}
+                          menuPortalTarget={document.body}
+                          menuPosition="fixed"
+                        />
+                      )}
+                    />
+                  </div>
+                </label>
+              ) : null}
+              {showDietField ? (
+                <label className="block text-sm">
+                  <span className="admin-label">Diet</span>
+                  <div className="mt-1">
+                    <Controller
+                      name="dietType"
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field }) => (
+                        <Select<DietOption, false>
+                          instanceId="product-modal-diet"
+                          inputId="product-modal-diet"
+                          options={RESTAURANT_DIET_MODAL_OPTIONS}
+                          value={
+                            RESTAURANT_DIET_MODAL_OPTIONS.find((o) => o.value === field.value) ?? null
+                          }
+                          onChange={(opt) => {
+                            field.onChange(opt?.value ?? 'non-veg');
                           }}
                           onBlur={field.onBlur}
                           styles={adminSelectStyles}

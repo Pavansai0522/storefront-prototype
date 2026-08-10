@@ -21,6 +21,8 @@ export type ProductCategory =
 
 export type FeaturedGroup = 'watch' | 'toy' | 'accessory' | 'deal' | 'trending';
 
+export type RestaurantDietType = 'veg' | 'non-veg';
+
 export interface Product {
   id: ID;
   clientId: ID;
@@ -32,6 +34,8 @@ export interface Product {
   inStock: boolean;
   category: ProductCategory;
   isAccessory: boolean;
+  /** Restaurant template: veg or non-veg kitchen marker. */
+  dietType?: Nullable<RestaurantDietType>;
   /** Watches-store-v2 subcategory key (smart-watches, rc-toys, …). */
   subcategory?: Nullable<string>;
   featuredGroup?: Nullable<FeaturedGroup>;

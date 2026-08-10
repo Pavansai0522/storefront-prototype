@@ -25,7 +25,17 @@ export function DietBadge({ isVeg }: DietBadgeProps): JSX.Element {
 }
 
 /** Paneer / pure veg dishes and most beverages without meat in the name. */
-export function isVegetarianDish(name: string, category: string): boolean {
+export function isVegetarianDish(
+  name: string,
+  category: string,
+  dietType?: 'veg' | 'non-veg' | null,
+): boolean {
+  if (dietType === 'veg') {
+    return true;
+  }
+  if (dietType === 'non-veg') {
+    return false;
+  }
   const lower = name.toLowerCase();
   if (lower.includes('paneer') || lower.includes('veg ') || lower.startsWith('veg ')) {
     return true;

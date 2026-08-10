@@ -30,6 +30,7 @@ export function mapDbProductToCatalog(row: DbProduct): Product {
     image: row.image_url ?? '',
     inStock: row.in_stock,
     badge: row.featured_group === 'featured' ? 'Popular' : undefined,
+    dietType: row.diet_type ?? undefined,
   };
 }
 

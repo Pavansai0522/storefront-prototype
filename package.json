@@ -40,15 +40,18 @@
     "seed:bala": "tsx scripts/seed-bala-mobiles.ts",
     "seed:liquor": "tsx scripts/seed-liquor-store.ts",
     "seed:restaurant": "tsx scripts/seed-restaurant-store.ts",
+    "validate:menu-pagination": "tsx scripts/validate-menu-pagination.ts",
+    "validate:menu-mobile": "tsx scripts/validate-menu-mobile.ts",
     "migrate:liquor-images": "tsx scripts/migrate-liquor-images-to-r2.ts",
     "migrate:watches-images": "tsx scripts/migrate-watches-images-to-r2.ts",
     "migrate:bala-images": "tsx scripts/migrate-bala-images-to-r2.ts",
     "db:migrate": "tsx scripts/apply-sql-migration.ts"
   },
   "devDependencies": {
-    "ws": "^8.18.0",
     "dotenv": "^17.4.2",
     "pg": "^8.21.0",
-    "tsx": "^4.22.0"
+    "playwright": "^1.49.1",
+    "tsx": "^4.22.0",
+    "ws": "^8.18.0"
   }
 }

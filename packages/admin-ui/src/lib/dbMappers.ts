@@ -121,6 +121,7 @@ export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR
     subcategory,
     featuredGroup: row.featured_group,
     featuredSort: row.featured_sort,
+    dietType: row.diet_type ?? undefined,
   };
 }
 
@@ -144,6 +145,7 @@ export function productToDbInsert(
     featured_group: product.featuredGroup ?? null,
     featured_sort: product.featuredSort ?? null,
     sort_order: 0,
+    diet_type: product.dietType ?? null,
   };
 }
 
@@ -166,6 +168,7 @@ export function productToDbUpdate(
   if (product.isAccessory != null) patch.is_accessory = product.isAccessory;
   if (product.featuredGroup !== undefined) patch.featured_group = product.featuredGroup;
   if (product.featuredSort !== undefined) patch.featured_sort = product.featuredSort;
+  if (product.dietType !== undefined) patch.diet_type = product.dietType;
   return patch;
 }
 

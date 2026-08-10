@@ -34,7 +34,7 @@ export function MenuHighlights(): JSX.Element {
                 key={item.id}
                 className="flex items-start gap-3 border-b border-gold/10 py-4 last:border-b-0"
               >
-                <DietBadge isVeg={isVegetarianDish(item.name, item.category)} />
+                <DietBadge isVeg={isVegetarianDish(item.name, item.category, item.dietType)} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline gap-2">
                     <h3 className="font-serif text-lg font-semibold text-foreground">{item.name}</h3>
