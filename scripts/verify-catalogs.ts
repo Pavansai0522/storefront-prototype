@@ -16,7 +16,7 @@ if (!url || !key) {
 }
 
 const clients = [
-  { id: 'client-bala-1', name: 'Bala Mobiles', template: 'mobile-store-v1' },
+  { id: 'client-bala-1', name: 'Mobile Store', template: 'mobile-store-v1' },
   { id: 'client-watches-1', name: 'PR Watches', template: 'watches-store-v2' },
   { id: 'client-liquor-1', name: 'United Liquors', template: 'liquor-store-v1' },
 ];

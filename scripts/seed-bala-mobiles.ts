@@ -1,5 +1,5 @@
 /**
- * Seed Bala Mobiles client, store admin, and sample catalog.
+ * Seed Mobile Store client, store admin, and sample catalog.
  * Run from repo root: npm run seed:bala
  * Requires root `.env` with SUPABASE_URL + SUPABASE_SECRET_KEY + BALA_STORE_ADMIN_PASSWORD.
  * Set SEED_FORCE=true to replace an existing catalog.
@@ -35,7 +35,7 @@ const BALA_CLIENT_ROW = {
   id: BALA_CLIENT_ID,
   slug: BALA_SLUG,
   template: 'mobile-store-v1',
-  store_name: 'Bala Mobiles',
+  store_name: 'Mobile Store',
   status: 'active',
   monthly_fee: 299,
   live_url: process.env.BALA_LIVE_URL ?? 'https://bala-mobiles.vercel.app',
@@ -188,7 +188,7 @@ async function main(): Promise<void> {
     { force },
   );
 
-  console.log('\nBala Mobiles ready.');
+  console.log('\nMobile Store ready.');
   console.log('  Storefront: http://localhost:5173');
   console.log('  Store admin: http://localhost:5173/admin');
   console.log(`  Admin login: ${STORE_ADMIN_EMAIL}`);

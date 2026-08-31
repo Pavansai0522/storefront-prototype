@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.0.1",
   "private": true,
-  "description": "Vite + React storefront for Bala Mobiles. Supabase catalog + embedded /admin.",
+  "description": "Vite + React storefront for Mobile Store. Supabase catalog + embedded /admin.",
   "type": "module",
   "engines": {
     "node": "20.x"

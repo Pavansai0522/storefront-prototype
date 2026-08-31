@@ -9,13 +9,13 @@ import { buildWhatsAppUrl } from '../utils/whatsapp';
 export const clientConfig = {
   brand: {
     /** Used in sentences: "Hi {chatName}!" and headings */
-    chatName: 'Bala Mobiles',
+    chatName: 'Mobile Store',
     /** Short legal / footer entity name */
-    legalName: 'Bala Mobiles',
+    legalName: 'Mobile Store',
     /** Split logo wordmark: [before accent][accent in brand color] */
     wordmark: {
-      beforeAccent: 'BALA ',
-      accent: 'MOBILES'
+      beforeAccent: 'MOBILE ',
+      accent: 'STORE'
     }
   },
   contact: {

@@ -1,4 +1,4 @@
-# Bala Mobiles storefront (`client`)
+# Mobile Store storefront (`client`)
 
 Vite + React catalog with embedded `/admin`. Product images use **Cloudflare R2** when `VITE_PRODUCT_IMAGE_UPLOAD_URL` is set.
 
@@ -15,7 +15,7 @@ Uploads hit `/api/upload-product-image` via the Vite dev middleware.
 1. **Cloudflare dashboard** → R2 → Create bucket (e.g. `bala-mobiles-products`).
 2. **Manage R2 API tokens** → Create token with Object Read & Write on that bucket.
 3. Enable **public access** for the bucket (R2.dev subdomain or custom domain) and note the public base URL.
-4. Add to **Vercel** (Bala Mobiles project → Settings → Environment Variables):
+4. Add to **Vercel** (Mobile Store project → Settings → Environment Variables):
 
 | Variable | Example |
 |----------|---------|
@@ -28,7 +28,7 @@ Uploads hit `/api/upload-product-image` via the Vite dev middleware.
 | `SUPABASE_ANON_KEY` | **Required on Vercel** — same value as `VITE_SUPABASE_ANON_KEY` |
 | `VITE_PRODUCT_IMAGE_UPLOAD_URL` | `/api/upload-product-image` |
 
-5. Redeploy the Bala Mobiles project.
+5. Redeploy the Mobile Store project.
 
 If upload returns **500**, open the failed request in DevTools → **Response** and read the `error` field. Common fixes:
 

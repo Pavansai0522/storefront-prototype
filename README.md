@@ -13,7 +13,7 @@ The repo is an **npm workspaces** monorepo:
 | Workspace | Role | Admin URL (local) |
 |-----------|------|-------------------|
 | **`packages/admin-ui/`** | Shared admin SPA (`AdminApp`, auth, catalog CRUD) | (imported by storefronts) |
-| **`client/`** | Bala Mobiles **mobile storefront** | http://localhost:5173/admin |
+| **`client/`** | Mobile Store **mobile storefront** | http://localhost:5173/admin |
 | **`liquor-store-v1/`** | **Liquor storefront** | http://localhost:3000/admin |
 | **`watches-store-v2/`** | **Watches storefront** | http://localhost:3002/admin |
 | **`server/`** | **API** (Express + TypeScript) | — |
@@ -190,7 +190,7 @@ Copy `server/.env.example` to `server/.env` and adjust values (see [Environment 
 
 | Command | What it runs | Default URL |
 |---------|----------------|---------------|
-| `npm run dev:client` | Bala Mobiles storefront | **http://localhost:5173** (+ `/admin`) |
+| `npm run dev:client` | Mobile Store storefront | **http://localhost:5173** (+ `/admin`) |
 | `npm run dev:liquor` | Liquor storefront | **http://localhost:3000** (+ `/admin`) |
 | `npm run dev:watches` | Watches storefront | **http://localhost:3002** (+ `/admin`) |
 | `npm run dev:server` | Express API with `tsx watch` | **http://localhost:4000** |

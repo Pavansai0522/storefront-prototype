@@ -49,7 +49,7 @@ function StorePhotoCarousel({ images }: StorePhotoCarouselProps): JSX.Element | 
         <img
           key={img}
           src={img}
-          alt={`Bala Mobiles store view ${i + 1}`}
+          alt={`Mobile Store store view ${i + 1}`}
           className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
             i === current ? 'opacity-100' : 'opacity-0'
           }`}
