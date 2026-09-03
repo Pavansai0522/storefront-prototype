@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { AddToCartButton } from '../components/AddToCartButton';
 import { ProductWhatsAppActions } from '../components/ProductWhatsAppActions';
 import { Spinner } from '../components/Spinner';
@@ -67,41 +68,85 @@ export function ProductDetailPage(): JSX.Element {
         </nav>
 
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
-          <div>
-            <div className="overflow-hidden rounded-2xl border border-brand-border bg-brand-card">
-            <div className="relative aspect-square w-full bg-brand-surface">
-              {showImage ? (
-                <img
-                  src={imageSrc}
-                  alt=""
-                  className="h-full w-full object-contain p-6"
-                  onError={() => setImageFailed(true)}
-                />
-              ) : (
-                <div className="h-full w-full bg-brand-bg/40" aria-hidden />
-              )}
-            </div>
-            </div>
+          <div
+            className="relative h-[min(400px,70vw)] w-full overflow-hidden rounded-2xl border border-brand-border bg-brand-surface sm:rounded-3xl sm:h-[400px] md:h-[500px]"
+            role="region"
+            aria-roledescription="carousel"
+            aria-label={`${product.name} photos`}
+          >
+            {gallery.length > 0
+              ? gallery.map((src, i) => (
+                  <img
+                    key={`${src}-${i}`}
+                    src={optimizeImageUrl(src, 960)}
+                    alt=""
+                    className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+                      i === safeImageIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    loading={i === 0 ? 'eager' : 'lazy'}
+                    onError={() => {
+                      if (i === safeImageIndex) {
+                        setImageFailed(true);
+                      }
+                    }}
+                  />
+                ))
+              : showImage
+                ? (
+                    <img
+                      src={imageSrc}
+                      alt=""
+                      className="absolute inset-0 h-full w-full object-cover"
+                      onError={() => setImageFailed(true)}
+                    />
+                  )
+                : (
+                    <div className="h-full w-full bg-brand-bg/40" aria-hidden />
+                  )}
+
             {gallery.length > 1 ? (
-              <div className="mt-3 flex flex-wrap gap-2">
-                {gallery.map((src, index) => {
-                  const selected = safeImageIndex === index;
-                  return (
+              <>
+                <div className="absolute bottom-4 left-1/2 z-10 flex -translate-x-1/2 gap-1">
+                  {gallery.map((_, i) => (
                     <button
-                      key={`${src}-${index}`}
+                      key={`dot-${i}`}
                       type="button"
-                      aria-label={`View photo ${index + 1}`}
-                      aria-pressed={selected}
-                      onClick={() => setSelectedImageIndex(index)}
-                      className={`h-11 w-11 overflow-hidden rounded-xl border-2 ${
-                        selected ? 'border-brand-purple ring-2 ring-brand-purple/30' : 'border-brand-border'
-                      }`}
+                      aria-label={`Show photo ${i + 1}`}
+                      aria-current={i === safeImageIndex ? true : undefined}
+                      onClick={() => setSelectedImageIndex(i)}
+                      className="flex h-11 w-11 items-center justify-center"
                     >
-                      <img src={optimizeImageUrl(src, 160)} alt="" className="h-full w-full object-cover" />
+                      <span
+                        className={`block rounded-full transition-all ${
+                          i === safeImageIndex
+                            ? 'h-3 w-3 bg-brand-purple'
+                            : 'h-2 w-2 bg-brand-text/30 hover:bg-brand-text/50'
+                        }`}
+                      />
                     </button>
-                  );
-                })}
-              </div>
+                  ))}
+                </div>
+                <button
+                  type="button"
+                  aria-label="Previous photo"
+                  onClick={() =>
+                    setSelectedImageIndex(
+                      (p) => (p - 1 + gallery.length) % gallery.length,
+                    )
+                  }
+                  className="absolute left-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-brand-border bg-brand-bg/90 text-brand-text shadow-sm hover:bg-brand-bg sm:left-3"
+                >
+                  <ChevronLeft size={18} className="text-brand-text" aria-hidden />
+                </button>
+                <button
+                  type="button"
+                  aria-label="Next photo"
+                  onClick={() => setSelectedImageIndex((p) => (p + 1) % gallery.length)}
+                  className="absolute right-2 top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-brand-border bg-brand-bg/90 text-brand-text shadow-sm hover:bg-brand-bg sm:right-3"
+                >
+                  <ChevronRight size={18} className="text-brand-text" aria-hidden />
+                </button>
+              </>
             ) : null}
           </div>
 
