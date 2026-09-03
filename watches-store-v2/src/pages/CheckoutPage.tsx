@@ -259,9 +259,10 @@ export function CheckoutPage(): JSX.Element {
               <h2 className="mb-4 text-lg font-semibold text-brand-text">Summary</h2>
               <ul className="mb-4 space-y-2 border-b border-brand-border pb-4 text-sm">
                 {items.map((item) => (
-                  <li key={item.productId} className="flex justify-between gap-3">
+                  <li key={`${item.productId}-${item.color ?? 'default'}`} className="flex justify-between gap-3">
                     <span className="text-brand-text">
-                      {item.name} × {item.qty}
+                      {item.name}
+                      {item.color ? ` (${item.color})` : ''} × {item.qty}
                     </span>
                     <span className="shrink-0 font-medium">{formatInr(item.priceInr * item.qty)}</span>
                   </li>

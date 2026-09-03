@@ -1,8 +1,9 @@
 import type { FeaturedProduct } from '../data/featured';
-import type { CatalogTileItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
+import type { CatalogTileItem, ProductDetailItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
 import { TOY_SUBCATEGORY_KEYS } from '../types/catalogTile.types';
 import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 import type { DbProduct } from './supabaseTypes';
+import { normalizeProductColors } from '../utils/productColors';
 
 export function formatInrLabel(amount: number): string {
   return `₹${amount.toLocaleString('en-IN')}`;
@@ -24,6 +25,15 @@ export function dbProductToCatalogTile(row: DbProduct): CatalogTileItem {
     priceInr: row.price_inr,
     priceLabel: formatInrLabel(row.price_inr),
     image: optimizeImageUrl(row.image_url ?? ''),
+    colors: normalizeProductColors(row.colors),
+  };
+}
+
+export function dbProductToDetailItem(row: DbProduct): ProductDetailItem {
+  return {
+    ...dbProductToCatalogTile(row),
+    emiLabel: `EMI from ${formatEmiLabel(row.emi_price_inr, row.price_inr)}/mo`,
+    description: (row.description ?? '').trim(),
   };
 }
 
@@ -41,6 +51,7 @@ export function dbProductToFeatured(
     emi: formatEmiLabel(row.emi_price_inr, row.price_inr),
     image: optimizeImageUrl(row.image_url ?? '', 400),
     type,
+    colors: normalizeProductColors(row.colors),
   };
 }
 

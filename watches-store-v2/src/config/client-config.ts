@@ -94,8 +94,9 @@ export function whatsappHref(message?: string): string {
   return buildWhatsAppUrl(clientConfig.contact.whatsappE164, message);
 }
 
-export function buyProductMessage(productName: string, price: string): string {
-  return `Hi ${clientConfig.brand.chatName}! I want to buy ${productName} (${price}). Please share availability and EMI options.`;
+export function buyProductMessage(productName: string, price: string, color?: string): string {
+  const colorBit = color ? ` (${color})` : '';
+  return `Hi ${clientConfig.brand.chatName}! I want to buy ${productName}${colorBit} (${price}). Please share availability and EMI options.`;
 }
 
 export function enquireProductMessage(productName: string): string {

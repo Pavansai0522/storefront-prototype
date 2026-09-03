@@ -12,6 +12,8 @@ type AddToCartButtonProps = {
   priceLabel: string;
   image: string;
   compact?: boolean;
+  color?: string;
+  onAdded?: () => void;
 };
 
 export function AddToCartButton({
@@ -22,12 +24,15 @@ export function AddToCartButton({
   priceLabel,
   image,
   compact = false,
+  color,
+  onAdded,
 }: AddToCartButtonProps): JSX.Element {
   const { addItem } = useCart();
 
   const handleClick = (): void => {
-    addItem({ productId, name, brand, priceInr, priceLabel, image });
+    addItem({ productId, name, brand, priceInr, priceLabel, image, color });
     toast.success('Added to cart');
+    onAdded?.();
   };
 
   return (

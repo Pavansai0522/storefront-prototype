@@ -8,4 +8,5 @@ export type FeaturedProduct = {
   emi: string;
   image: string;
   type: 'watch' | 'toy' | 'accessory';
+  colors: string[];
 };

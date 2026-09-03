@@ -35,7 +35,7 @@ export function CartPage(): JSX.Element {
           <ul className="space-y-4">
             {items.map((item) => (
               <li
-                key={item.productId}
+                key={`${item.productId}-${item.color ?? 'default'}`}
                 className="flex gap-4 rounded-2xl border border-brand-border bg-brand-card p-4 sm:gap-6 sm:p-5"
               >
                 <div className="h-24 w-24 shrink-0 overflow-hidden rounded-xl bg-brand-surface sm:h-28 sm:w-28">
@@ -52,13 +52,23 @@ export function CartPage(): JSX.Element {
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold uppercase tracking-wide text-brand-muted">{item.brand}</p>
                   <h2 className="mb-2 text-lg font-semibold text-brand-text">{item.name}</h2>
+                  {item.color ? (
+                    <p className="mb-2 flex items-center gap-2 text-sm text-brand-muted">
+                      <span
+                        className="inline-block h-4 w-4 rounded-full border border-brand-border"
+                        style={{ backgroundColor: item.color }}
+                        aria-hidden
+                      />
+                      Color {item.color}
+                    </p>
+                  ) : null}
                   <p className="font-bebas text-2xl text-brand-purple">{item.priceLabel}</p>
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     <div className="inline-flex items-center rounded-lg border border-brand-border">
                       <button
                         type="button"
                         aria-label="Decrease quantity"
-                        onClick={() => setQty(item.productId, item.qty - 1)}
+                        onClick={() => setQty(item.productId, item.qty - 1, item.color)}
                         className="flex h-10 w-10 items-center justify-center text-brand-text hover:text-brand-purple"
                       >
                         <Minus className="h-4 w-4" aria-hidden />
@@ -67,7 +77,7 @@ export function CartPage(): JSX.Element {
                       <button
                         type="button"
                         aria-label="Increase quantity"
-                        onClick={() => setQty(item.productId, item.qty + 1)}
+                        onClick={() => setQty(item.productId, item.qty + 1, item.color)}
                         className="flex h-10 w-10 items-center justify-center text-brand-text hover:text-brand-purple"
                       >
                         <Plus className="h-4 w-4" aria-hidden />
@@ -75,7 +85,7 @@ export function CartPage(): JSX.Element {
                     </div>
                     <button
                       type="button"
-                      onClick={() => removeItem(item.productId)}
+                      onClick={() => removeItem(item.productId, item.color)}
                       className="inline-flex items-center gap-1 text-sm font-medium text-brand-muted hover:text-brand-purple"
                     >
                       <Trash2 className="h-4 w-4" aria-hidden />

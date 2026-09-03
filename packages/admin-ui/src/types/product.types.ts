@@ -36,6 +36,10 @@ export interface Product {
   isAccessory: boolean;
   /** Restaurant template: veg or non-veg kitchen marker. */
   dietType?: Nullable<RestaurantDietType>;
+  /** Watches storefront: up to 5 hex colors customers can select. */
+  colors?: string[];
+  /** Watches storefront: copy shown on the product detail page. */
+  description?: string;
   /** Watches-store-v2 subcategory key (smart-watches, rc-toys, …). */
   subcategory?: Nullable<string>;
   featuredGroup?: Nullable<FeaturedGroup>;

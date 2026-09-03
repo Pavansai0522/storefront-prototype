@@ -10,11 +10,12 @@ import { clientConfig as staticClientConfig } from '../config/client-config';
 import type { FeaturedProduct } from '../data/featured';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import {
+  dbProductToDetailItem,
   featuredFromProducts,
   groupProductsBySubcategory,
 } from '../lib/catalogMappers';
 import type { DbClientPublic, DbProduct } from '../lib/supabaseTypes';
-import type { CatalogTileItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
+import type { CatalogTileItem, ProductDetailItem, SubcategoryCatalogKey } from '../types/catalogTile.types';
 
 export type StoreClientConfig = typeof staticClientConfig;
 
@@ -27,6 +28,7 @@ type StoreDataContextValue = {
   catalogError: string | null;
   reloadCatalog: () => Promise<void>;
   getSubcategoryCatalog: (key: SubcategoryCatalogKey) => CatalogTileItem[];
+  getProductById: (productId: string) => ProductDetailItem | null;
   featuredWatches: FeaturedProduct[];
   featuredToys: FeaturedProduct[];
   featuredAccessories: FeaturedProduct[];
@@ -83,6 +85,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
   const [clientConfig, setClientConfig] = useState<StoreClientConfig>(staticClientConfig);
   const [siteActive, setSiteActive] = useState(true);
   const [catalogByKey, setCatalogByKey] = useState(() => groupProductsBySubcategory([]));
+  const [productsById, setProductsById] = useState<Record<string, ProductDetailItem>>({});
   const [featuredWatches, setFeaturedWatches] = useState<FeaturedProduct[]>([]);
   const [featuredToys, setFeaturedToys] = useState<FeaturedProduct[]>([]);
   const [featuredAccessories, setFeaturedAccessories] = useState<FeaturedProduct[]>([]);
@@ -153,6 +156,11 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       }
 
       const rows = (products ?? []) as DbProduct[];
+      const detailById: Record<string, ProductDetailItem> = {};
+      for (const row of rows) {
+        detailById[row.id] = dbProductToDetailItem(row);
+      }
+      setProductsById(detailById);
       setCatalogByKey(groupProductsBySubcategory(rows));
       const featured = featuredFromProducts(rows);
       setFeaturedWatches(featured.watches);
@@ -174,6 +182,11 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
     [catalogByKey],
   );
 
+  const getProductById = useCallback(
+    (productId: string): ProductDetailItem | null => productsById[productId] ?? null,
+    [productsById],
+  );
+
   const value = useMemo(
     (): StoreDataContextValue => ({
       clientConfig,
@@ -183,6 +196,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       catalogError,
       reloadCatalog: loadRemote,
       getSubcategoryCatalog: getSubcategory,
+      getProductById,
       featuredWatches,
       featuredToys,
       featuredAccessories,
@@ -195,6 +209,7 @@ export function StoreDataProvider({ children }: { children: React.ReactNode }): 
       catalogError,
       loadRemote,
       getSubcategory,
+      getProductById,
       featuredWatches,
       featuredToys,
       featuredAccessories,

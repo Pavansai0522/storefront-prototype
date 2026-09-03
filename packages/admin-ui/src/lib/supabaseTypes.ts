@@ -57,6 +57,8 @@ export type DbProduct = {
   featured_sort: number | null;
   sort_order: number;
   diet_type: 'veg' | 'non-veg' | null;
+  colors: string[];
+  description: string;
 };
 
 export type ProductInsert = Omit<DbProduct, 'id'> & { id?: string };

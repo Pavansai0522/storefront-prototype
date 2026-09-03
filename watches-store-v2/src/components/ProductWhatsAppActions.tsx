@@ -12,12 +12,14 @@ type ProductWhatsAppActionsProps = {
   priceLabel: string;
   /** Featured cards: stacked primary + text link. Grid tiles: single compact button. */
   variant?: 'card' | 'compact';
+  color?: string;
 };
 
 export function ProductWhatsAppActions({
   productName,
   priceLabel,
   variant = 'card',
+  color,
 }: ProductWhatsAppActionsProps): JSX.Element {
   const handleClick = (): void => {
     toast.success('Opening WhatsApp...');
@@ -26,7 +28,7 @@ export function ProductWhatsAppActions({
   if (variant === 'compact') {
     return (
       <a
-        href={whatsappHref(buyProductMessage(productName, priceLabel))}
+        href={whatsappHref(buyProductMessage(productName, priceLabel, color))}
         target="_blank"
         rel="noopener noreferrer"
         onClick={handleClick}
@@ -40,7 +42,7 @@ export function ProductWhatsAppActions({
 
   return (
     <a
-      href={whatsappHref(buyProductMessage(productName, priceLabel))}
+      href={whatsappHref(buyProductMessage(productName, priceLabel, color))}
       target="_blank"
       rel="noopener noreferrer"
       onClick={handleClick}

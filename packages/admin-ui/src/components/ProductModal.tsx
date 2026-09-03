@@ -17,6 +17,14 @@ import {
 import type { Nullable, Product } from '../types';
 import { resolveRestaurantDietType } from '../utils/restaurantDiet';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
+import {
+  colorSlotValues,
+  copyColorSlots,
+  emptyColorSlots,
+  normalizeProductColors,
+  PRODUCT_COLOR_SLOT_INDEXES,
+  type ProductColorSlots,
+} from '../utils/productColors';
 
 export type ProductModalMode = 'create' | 'edit';
 
@@ -33,6 +41,10 @@ export type ProductModalValues = {
   weeklyDeal: 'catalog' | 'deals';
   /** Restaurant stores: veg or non-veg. */
   dietType: 'veg' | 'non-veg';
+  /** Watches stores: up to 5 hex colors. Empty slots are unused. */
+  colors: ProductColorSlots;
+  /** Watches stores: copy shown on the product detail page. */
+  description: string;
 };
 
 const defaultValues: ProductModalValues = {
@@ -46,6 +58,8 @@ const defaultValues: ProductModalValues = {
   category: '',
   weeklyDeal: 'catalog',
   dietType: 'non-veg',
+  colors: emptyColorSlots(),
+  description: '',
 };
 
 type ProductModalProps = {
@@ -64,6 +78,10 @@ type ProductModalProps = {
   brandLabel?: string;
   /** Restaurant template: show veg / non-veg selector. */
   showDietField?: boolean;
+  /** Watches template: show up to 5 color pickers. */
+  showColorsField?: boolean;
+  /** Watches template: show product description textarea. */
+  showDescriptionField?: boolean;
   saving?: boolean;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void | Promise<void>;
@@ -101,6 +119,8 @@ export function ProductModal({
   showEmiField,
   brandLabel = 'Brand',
   showDietField = false,
+  showColorsField = false,
+  showDescriptionField = false,
   saving = false,
   onClose,
   onSave,
@@ -150,6 +170,8 @@ export function ProductModal({
           initial.subcategory ?? initial.category,
           initial.dietType,
         ),
+        colors: colorSlotValues(initial.colors),
+        description: initial.description ?? '',
       });
       setPriceText(
         retailPrice ? formatDollarInput(price) : formatIntegerPriceInput(price),
@@ -162,6 +184,8 @@ export function ProductModal({
         category: categoryChoices[0]?.value ?? '',
         weeklyDeal: 'catalog',
         dietType: 'non-veg',
+        colors: emptyColorSlots(),
+        description: '',
       });
       setPriceText('');
       setEmiPriceText('');
@@ -201,7 +225,13 @@ export function ProductModal({
         return;
       }
     }
-    const payload = { ...values, price, emiPrice };
+    const payload = {
+      ...values,
+      price,
+      emiPrice,
+      colors: colorSlotValues(normalizeProductColors(values.colors)),
+      description: values.description.trim(),
+    };
     await onSave(payload);
   };
 
@@ -409,6 +439,50 @@ export function ProductModal({
                       )}
                     />
                   </div>
+                </label>
+              ) : null}
+              {showColorsField ? (
+                <fieldset className="block text-sm">
+                  <legend className="admin-label">Colors</legend>
+                  <p className="mb-3 text-xs text-gray-400">Tap a pill to set a color. Five slots max.</p>
+                  <div className="flex flex-wrap gap-3">
+                    {PRODUCT_COLOR_SLOT_INDEXES.map((index) => {
+                      const current = watch('colors') ?? emptyColorSlots();
+                      const slotValue = current[index] ?? '';
+                      const setSlot = (value: string): void => {
+                        const next = copyColorSlots(current);
+                        next[index] = value;
+                        setValue('colors', next, { shouldValidate: true });
+                      };
+                      return (
+                        <label
+                          key={index}
+                          className={`relative inline-flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-full border-2 ${
+                            slotValue ? 'border-white/40' : 'border-dashed border-white/25 bg-white/5'
+                          }`}
+                          style={slotValue ? { backgroundColor: slotValue } : undefined}
+                        >
+                          <input
+                            type="color"
+                            aria-label={`Product color ${index + 1}`}
+                            className="absolute inset-0 cursor-pointer opacity-0"
+                            value={slotValue || '#111111'}
+                            onChange={(e) => setSlot(e.target.value)}
+                          />
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : null}
+              {showDescriptionField ? (
+                <label className="block text-sm">
+                  <span className="admin-label">Description</span>
+                  <textarea
+                    rows={3}
+                    className="admin-input min-h-[5rem]"
+                    {...register('description')}
+                  />
                 </label>
               ) : null}
               <label className="block text-sm">

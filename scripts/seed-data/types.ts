@@ -13,6 +13,7 @@ export type ProductSeedItem = {
   featuredGroup?: FeaturedGroupSeed | null;
   featuredSort?: number | null;
   dietType?: 'veg' | 'non-veg' | null;
+  colors?: string[];
 };
 
 export type DbProductInsert = {
@@ -30,6 +31,7 @@ export type DbProductInsert = {
   featured_sort: number | null;
   sort_order: number;
   diet_type: 'veg' | 'non-veg' | null;
+  colors: string[];
 };
 
 export function toDbProductRows(clientId: string, items: ProductSeedItem[]): DbProductInsert[] {
@@ -49,5 +51,6 @@ export function toDbProductRows(clientId: string, items: ProductSeedItem[]): DbP
     featured_sort: item.featuredSort ?? null,
     sort_order: index,
     diet_type: item.dietType ?? null,
+    colors: item.colors ?? [],
   }));
 }

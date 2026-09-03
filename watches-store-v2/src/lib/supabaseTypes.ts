@@ -24,4 +24,6 @@ export type DbProduct = {
   featured_group: 'watch' | 'toy' | 'accessory' | null;
   featured_sort: number | null;
   sort_order: number;
+  colors?: string[] | null;
+  description?: string | null;
 };

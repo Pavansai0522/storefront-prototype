@@ -41,6 +41,9 @@ const PhoneAccessoriesPage = lazy(async () => ({
 const GadgetsPage = lazy(async () => ({ default: (await import('./pages/accessories/GadgetsPage')).GadgetsPage }));
 const LegalPage = lazy(async () => ({ default: (await import('./pages/LegalPage')).LegalPage }));
 const CartPage = lazy(async () => ({ default: (await import('./pages/CartPage')).CartPage }));
+const ProductDetailPage = lazy(async () => ({
+  default: (await import('./pages/ProductDetailPage')).ProductDetailPage,
+}));
 const CheckoutPage = lazy(async () => ({ default: (await import('./pages/CheckoutPage')).CheckoutPage }));
 const OrderSuccessPage = lazy(async () => ({
   default: (await import('./pages/OrderSuccessPage')).OrderSuccessPage,
@@ -140,6 +143,7 @@ function StorefrontShell(): JSX.Element {
               <Route path="/privacy" element={<LegalPage policyId="privacy" />} />
               <Route path="/refund" element={<LegalPage policyId="refund" />} />
               <Route path="/cart" element={<CartPage />} />
+              <Route path="/product/:productId" element={<ProductDetailPage />} />
               <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/order-success" element={<OrderSuccessPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />

@@ -7,6 +7,13 @@ export type CatalogTileItem = {
   /** Display price, e.g. ₹12,499 */
   priceLabel: string;
   image: string;
+  /** Up to 3 hex colors from admin. */
+  colors: string[];
+};
+
+export type ProductDetailItem = CatalogTileItem & {
+  emiLabel: string;
+  description: string;
 };
 
 export type SubcategoryCatalogKey =

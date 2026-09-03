@@ -7,8 +7,9 @@ import {
   type RowSelectionState,
 } from '@tanstack/react-table';
 import Select from 'react-select';
-import { CheckSquare, Pencil, Plus, Search, Smartphone, Trash2, UtensilsCrossed } from 'lucide-react';
+import { CheckSquare, ChevronLeft, ChevronRight, Pencil, Plus, Search, Smartphone, Trash2, UtensilsCrossed } from 'lucide-react';
 import {
+  ITEMS_PER_PAGE,
   LIQUOR_CATEGORIES,
   LIQUOR_LISTING_OPTIONS,
   PRODUCT_CATEGORIES,
@@ -44,6 +45,7 @@ import { uploadProductImage } from '../services/catalogService';
 import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { findClientById } from '../utils/clientLookup';
 import { resolveRestaurantDietType, restaurantDietLabel } from '../utils/restaurantDiet';
+import type { ProductColorSlots } from '../utils/productColors';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
@@ -131,10 +133,43 @@ export function Products(): JSX.Element {
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     setRowSelection({});
+    setPage(1);
   }, [search, categoryFilter, stockFilter, sortKey]);
+
+  const totalPages = Math.max(1, Math.ceil(displayRows.length / ITEMS_PER_PAGE));
+  const safePage = Math.min(page, totalPages);
+
+  useEffect(() => {
+    setPage((p) => Math.min(p, totalPages));
+  }, [totalPages]);
+
+  const startIdx = (safePage - 1) * ITEMS_PER_PAGE;
+  const pageRows = useMemo(
+    () => displayRows.slice(startIdx, startIdx + ITEMS_PER_PAGE),
+    [displayRows, startIdx],
+  );
+  const showingFrom = displayRows.length === 0 ? 0 : startIdx + 1;
+  const showingTo = Math.min(startIdx + ITEMS_PER_PAGE, displayRows.length);
+
+  const visiblePageNumbers = useMemo(() => {
+    const maxNumericButtons = 9;
+    if (totalPages <= maxNumericButtons) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const half = Math.floor(maxNumericButtons / 2);
+    let start = Math.max(1, safePage - half);
+    const end = Math.min(totalPages, start + maxNumericButtons - 1);
+    start = Math.max(1, end - maxNumericButtons + 1);
+    return Array.from({ length: end - start + 1 }, (_, i) => start + i);
+  }, [totalPages, safePage]);
+
+  const goToPage = (p: number): void => {
+    setPage(Math.max(1, Math.min(totalPages, p)));
+  };
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -397,7 +432,7 @@ export function Products(): JSX.Element {
   );
 
   const table = useReactTable({
-    data: displayRows,
+    data: pageRows,
     columns,
     state: { rowSelection },
     onRowSelectionChange: setRowSelection,
@@ -417,6 +452,8 @@ export function Products(): JSX.Element {
     category: string;
     weeklyDeal: 'catalog' | 'deals';
     dietType: 'veg' | 'non-veg';
+    colors: ProductColorSlots;
+    description: string;
   }): Promise<void> => {
     if (!clientId) {
       showToast(
@@ -485,6 +522,8 @@ export function Products(): JSX.Element {
         subcategory,
         isAccessory: false,
         dietType: isRestaurant ? values.dietType : undefined,
+        colors: isWatches ? values.colors : undefined,
+        description: isWatches ? values.description.trim() : undefined,
         featuredGroup: listingFields.featuredGroup ?? undefined,
         featuredSort: listingFields.featuredSort ?? undefined,
       };
@@ -679,7 +718,9 @@ export function Products(): JSX.Element {
               </div>
             </div>
             <p className="text-sm text-white/40">
-              Showing {displayRows.length} of {rows.length} {isRestaurant ? 'menu items' : 'products'}
+              Showing {showingFrom}–{showingTo} of {displayRows.length}
+              {displayRows.length !== rows.length ? ` (filtered from ${rows.length})` : ''}{' '}
+              {isRestaurant ? 'menu items' : 'products'}
             </p>
 
             {selectedCount > 0 ? (
@@ -756,6 +797,52 @@ export function Products(): JSX.Element {
                   </table>
                 </div>
               )}
+              {!showFilterEmpty && totalPages > 1 ? (
+                <div className="flex flex-col items-center gap-3 border-t border-white/5 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-white/40">
+                    Page <span className="text-white">{safePage}</span> of{' '}
+                    <span className="text-white">{totalPages}</span>
+                  </p>
+                  <div className="flex w-full max-w-full justify-center overflow-x-auto sm:w-auto sm:justify-end">
+                    <div className="inline-flex shrink-0 flex-nowrap items-center justify-center gap-1 sm:gap-2">
+                      <button
+                        type="button"
+                        onClick={() => goToPage(safePage - 1)}
+                        disabled={safePage <= 1}
+                        className="btn-admin-secondary !min-h-[44px] !min-w-[44px] !px-0"
+                        aria-label="Previous page"
+                      >
+                        <ChevronLeft className="h-4 w-4" aria-hidden />
+                      </button>
+                      {visiblePageNumbers.map((n) => (
+                        <button
+                          key={n}
+                          type="button"
+                          onClick={() => goToPage(n)}
+                          className={
+                            n === safePage
+                              ? 'btn-admin-primary !min-h-[44px] !min-w-[44px] !px-2'
+                              : 'btn-admin-secondary !min-h-[44px] !min-w-[44px] !px-2'
+                          }
+                          aria-label={`Page ${n}`}
+                          aria-current={n === safePage ? 'page' : undefined}
+                        >
+                          {n}
+                        </button>
+                      ))}
+                      <button
+                        type="button"
+                        onClick={() => goToPage(safePage + 1)}
+                        disabled={safePage >= totalPages}
+                        className="btn-admin-secondary !min-h-[44px] !min-w-[44px] !px-0"
+                        aria-label="Next page"
+                      >
+                        <ChevronRight className="h-4 w-4" aria-hidden />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </div>
           </>
         )}
@@ -779,6 +866,8 @@ export function Products(): JSX.Element {
           showEmiField={showEmi}
           brandLabel={isRestaurant ? 'Short description' : 'Brand'}
           showDietField={isRestaurant}
+          showColorsField={isWatches}
+          showDescriptionField={isWatches}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
           saving={saving}

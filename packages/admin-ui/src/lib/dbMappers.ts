@@ -8,6 +8,7 @@ import { isLiquorStoreTemplate } from '../constants/templates';
 import type { Client, Order, PaymentHistory, Product } from '../types';
 import type { ClientBilling, ClientNote } from '../types/client.types';
 import type { DbClient, DbOrder, DbOrderItem, DbProduct } from './supabaseTypes';
+import { normalizeProductColors } from '../utils/productColors';
 
 function parseBilling(raw: Record<string, unknown>): ClientBilling {
   const history = Array.isArray(raw.paymentHistory)
@@ -122,6 +123,8 @@ export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR
     featuredGroup: row.featured_group,
     featuredSort: row.featured_sort,
     dietType: row.diet_type ?? undefined,
+    colors: normalizeProductColors(row.colors),
+    description: row.description ?? '',
   };
 }
 
@@ -146,6 +149,8 @@ export function productToDbInsert(
     featured_sort: product.featuredSort ?? null,
     sort_order: 0,
     diet_type: product.dietType ?? null,
+    colors: normalizeProductColors(product.colors ?? []),
+    description: (product.description ?? '').trim(),
   };
 }
 
@@ -169,6 +174,8 @@ export function productToDbUpdate(
   if (product.featuredGroup !== undefined) patch.featured_group = product.featuredGroup;
   if (product.featuredSort !== undefined) patch.featured_sort = product.featuredSort;
   if (product.dietType !== undefined) patch.diet_type = product.dietType;
+  if (product.colors !== undefined) patch.colors = normalizeProductColors(product.colors);
+  if (product.description !== undefined) patch.description = product.description.trim();
   return patch;
 }
 

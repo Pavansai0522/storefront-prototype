@@ -8,6 +8,7 @@ export type CartLineItem = {
   priceLabel: string;
   image: string;
   qty: number;
+  color?: string;
 };
 
 export type CheckoutCustomer = {
