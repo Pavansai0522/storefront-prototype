@@ -27,14 +27,11 @@ export function ProductCard({
   brand,
   name,
   price,
-  emi,
-  type,
   layout = 'carousel',
   priority = false,
 }: ProductCardProps): JSX.Element {
   const titleId = useId();
   const [imageFailed, setImageFailed] = useState(false);
-  const isWatch = type === 'watch';
   const isGrid = layout === 'grid';
   const imageSrc = optimizeImageUrl(image, priority ? 640 : 400);
   const showImage = imageSrc.trim().length > 0 && !imageFailed;
@@ -86,8 +83,9 @@ export function ProductCard({
 
           <div className="mb-5">
             <p className="font-bebas text-2xl tracking-wide text-brand-purple">{price}</p>
+            {/* EMI not currently offered
             <p className="mt-1 text-xs text-brand-text">
-              {isWatch ? (
+              {type === 'watch' ? (
                 <>
                   EMI from <span className="font-semibold text-brand-purple">{emi}/mo</span>
                 </>
@@ -97,6 +95,7 @@ export function ProductCard({
                 </span>
               )}
             </p>
+            */}
           </div>
         </div>
       </Link>

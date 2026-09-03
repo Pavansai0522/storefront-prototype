@@ -26,4 +26,5 @@ export type DbProduct = {
   sort_order: number;
   colors?: string[] | null;
   description?: string | null;
+  images?: string[] | null;
 };

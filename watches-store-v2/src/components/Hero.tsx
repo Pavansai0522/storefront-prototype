@@ -1,13 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ShieldCheck, IndianRupee, Package, MessageCircle } from 'lucide-react';
+import { ShieldCheck, Package, MessageCircle } from 'lucide-react';
 import { clientConfig, whatsappHref } from '../config/client-config';
 import { btnShop, btnWhatsApp } from '../constants/buttonStyles';
 
 const TRUST_BULLETS = [
   { icon: ShieldCheck, text: '100% genuine — bill provided' },
-  { icon: IndianRupee, text: 'Easy EMI on watches & mobiles' },
+  // { icon: IndianRupee, text: 'Easy EMI on watches & mobiles' },
   { icon: Package, text: 'Same-day pickup in store' },
 ];
 

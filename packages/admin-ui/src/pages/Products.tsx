@@ -46,6 +46,13 @@ import { adminSelectStyles } from '../utils/adminSelectStyles';
 import { findClientById } from '../utils/clientLookup';
 import { resolveRestaurantDietType, restaurantDietLabel } from '../utils/restaurantDiet';
 import type { ProductColorSlots } from '../utils/productColors';
+import {
+  copyImageSlots,
+  normalizeProductImages,
+  productImageUploadKey,
+  type ProductImageFileSlots,
+  type ProductImageSlots,
+} from '../utils/productImages';
 import { showToast } from '../utils/showToast';
 
 const columnHelper = createColumnHelper<Product>();
@@ -103,7 +110,7 @@ export function Products(): JSX.Element {
     : isLiquor
       ? 'USD'
       : 'INR';
-  const showEmi = usesEmiPricing(currencyCode) && !isRestaurant;
+  const showEmi = usesEmiPricing(currencyCode) && !isRestaurant && !isWatches;
   const useRetailPrice = usesRetailDecimals(currencyCode);
   const productCategoryChoices = useMemo(() => {
     if (isLiquor) return LIQUOR_CATEGORIES;
@@ -454,6 +461,8 @@ export function Products(): JSX.Element {
     dietType: 'veg' | 'non-veg';
     colors: ProductColorSlots;
     description: string;
+    images: ProductImageSlots;
+    imageFiles: ProductImageFileSlots;
   }): Promise<void> => {
     if (!clientId) {
       showToast(
@@ -474,8 +483,23 @@ export function Products(): JSX.Element {
       const productId =
         modalMode === 'edit' && editing ? editing.id : globalThis.crypto.randomUUID();
       let imageUrl: string | null = values.image.trim() || null;
+      let galleryImages: string[] | undefined;
 
-      if (values.imageFile) {
+      if (isWatches) {
+        const slots = copyImageSlots(values.images);
+        for (let i = 0; i < slots.length; i += 1) {
+          const file = values.imageFiles[i];
+          if (file) {
+            slots[i] = await uploadProductImage(
+              ownerId,
+              productImageUploadKey(productId, i),
+              file,
+            );
+          }
+        }
+        galleryImages = normalizeProductImages(slots);
+        imageUrl = galleryImages[0] ?? null;
+      } else if (values.imageFile) {
         imageUrl = await uploadProductImage(ownerId, productId, values.imageFile);
       }
 
@@ -524,6 +548,7 @@ export function Products(): JSX.Element {
         dietType: isRestaurant ? values.dietType : undefined,
         colors: isWatches ? values.colors : undefined,
         description: isWatches ? values.description.trim() : undefined,
+        images: isWatches ? galleryImages : undefined,
         featuredGroup: listingFields.featuredGroup ?? undefined,
         featuredSort: listingFields.featuredSort ?? undefined,
       };
@@ -868,6 +893,7 @@ export function Products(): JSX.Element {
           showDietField={isRestaurant}
           showColorsField={isWatches}
           showDescriptionField={isWatches}
+          showGalleryField={isWatches}
           onClose={() => setModalOpen(false)}
           onSave={handleSave}
           saving={saving}

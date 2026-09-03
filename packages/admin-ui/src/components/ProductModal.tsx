@@ -25,6 +25,16 @@ import {
   PRODUCT_COLOR_SLOT_INDEXES,
   type ProductColorSlots,
 } from '../utils/productColors';
+import {
+  copyImageFiles,
+  copyImageSlots,
+  emptyImageFiles,
+  emptyImageSlots,
+  imageSlotValues,
+  PRODUCT_IMAGE_SLOT_INDEXES,
+  type ProductImageFileSlots,
+  type ProductImageSlots,
+} from '../utils/productImages';
 
 export type ProductModalMode = 'create' | 'edit';
 
@@ -35,6 +45,9 @@ export type ProductModalValues = {
   emiPrice: number;
   image: string;
   imageFile: File | null;
+  /** Watches stores: up to 5 photos. Empty slots are unused. */
+  images: ProductImageSlots;
+  imageFiles: ProductImageFileSlots;
   inStock: boolean;
   category: string;
   /** Liquor stores: include on /deals when `deals`. */
@@ -54,6 +67,8 @@ const defaultValues: ProductModalValues = {
   emiPrice: 0,
   image: '',
   imageFile: null,
+  images: emptyImageSlots(),
+  imageFiles: emptyImageFiles(),
   inStock: true,
   category: '',
   weeklyDeal: 'catalog',
@@ -82,6 +97,8 @@ type ProductModalProps = {
   showColorsField?: boolean;
   /** Watches template: show product description textarea. */
   showDescriptionField?: boolean;
+  /** Watches template: show up to 5 product image slots. */
+  showGalleryField?: boolean;
   saving?: boolean;
   onClose: () => void;
   onSave: (values: ProductModalValues) => void | Promise<void>;
@@ -121,6 +138,7 @@ export function ProductModal({
   showDietField = false,
   showColorsField = false,
   showDescriptionField = false,
+  showGalleryField = false,
   saving = false,
   onClose,
   onSave,
@@ -136,8 +154,10 @@ export function ProductModal({
 
   const image = watch('image');
   const imageFile = watch('imageFile');
+  const imageFiles = watch('imageFiles');
   const [imageBroken, setImageBroken] = useState(false);
   const [filePreview, setFilePreview] = useState<string | null>(null);
+  const [galleryPreviews, setGalleryPreviews] = useState<(string | null)[]>(emptyImageSlots());
   const [priceText, setPriceText] = useState('');
   const [emiPriceText, setEmiPriceText] = useState('');
 
@@ -172,6 +192,8 @@ export function ProductModal({
         ),
         colors: colorSlotValues(initial.colors),
         description: initial.description ?? '',
+        images: imageSlotValues(initial.images ?? (initial.image ? [initial.image] : [])),
+        imageFiles: emptyImageFiles(),
       });
       setPriceText(
         retailPrice ? formatDollarInput(price) : formatIntegerPriceInput(price),
@@ -186,6 +208,8 @@ export function ProductModal({
         dietType: 'non-veg',
         colors: emptyColorSlots(),
         description: '',
+        images: emptyImageSlots(),
+        imageFiles: emptyImageFiles(),
       });
       setPriceText('');
       setEmiPriceText('');
@@ -201,6 +225,19 @@ export function ProductModal({
     setFilePreview(url);
     return () => URL.revokeObjectURL(url);
   }, [imageFile]);
+
+  useEffect(() => {
+    const files = imageFiles ?? emptyImageFiles();
+    const urls = files.map((file) => (file ? URL.createObjectURL(file) : null));
+    setGalleryPreviews(urls);
+    return () => {
+      urls.forEach((url) => {
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [imageFiles]);
 
   const previewSrc = filePreview ?? image;
 
@@ -231,6 +268,10 @@ export function ProductModal({
       emiPrice,
       colors: colorSlotValues(normalizeProductColors(values.colors)),
       description: values.description.trim(),
+      images: copyImageSlots(values.images),
+      imageFiles: copyImageFiles(values.imageFiles),
+      image: copyImageSlots(values.images)[0] || values.image,
+      imageFile: values.imageFiles[0] ?? values.imageFile,
     };
     await onSave(payload);
   };
@@ -247,6 +288,32 @@ export function ProductModal({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const file = e.target.files?.[0] ?? null;
     setValue('imageFile', file, { shouldValidate: true });
+  };
+
+  const handleGalleryFileChange = (
+    index: (typeof PRODUCT_IMAGE_SLOT_INDEXES)[number],
+    e: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
+    const file = e.target.files?.[0] ?? null;
+    const nextFiles = copyImageFiles(watch('imageFiles'));
+    nextFiles[index] = file;
+    setValue('imageFiles', nextFiles, { shouldValidate: true });
+    if (file && index === 0) {
+      setValue('imageFile', file, { shouldValidate: true });
+    }
+  };
+
+  const clearGallerySlot = (index: (typeof PRODUCT_IMAGE_SLOT_INDEXES)[number]): void => {
+    const nextUrls = copyImageSlots(watch('images'));
+    const nextFiles = copyImageFiles(watch('imageFiles'));
+    nextUrls[index] = '';
+    nextFiles[index] = null;
+    setValue('images', nextUrls, { shouldValidate: true });
+    setValue('imageFiles', nextFiles, { shouldValidate: true });
+    if (index === 0) {
+      setValue('image', '', { shouldValidate: true });
+      setValue('imageFile', null, { shouldValidate: true });
+    }
   };
 
   return (
@@ -325,6 +392,55 @@ export function ProductModal({
                   </label>
                 ) : null}
               </div>
+              {showGalleryField ? (
+                <fieldset className="block text-sm">
+                  <legend className="admin-label">Product images</legend>
+                  <p className="mb-3 text-xs text-gray-400">
+                    Up to five photos. The first is the catalog thumbnail.
+                  </p>
+                  <div className="grid grid-cols-1 gap-3">
+                    {PRODUCT_IMAGE_SLOT_INDEXES.map((index) => {
+                      const urls = watch('images') ?? emptyImageSlots();
+                      const slotUrl = urls[index] ?? '';
+                      const preview = galleryPreviews[index] || slotUrl;
+                      return (
+                        <label key={index} className="block text-sm">
+                          <span className="admin-label">
+                            Image {index + 1}
+                            {index === 0 ? ' (main)' : ''}
+                          </span>
+                          {allowImageUpload ? (
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="admin-input mt-1"
+                              onChange={(e) => handleGalleryFileChange(index, e)}
+                            />
+                          ) : null}
+                          <div className="mt-2 flex items-center gap-2">
+                            <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/5">
+                              {preview ? (
+                                <img src={preview} alt="" className="h-full w-full object-contain" />
+                              ) : (
+                                <ImageOff className="h-6 w-6 text-white/30" aria-hidden />
+                              )}
+                            </div>
+                            {preview ? (
+                              <button
+                                type="button"
+                                className="btn-admin-secondary !min-h-[44px] px-3 text-xs"
+                                onClick={() => clearGallerySlot(index)}
+                              >
+                                Remove
+                              </button>
+                            ) : null}
+                          </div>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </fieldset>
+              ) : (
               <label className="block text-sm">
                 <span className="admin-label">Product image (optional)</span>
                 {allowImageUpload ? (
@@ -354,6 +470,7 @@ export function ProductModal({
                   ) : null}
                 </div>
               </label>
+              )}
               <label className="block text-sm">
                 <span className="admin-label">Category</span>
                 <div className="mt-1">

@@ -12,16 +12,25 @@ export function ProductDetailPage(): JSX.Element {
   const { getProductById, catalogLoading } = useStoreData();
   const product = productId ? getProductById(productId) : null;
   const [selectedColor, setSelectedColor] = useState('');
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [imageFailed, setImageFailed] = useState(false);
 
   useEffect(() => {
     setSelectedColor('');
+    setSelectedImageIndex(0);
     setImageFailed(false);
   }, [productId]);
 
+  useEffect(() => {
+    setImageFailed(false);
+  }, [selectedImageIndex]);
+
   const colors = product?.colors ?? [];
+  const gallery = product?.images ?? [];
   const activeColor = selectedColor && colors.includes(selectedColor) ? selectedColor : (colors[0] ?? '');
-  const imageSrc = optimizeImageUrl(product?.image ?? '', 960);
+  const safeImageIndex = gallery.length === 0 ? 0 : Math.min(selectedImageIndex, gallery.length - 1);
+  const activeImage = gallery[safeImageIndex] ?? product?.image ?? '';
+  const imageSrc = optimizeImageUrl(activeImage, 960);
   const showImage = Boolean(product) && imageSrc.trim().length > 0 && !imageFailed;
 
   if (catalogLoading && !product) {
@@ -58,7 +67,8 @@ export function ProductDetailPage(): JSX.Element {
         </nav>
 
         <div className="grid items-start gap-8 lg:grid-cols-2 lg:gap-12">
-          <div className="overflow-hidden rounded-2xl border border-brand-border bg-brand-card">
+          <div>
+            <div className="overflow-hidden rounded-2xl border border-brand-border bg-brand-card">
             <div className="relative aspect-square w-full bg-brand-surface">
               {showImage ? (
                 <img
@@ -71,6 +81,28 @@ export function ProductDetailPage(): JSX.Element {
                 <div className="h-full w-full bg-brand-bg/40" aria-hidden />
               )}
             </div>
+            </div>
+            {gallery.length > 1 ? (
+              <div className="mt-3 flex flex-wrap gap-2">
+                {gallery.map((src, index) => {
+                  const selected = safeImageIndex === index;
+                  return (
+                    <button
+                      key={`${src}-${index}`}
+                      type="button"
+                      aria-label={`View photo ${index + 1}`}
+                      aria-pressed={selected}
+                      onClick={() => setSelectedImageIndex(index)}
+                      className={`h-11 w-11 overflow-hidden rounded-xl border-2 ${
+                        selected ? 'border-brand-purple ring-2 ring-brand-purple/30' : 'border-brand-border'
+                      }`}
+                    >
+                      <img src={optimizeImageUrl(src, 160)} alt="" className="h-full w-full object-cover" />
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
 
           <div>
@@ -78,7 +110,9 @@ export function ProductDetailPage(): JSX.Element {
             <h1 className="mb-4 font-bebas text-4xl tracking-wide text-black md:text-5xl">{product.name}</h1>
             <div className="mb-8 h-1 w-24 rounded-full bg-brand-purple" />
             <p className="font-bebas text-4xl tracking-wide text-brand-purple">{product.priceLabel}</p>
+            {/* EMI not currently offered
             <p className="mt-2 text-sm text-brand-text">{product.emiLabel}</p>
+            */}
 
             {product.description ? (
               <p className="mt-6 whitespace-pre-wrap text-base leading-relaxed text-brand-text">

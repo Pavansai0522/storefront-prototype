@@ -16,7 +16,6 @@ export function WatchesStoreProductCard({
   brand,
   name,
   price,
-  emi,
   type,
   storeLabel = WATCHES_STORE_DISPLAY_NAME,
 }: WatchesStoreProductCardProps): JSX.Element {
@@ -49,6 +48,7 @@ export function WatchesStoreProductCard({
               >
                 {price}
               </p>
+              {/* EMI not currently offered
               <p className="mt-1 text-xs text-gray-400">
                 {type === 'watch' ? (
                   `EMI: ${emi}/mo`
@@ -58,6 +58,7 @@ export function WatchesStoreProductCard({
                   </span>
                 )}
               </p>
+              */}
             </div>
           </div>
 

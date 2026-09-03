@@ -9,6 +9,7 @@ import type { Client, Order, PaymentHistory, Product } from '../types';
 import type { ClientBilling, ClientNote } from '../types/client.types';
 import type { DbClient, DbOrder, DbOrderItem, DbProduct } from './supabaseTypes';
 import { normalizeProductColors } from '../utils/productColors';
+import { mergeProductImages, normalizeProductImages } from '../utils/productImages';
 
 function parseBilling(raw: Record<string, unknown>): ClientBilling {
   const history = Array.isArray(raw.paymentHistory)
@@ -108,6 +109,7 @@ export function clientToDbClient(client: Client): DbClient {
 export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR'): Product {
   const subcategory = row.subcategory ?? null;
   const categoryValue = subcategory || row.category || 'Other';
+  const gallery = mergeProductImages(row.image_url, row.images);
   return {
     id: row.id,
     clientId: row.client_id,
@@ -115,7 +117,7 @@ export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR
     brand: row.brand,
     price: catalogPriceFromDb(row.price_inr, currency),
     emiPrice: catalogPriceFromDb(row.emi_price_inr ?? 0, currency),
-    image: row.image_url,
+    image: gallery[0] ?? row.image_url,
     inStock: row.in_stock,
     category: categoryValue as Product['category'],
     isAccessory: row.is_accessory,
@@ -125,6 +127,7 @@ export function dbProductToProduct(row: DbProduct, currency: CurrencyCode = 'INR
     dietType: row.diet_type ?? undefined,
     colors: normalizeProductColors(row.colors),
     description: row.description ?? '',
+    images: gallery,
   };
 }
 
@@ -133,6 +136,9 @@ export function productToDbInsert(
   currency: CurrencyCode = 'INR',
 ): Record<string, unknown> {
   const subcategory = product.subcategory ?? null;
+  const gallery = normalizeProductImages(
+    product.images ?? (product.image ? [product.image] : []),
+  );
   return {
     id: product.id,
     client_id: product.clientId,
@@ -140,7 +146,7 @@ export function productToDbInsert(
     brand: product.brand,
     price_inr: catalogPriceToDb(product.price, currency),
     emi_price_inr: catalogPriceToDb(product.emiPrice, currency),
-    image_url: product.image,
+    image_url: product.image ?? gallery[0] ?? null,
     in_stock: product.inStock,
     category: subcategory ?? product.category,
     subcategory,
@@ -151,6 +157,7 @@ export function productToDbInsert(
     diet_type: product.dietType ?? null,
     colors: normalizeProductColors(product.colors ?? []),
     description: (product.description ?? '').trim(),
+    images: gallery,
   };
 }
 
@@ -176,6 +183,13 @@ export function productToDbUpdate(
   if (product.dietType !== undefined) patch.diet_type = product.dietType;
   if (product.colors !== undefined) patch.colors = normalizeProductColors(product.colors);
   if (product.description !== undefined) patch.description = product.description.trim();
+  if (product.images !== undefined) {
+    const gallery = normalizeProductImages(product.images);
+    patch.images = gallery;
+    if (product.image === undefined) {
+      patch.image_url = gallery[0] ?? null;
+    }
+  }
   return patch;
 }
 

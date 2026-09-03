@@ -40,6 +40,8 @@ export interface Product {
   colors?: string[];
   /** Watches storefront: copy shown on the product detail page. */
   description?: string;
+  /** Watches storefront: up to 5 photos. First is the catalog thumbnail. */
+  images?: string[];
   /** Watches-store-v2 subcategory key (smart-watches, rc-toys, …). */
   subcategory?: Nullable<string>;
   featuredGroup?: Nullable<FeaturedGroup>;

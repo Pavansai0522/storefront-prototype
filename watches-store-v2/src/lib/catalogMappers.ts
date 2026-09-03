@@ -4,6 +4,7 @@ import { TOY_SUBCATEGORY_KEYS } from '../types/catalogTile.types';
 import { optimizeImageUrl } from '../utils/optimizeImageUrl';
 import type { DbProduct } from './supabaseTypes';
 import { normalizeProductColors } from '../utils/productColors';
+import { mergeProductImages } from '../utils/productImages';
 
 export function formatInrLabel(amount: number): string {
   return `₹${amount.toLocaleString('en-IN')}`;
@@ -30,10 +31,12 @@ export function dbProductToCatalogTile(row: DbProduct): CatalogTileItem {
 }
 
 export function dbProductToDetailItem(row: DbProduct): ProductDetailItem {
+  const images = mergeProductImages(row.image_url, row.images);
   return {
     ...dbProductToCatalogTile(row),
     emiLabel: `EMI from ${formatEmiLabel(row.emi_price_inr, row.price_inr)}/mo`,
     description: (row.description ?? '').trim(),
+    images,
   };
 }
 

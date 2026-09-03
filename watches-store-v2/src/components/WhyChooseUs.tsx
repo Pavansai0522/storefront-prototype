@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Trophy, IndianRupee, Wrench, Package } from 'lucide-react';
+import { Trophy, IndianRupee, Wrench } from 'lucide-react';
 
 type WhyChooseFeature = {
   icon: typeof Trophy;
@@ -32,13 +32,14 @@ const features: WhyChooseFeature[] = [
     iconBgClass: 'bg-sky-500/15',
     iconTextClass: 'text-sky-600',
   },
-  {
-    icon: Package,
-    title: 'EMI Available',
-    description: 'Easy monthly plans on watches, toys & accessories',
-    iconBgClass: 'bg-brand-purple/15',
-    iconTextClass: 'text-brand-purple',
-  },
+  // EMI not currently offered
+  // {
+  //   icon: Package,
+  //   title: 'EMI Available',
+  //   description: 'Easy monthly plans on watches, toys & accessories',
+  //   iconBgClass: 'bg-brand-purple/15',
+  //   iconTextClass: 'text-brand-purple',
+  // },
 ];
 
 const containerVariants = {
@@ -67,7 +68,7 @@ export function WhyChooseUs(): JSX.Element {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-8 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-8 lg:grid-cols-3"
         >
           {features.map((feature) => {
             const Icon = feature.icon;

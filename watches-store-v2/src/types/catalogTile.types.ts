@@ -14,6 +14,7 @@ export type CatalogTileItem = {
 export type ProductDetailItem = CatalogTileItem & {
   emiLabel: string;
   description: string;
+  images: string[];
 };
 
 export type SubcategoryCatalogKey =

@@ -59,6 +59,7 @@ export type DbProduct = {
   diet_type: 'veg' | 'non-veg' | null;
   colors: string[];
   description: string;
+  images: string[];
 };
 
 export type ProductInsert = Omit<DbProduct, 'id'> & { id?: string };
